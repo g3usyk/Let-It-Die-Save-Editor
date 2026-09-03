@@ -142,7 +142,8 @@ def get_vip_status(save):
     }
 
 def max_all_currencies(save):
-    set_currencies(save, dm=9999, kc=10000000, spl=10000000, bloodnium=999999, re_points=999999)
+    set_currencies(save, dm=9999, kc=10000000, spl=10000000, bloodnium=999999, re_points=999999, safe_lvl=100, tank_lvl=100)
+    upgrade_waiting_room(save, bank_level=100, tank_level=100)
 
 def activate_vip_express_pass(save, days=30):
     set_vip_pass(save, days=days)

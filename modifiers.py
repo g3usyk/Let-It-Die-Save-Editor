@@ -137,6 +137,7 @@ from core.tower import (
     unlock_all_hub_customizations,
     reset_wandering_shop_timer,
     complete_all_quests,
+    reset_floor_to_waiting_room,
     unlock_all_magazines,
     unlock_all_radio_music,
     get_tower_playlog,

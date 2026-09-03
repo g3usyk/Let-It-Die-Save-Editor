@@ -70,6 +70,9 @@ def build():
         "core.decals",
         "core.fighters",
         "core.storage",
+        "core.tower",
+        "core.mastery",
+        "core.helpers",
         "ui",
         "ui.theme",
         "ui.dialogs",
@@ -80,7 +83,8 @@ def build():
         "i18n",
         "game_data",
         "save_io",
-        "modifiers"
+        "modifiers",
+        "updater"
     ]
     for hi in hidden_imports:
         cmd.extend(["--hidden-import", hi])

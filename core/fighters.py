@@ -5,7 +5,7 @@ import shutil
 import uuid
 import copy
 from game_data import CLASS_CODE_ALIASES
-from core.helpers import get_player_uid, get_masters_db_path
+from core.helpers import get_player_uid, get_masters_db_path, PROJECT_ROOT, get_or_create_list
 
 
 def max_fighter_level_and_stats(save, fighter_index=0, level=247):
@@ -290,7 +290,7 @@ def restore_deathbag_capacity(db_path=None):
     if not os.path.exists(db_path):
         raise FileNotFoundError(f"masters.db not found at: {db_path}")
         
-    local_orig = os.path.join(os.path.dirname(__file__), "masters.db.original.bak")
+    local_orig = os.path.join(PROJECT_ROOT, "masters.db.original.bak")
     bak_path = db_path + ".bak"
     src_path = local_orig if os.path.exists(local_orig) else (bak_path if os.path.exists(bak_path) else None)
     
@@ -458,8 +458,8 @@ def clone_fighter(save, fighter_idx, new_name=None):
     orig_db = save.get("soul", {}).get("deathbag", {}).get(uid, {}).get(orig_cid, [])
     new_db = []
     pts_list = save.setdefault("part", {}).setdefault("pts", {}).setdefault(uid, [])
-    msrs_list = save.setdefault("mushroom", {}).setdefault("msrs", [])
-    items_list = save.setdefault("item", {}).setdefault("items", [])
+    msrs_list = get_or_create_list(save.setdefault("mushroom", {}), "msrs")
+    items_list = get_or_create_list(save.setdefault("item", {}), "items")
 
     for slot_item in orig_db:
         new_slot = copy.deepcopy(slot_item)
@@ -651,12 +651,12 @@ def delete_fighter(save, fighter_idx):
         pts = save.get("part", {}).get("pts", {}).get(uid, [])
         if pts:
             save["part"]["pts"][uid] = [p for p in pts if p.get("eid") not in del_eids]
-        msrs = save.get("mushroom", {}).get("msrs", [])
+        msrs = get_or_create_list(save.setdefault("mushroom", {}), "msrs")
         if msrs:
-            save["mushroom"]["msrs"] = [m for m in msrs if m.get("eid") not in del_eids]
-        items = save.get("item", {}).get("items", [])
+            save["mushroom"]["msrs"] = [m for m in msrs if isinstance(m, dict) and m.get("eid") not in del_eids]
+        items = get_or_create_list(save.setdefault("item", {}), "items")
         if items:
-            save["item"]["items"] = [i for i in items if i.get("eid") not in del_eids]
+            save["item"]["items"] = [i for i in items if isinstance(i, dict) and i.get("eid") not in del_eids]
             
     sync_fighter_slots(save)
     return True, "Fighter deleted"

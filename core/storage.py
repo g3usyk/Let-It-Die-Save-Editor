@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 import json
 import uuid
 import time
 import sqlite3
 from collections import Counter
-from core.helpers import get_player_uid, get_masters_db_path
+from core.helpers import get_player_uid, get_masters_db_path, PROJECT_ROOT, get_or_create_list
 
 def _assign_to_coin_locker(save, eid, item_type):
     """
@@ -47,15 +48,15 @@ def sync_storage_slots(save):
     assigned_eids = set(c.get("eid") for c in cl if c.get("eid"))
     
     unassigned = []
-    for it in save.get("item", {}).get("items", []):
+    for it in get_or_create_list(save.setdefault("item", {}), "items"):
         if isinstance(it, dict) and it.get("owner") == "COIN_LOCKER" and it.get("eid") not in assigned_eids:
             unassigned.append((it.get("eid"), 3))
             
-    for m in save.get("mushroom", {}).get("msrs", []):
+    for m in get_or_create_list(save.setdefault("mushroom", {}), "msrs"):
         if isinstance(m, dict) and m.get("owner") == "COIN_LOCKER" and m.get("eid") not in assigned_eids:
             unassigned.append((m.get("eid"), 1))
             
-    for b in save.get("beast", {}).get("bsts", []):
+    for b in get_or_create_list(save.setdefault("beast", {}), "bsts"):
         if isinstance(b, dict) and b.get("owner") == "COIN_LOCKER" and b.get("eid") not in assigned_eids:
             unassigned.append((b.get("eid"), 2))
             
@@ -85,7 +86,7 @@ def sync_storage_slots(save):
     return assigned_count
 
 def add_materials_to_storage(save, item_id, count=20):
-    items = save.setdefault("item", {}).setdefault("items", [])
+    items = get_or_create_list(save.setdefault("item", {}), "items")
     now = int(time.time())
     added = 0
     for _ in range(count):
@@ -101,7 +102,7 @@ def add_materials_to_storage(save, item_id, count=20):
     return added
 
 def add_mushrooms_to_storage(save, msr_id, count=10):
-    msrs = save.setdefault("mushroom", {}).setdefault("msrs", [])
+    msrs = get_or_create_list(save.setdefault("mushroom", {}), "msrs")
     now = int(time.time())
     added = 0
     for _ in range(count):
@@ -121,7 +122,7 @@ def add_mushrooms_to_storage(save, msr_id, count=10):
     return added
 
 def add_beasts_to_storage(save, bst_id, count=5):
-    bsts = save.setdefault("beast", {}).setdefault("bsts", [])
+    bsts = get_or_create_list(save.setdefault("beast", {}), "bsts")
     now = int(time.time())
     added = 0
     for _ in range(count):
@@ -346,16 +347,16 @@ def analyze_storage_stock(save):
     free_slots = max(0, total_slots - used_slots)
     
     stock_by_id = Counter()
-    for it in save.get("item", {}).get("items", []):
-        if it.get("eid") in cl_eids:
+    for it in get_or_create_list(save.setdefault("item", {}), "items"):
+        if isinstance(it, dict) and it.get("eid") in cl_eids:
             stock_by_id[it.get("itemid")] += 1
             
-    for m in save.get("mushroom", {}).get("msrs", []):
-        if m.get("eid") in cl_eids:
+    for m in get_or_create_list(save.setdefault("mushroom", {}), "msrs"):
+        if isinstance(m, dict) and m.get("eid") in cl_eids:
             stock_by_id[m.get("msrid")] += 1
             
-    for b in save.get("beast", {}).get("bsts", []):
-        if b.get("eid") in cl_eids:
+    for b in get_or_create_list(save.setdefault("beast", {}), "bsts"):
+        if isinstance(b, dict) and b.get("eid") in cl_eids:
             stock_by_id[b.get("bstid")] += 1
             
     return {
@@ -527,14 +528,28 @@ def add_material_to_storage(save, itemid, count=50):
         return add_materials_to_storage(save, itemid, count=count)
 
 def add_all_materials_to_storage(save, count=100):
-    mat_db_path = os.path.join(os.path.dirname(__file__), "all_materials_db.json")
-    if not os.path.exists(mat_db_path):
-        mat_db_path = os.path.join(os.path.dirname(__file__), "all_materials_encyclopedia.json")
-    if os.path.exists(mat_db_path):
-        with open(mat_db_path, "r", encoding="utf-8") as f:
-            materials = json.load(f)
-        for m in materials:
+    candidate_paths = [
+        os.path.join(PROJECT_ROOT, "all_materials_db.json"),
+        os.path.join(PROJECT_ROOT, "all_materials_encyclopedia.json"),
+        os.path.join(os.path.dirname(__file__), "all_materials_db.json"),
+        os.path.join(getattr(sys, "_MEIPASS", ""), "all_materials_db.json"),
+    ]
+    materials = []
+    for p in candidate_paths:
+        if p and os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    materials = json.load(f)
+                if materials:
+                    break
+            except Exception:
+                pass
+    added = 0
+    for m in materials:
+        if isinstance(m, dict) and "itemid" in m:
             add_materials_to_storage(save, m["itemid"], count=count)
+            added += 1
+    return added
 
 def expand_coin_locker_capacity(save, target_capacity=2000):
     return expand_storage_capacity(save, target_capacity=target_capacity)

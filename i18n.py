@@ -5,10 +5,15 @@ Supports dynamic switching between Spanish (es) and English (en).
 """
 
 import os
+import sys
 import json
 import locale
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, "frozen", False):
+    BASE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 
 def _detect_system_language():

@@ -155,18 +155,30 @@ def decompress_save(path):
     full_decomp = b"".join(chunks)
     return json.loads(full_decomp.decode("utf-8")), v1
 
-def compress_save(save_json, version=2, chunk_size=900152):
-    json_bytes = json.dumps(save_json, separators=(',', ':')).encode('utf-8')
+def _balanced_sizes(total, count):
+    count = max(1, count)
+    base, remainder = divmod(total, count)
+    return [base + (1 if i < remainder else 0) for i in range(count)]
+
+def compress_save(save_json, version=2, chunk_count=4, **kwargs):
+    """
+    Compresses save JSON using balanced chunks compatible with the game's streaming decompressor.
+    Uses ensure_ascii=False, compact separators, and 4 balanced ZLIB chunks matching LID - Save Editor.
+    """
+    json_bytes = json.dumps(save_json, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf-8')
     total_uncomp_size = len(json_bytes)
     
     header = b"BRG\x00" + struct.pack("<II", version, total_uncomp_size) + b"ZLIB"
+    sizes = _balanced_sizes(total_uncomp_size, chunk_count)
     
     chunks = []
-    for i in range(0, total_uncomp_size, chunk_size):
-        chunk_raw = json_bytes[i:i+chunk_size]
+    pos = 0
+    for sz in sizes:
+        chunk_raw = json_bytes[pos:pos+sz]
         comp = zlib.compress(chunk_raw)
         chunk_header = struct.pack("<II", len(chunk_raw), len(comp))
         chunks.append(chunk_header + comp)
+        pos += sz
     
     eof_marker = struct.pack("<I", 0)
     return header + b"".join(chunks) + eof_marker
@@ -180,6 +192,12 @@ def save_to_file(arg1, arg2, version=2, make_backup=True):
     if make_backup and os.path.exists(output_path):
         create_backup(output_path)
     
+    try:
+        from core.helpers import repair_save_list_structures
+        repair_save_list_structures(save_json)
+    except Exception:
+        pass
+
     binary_data = compress_save(save_json, version=version)
     
     # Atomic write to prevent file corruption

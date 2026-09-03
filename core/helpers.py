@@ -2,14 +2,91 @@
 import os
 import sys
 import json
+import time
 import sqlite3
 
-ALL_DECALS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "all_decals_encyclopedia.json")
-ALL_EQUIPMENT_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "all_equipment_encyclopedia.json")
-TOWER_MAP_DATA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tower_map_data.json")
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+ALL_DECALS_FILE = os.path.join(PROJECT_ROOT, "all_decals_encyclopedia.json")
+ALL_EQUIPMENT_FILE = os.path.join(PROJECT_ROOT, "all_equipment_encyclopedia.json")
+TOWER_MAP_DATA_FILE = os.path.join(PROJECT_ROOT, "tower_map_data.json")
 
 _EQUIPMENT_META_CACHE = None
 _TOWER_MAP_DATA_CACHE = None
+
+def get_or_create_list(container, key):
+    """
+    Safely retrieves or normalizes a list under container[key].
+    In some LET IT DIE saves, empty collections (or associative arrays)
+    are serialized as empty dicts {} instead of [].
+    If it's a dict containing item objects with 'eid', converts values to a list.
+    Always ensures container[key] is a valid Python list.
+    """
+    if not isinstance(container, dict):
+        return []
+    val = container.get(key)
+    if isinstance(val, list):
+        return val
+    elif isinstance(val, dict):
+        if val and any(isinstance(v, dict) for v in val.values()):
+            new_list = list(val.values())
+        else:
+            new_list = []
+        container[key] = new_list
+        return new_list
+    else:
+        new_list = []
+        container[key] = new_list
+        return new_list
+
+def repair_save_list_structures(save, uid=None):
+    """
+    Guarantees all list containers that LET IT DIE engine expects as arrays are valid lists,
+    matching the exact repair specification in LID - Save Editor (save_ops.py).
+    """
+    if not isinstance(save, dict):
+        return
+    if uid is None:
+        uid = str(get_player_uid(save))
+    
+    soul = save.setdefault("soul", {})
+    skl = soul.setdefault("skl", {})
+    get_or_create_list(skl, "psskl")
+    
+    pr = soul.setdefault("partresearch", {})
+    get_or_create_list(pr, "user")
+    
+    gflg = save.setdefault("gameflg", {})
+    for sec in ("cl", "sv"):
+        get_or_create_list(gflg, sec)
+        
+    it = save.setdefault("item", {})
+    get_or_create_list(it, "items")
+    
+    pt = save.setdefault("part", {})
+    pts = pt.setdefault("pts", {})
+    if uid:
+        get_or_create_list(pts, uid)
+        
+    bu = save.setdefault("bodyuser", {})
+    if uid:
+        get_or_create_list(bu, uid)
+        
+    chr_root = soul.setdefault("chr", {})
+    chrs = chr_root.setdefault("chrs", {})
+    slots = chr_root.setdefault("slots", {})
+    if uid:
+        get_or_create_list(chrs, uid)
+        get_or_create_list(slots, uid)
+        
+    db_root = soul.setdefault("deathbag", {})
+    if uid:
+        db_user = db_root.setdefault(uid, {})
+        for cid in list(db_user.keys()):
+            get_or_create_list(db_user, cid)
+            
+    for k in ("openelvflr", "areaescflag", "msrbook", "bstbook", "unlockfighter", "expert", "cl"):
+        get_or_create_list(soul, k)
 
 def get_equipment_meta(ptid):
     global _EQUIPMENT_META_CACHE
@@ -90,7 +167,7 @@ def get_masters_db_path(custom_path=None, save_path=None):
                 return candidate
     except Exception:
         pass
-    local_bak = os.path.join(os.path.dirname(__file__), "masters.db.original.bak")
+    local_bak = os.path.join(PROJECT_ROOT, "masters.db.original.bak")
     if os.path.exists(local_bak):
         return local_bak
     return r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
@@ -153,9 +230,12 @@ def get_save_summary(save):
     unique_bps = len(set(r.get("ptid") for r in pr_list if "ptid" in r))
     
     equipment_count = len(save.get("part", {}).get("pts", {}).get(uid, []))
-    materials_count = len(save.get("item", {}).get("items", []))
-    mushrooms_count = len(save.get("mushroom", {}).get("msrs", []))
-    beasts_count = len(save.get("beast", {}).get("bsts", []))
+    raw_it = save.get("item", {}).get("items", [])
+    materials_count = len(raw_it) if isinstance(raw_it, (list, dict)) else 0
+    raw_msr = save.get("mushroom", {}).get("msrs", [])
+    mushrooms_count = len(raw_msr) if isinstance(raw_msr, (list, dict)) else 0
+    raw_bst = save.get("beast", {}).get("bsts", [])
+    beasts_count = len(raw_bst) if isinstance(raw_bst, (list, dict)) else 0
     
     tdm_rank_id = soul.get("tdm_rank", "TDM_RANK_01_01")
     tdm_points = soul.get("tdm_point", 0)

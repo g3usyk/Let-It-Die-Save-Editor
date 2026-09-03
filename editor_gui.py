@@ -1819,8 +1819,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         return cat_str
 
     def filter_materials_list(self):
-        for row in self.mat_tree.get_children():
-            self.mat_tree.delete(row)
+        self.mat_tree.delete(*self.mat_tree.get_children())
             
         query = self.mat_search_var.get().lower().strip() if hasattr(self, "mat_search_var") else ""
         query_tokens = query.split() if query else []
@@ -2258,8 +2257,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.filter_decals_list()
 
     def filter_decals_list(self):
-        for row in self.decals_tree.get_children():
-            self.decals_tree.delete(row)
+        self.decals_tree.delete(*self.decals_tree.get_children())
             
         query = self.decal_search_var.get().lower().strip() if hasattr(self, "decal_search_var") else ""
         rarity_filter = self.decal_rarity_filter_var.get() if hasattr(self, "decal_rarity_filter_var") else "Todas"
@@ -3194,8 +3192,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         )
 
     def filter_blueprints_list(self):
-        for row in self.bp_tree.get_children():
-            self.bp_tree.delete(row)
+        self.bp_tree.delete(*self.bp_tree.get_children())
             
         query = self.bp_search_var.get().lower().strip()
         cat_filter = self.bp_cat_combo_var.get()
@@ -3369,8 +3366,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.mastery_tree.bind("<Double-1>", self._edit_mastery_level)
 
     def filter_mastery_list(self):
-        for row in self.mastery_tree.get_children():
-            self.mastery_tree.delete(row)
+        self.mastery_tree.delete(*self.mastery_tree.get_children())
             
         if not self.save_json:
             return
@@ -3438,11 +3434,11 @@ class CompleteSaveEditorGUI(tk.Tk):
         box_left = ttk.LabelFrame(self.tab_tower, text=t("tw_left_title"), padding=12)
         box_left.grid(row=0, column=0, sticky="nsew", padx=6, pady=6)
         
-        # 1. Elevators
-        ttk.Label(box_left, text=t("tw_elev_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
-        ttk.Label(box_left, text=t("tw_elev_sub"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
-        btn_unlock_elevators = ttk.Button(box_left, text=t("tw_elev_btn"), style="Accent.TButton", command=self._unlock_elevators_action)
-        btn_unlock_elevators.pack(fill="x", pady=(2, 8))
+        # 1. Emergency Rescue
+        ttk.Label(box_left, text="🚨 " + t("tw_rescue_title", "Rescate de Emergencia (Fix Carga)"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_left, text=t("tw_rescue_sub", "Regresa a tu luchador a la Sala de Espera si se quedó trabado en carga o en el vacío."), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
+        btn_rescue = ttk.Button(box_left, text="🏠 " + t("tw_rescue_btn", "Regresar a Sala de Espera"), style="Accent.TButton", command=self._rescue_stuck_fighter_action)
+        btn_rescue.pack(fill="x", pady=(2, 8))
         
         # 2. Stamp Rally Perfect
         ttk.Label(box_left, text=t("tw_stamp_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
@@ -3492,6 +3488,8 @@ class CompleteSaveEditorGUI(tk.Tk):
         btn_quests.pack(fill="x", pady=2)
         btn_media = ttk.Button(box_right, text=t("tw_comp_mags_btn"), command=self._unlock_magazines_and_radio_action)
         btn_media.pack(fill="x", pady=2)
+        btn_rescue = ttk.Button(box_right, text="🚨 Rescatar Luchador (Fix Carga)" if not is_en else "🚨 Rescue Fighter (Fix Loading)", command=self._rescue_stuck_fighter_action)
+        btn_rescue.pack(fill="x", pady=2)
 
         # Row 1 (Bottom Full-Width): Tower Exploration Records & Combat Stats
         box_playlog = ttk.LabelFrame(self.tab_tower, text=t("tw_playlog_title"), padding=12)
@@ -3571,6 +3569,18 @@ class CompleteSaveEditorGUI(tk.Tk):
             "Collectibles Unlocked", "Coleccionables Desbloqueados",
             "All 36 magazines and Uncle Death comics unlocked! Radio Jukebox enabled with all channels.",
             "¡Se han desbloqueado las 36 revistas y cómics del Tío Death y se ha habilitado la Gramola de Radio con todos los canales!"
+        )
+
+    def _rescue_stuck_fighter_action(self):
+        if not self.save_json:
+            return
+        modifiers.reset_floor_to_waiting_room(self.save_json)
+        self._auto_save()
+        self.refresh_all_views()
+        self._notify(
+            "Fighter Rescued", "Luchador Rescatado",
+            "Fighter safely extracted back to the Waiting Room!\n\nAny stuck floor loading transitions or escalator deadlocks have been cleared.",
+            "¡Luchador extraído de forma segura de vuelta a la Sala de Espera!\n\nSe han resuelto los bloqueos de pantalla de carga y transiciones de escalera atascadas."
         )
 
     def _unlock_elevators_action(self):
@@ -3755,8 +3765,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         ttk.Label(box_tools, text=t("bak_links_txt"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=2)
 
     def refresh_backups_list(self):
-        for row in self.backups_tree.get_children():
-            self.backups_tree.delete(row)
+        self.backups_tree.delete(*self.backups_tree.get_children())
             
         if not self.save_path:
             return
@@ -3907,8 +3916,7 @@ class CompleteSaveEditorGUI(tk.Tk):
             self.pl_time_lbl.config(text=f"⏱️ Horas Torre: {pl.get('playtime_hours', 0.0)} hrs")
         
         # 2. Update Fighters List (1:1 with in-game Fighter Freezer)
-        for row in self.fighters_tree.get_children():
-            self.fighters_tree.delete(row)
+        self.fighters_tree.delete(*self.fighters_tree.get_children())
             
         all_fighters = modifiers.get_all_fighters_info(self.save_json)
         total_f = len(all_fighters)

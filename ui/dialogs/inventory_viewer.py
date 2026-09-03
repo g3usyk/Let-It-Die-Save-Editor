@@ -123,8 +123,7 @@ class InventoryViewerDialog(tk.Toplevel):
         ttk.Button(bottom_bar, text=t("dialog_close_btn"), command=self.destroy).pack(side="right", padx=2)
 
     def refresh_inventory(self):
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        self.tree.delete(*self.tree.get_children())
             
         if not self.save_json:
             return

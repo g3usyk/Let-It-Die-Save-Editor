@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 import modifiers
+import i18n
 from i18n import t
 from ui.theme import *
 
@@ -150,8 +151,7 @@ class SmartInventoryAnalyzerDialog(tk.Toplevel):
         return v_lbl
         
     def refresh_analysis(self):
-        for r in self.tree.get_children():
-            self.tree.delete(r)
+        self.tree.delete(*self.tree.get_children())
             
         res = modifiers.analyze_active_recipes_materials(self.save_json)
         

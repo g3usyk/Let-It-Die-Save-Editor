@@ -61,5 +61,22 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(analysis["stock_by_id"]["ITMT_COPPER_1"], 15)
         self.assertEqual(analysis["stock_by_id"]["ITMT_ALUMI_1"], 20)
 
+    def test_add_all_materials_to_storage(self):
+        added = modifiers.add_all_materials_to_storage(self.save, count=2)
+        self.assertGreaterEqual(added, 100)
+        self.assertGreaterEqual(len(self.save["item"]["items"]), 200)
+
+    def test_add_materials_to_dict_schema_save(self):
+        dict_save = {
+            "soul": {"cl": []},
+            "item": {"items": {}},
+            "mushroom": {"msrs": {}},
+            "beast": {"bsts": {}}
+        }
+        added = modifiers.add_material_to_storage(dict_save, "ITMT_IRON_1", count=50)
+        self.assertEqual(added, 50)
+        self.assertIsInstance(dict_save["item"]["items"], list)
+        self.assertEqual(len(dict_save["item"]["items"]), 50)
+
 if __name__ == "__main__":
     unittest.main()
