@@ -1,6 +1,6 @@
-﻿; Inno Setup Script for LET IT DIE - Deep Save Editor Pro
+; Inno Setup Script for LET IT DIE - Deep Save Editor Pro
 #define MyAppName "LET IT DIE Save Editor"
-#define MyAppVersion "3.5.0"
+#define MyAppVersion "2.4.0"
 #define MyAppPublisher "g3usyk"
 #define MyAppURL "https://github.com/g3usyk/Let-It-Die-Save-Editor"
 #define MyAppExeName "LetItDieSaveEditor.exe"
@@ -19,7 +19,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=dist
-OutputBaseFilename=Instalador_LetItDieSaveEditor_v3.5
+OutputBaseFilename=LetItDieSaveEditor_Setup
 SetupIconFile=app_icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes

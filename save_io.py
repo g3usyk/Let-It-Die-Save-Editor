@@ -5,6 +5,8 @@ import struct
 import zlib
 import json
 import datetime
+import uuid
+import re
 
 COMMON_STEAM_DIRS = [
     r"E:\SteamLibrary\steamapps\common\LET IT DIE\Savedata",
@@ -25,12 +27,45 @@ else:
 
 PROJECT_BACKUPS_DIR = os.path.join(APP_DATA_DIR, "Backups")
 
+def get_all_detected_steam_dirs():
+    """Detects all Steam library directories via Windows Registry and libraryfolders.vdf."""
+    detected = list(COMMON_STEAM_DIRS)
+    try:
+        if sys.platform == "win32":
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam") as key:
+                steam_path, _ = winreg.QueryValueEx(key, "SteamPath")
+                if steam_path and os.path.isdir(steam_path):
+                    main_save = os.path.join(steam_path, "steamapps", "common", "LET IT DIE", "Savedata")
+                    if main_save not in detected:
+                        detected.insert(0, main_save)
+                    vdf_path = os.path.join(steam_path, "steamapps", "libraryfolders.vdf")
+                    if os.path.exists(vdf_path):
+                        with open(vdf_path, "r", encoding="utf-8", errors="ignore") as f:
+                            for line in f:
+                                m = re.search(r'"path"\s+"([^"]+)"', line)
+                                if m:
+                                    lib_root = m.group(1).replace("\\\\", "\\")
+                                    lib_save = os.path.join(lib_root, "steamapps", "common", "LET IT DIE", "Savedata")
+                                    if lib_save not in detected:
+                                        detected.insert(0, lib_save)
+    except Exception:
+        pass
+    return detected
+
 def get_default_save_path():
-    for d in COMMON_STEAM_DIRS:
+    all_dirs = get_all_detected_steam_dirs()
+    for d in all_dirs:
         if os.path.isdir(d):
             sav_files = [os.path.join(d, f) for f in os.listdir(d) if f.endswith(".sav")]
             if sav_files:
                 return sav_files[0]
+    # Fallback to local CurrentSave directory if running in repo/standalone
+    local_save_dir = os.path.join(APP_DATA_DIR, "CurrentSave")
+    if os.path.isdir(local_save_dir):
+        sav_files = [os.path.join(local_save_dir, f) for f in os.listdir(local_save_dir) if f.endswith(".sav")]
+        if sav_files:
+            return sav_files[0]
     return None
 
 def create_backup(save_path, backup_dir=None, max_backups=10):
@@ -146,5 +181,22 @@ def save_to_file(arg1, arg2, version=2, make_backup=True):
         create_backup(output_path)
     
     binary_data = compress_save(save_json, version=version)
-    with open(output_path, "wb") as f:
-        f.write(binary_data)
+    
+    # Atomic write to prevent file corruption
+    dir_name = os.path.dirname(os.path.abspath(output_path))
+    temp_path = os.path.join(dir_name, f".tmp_{uuid.uuid4().hex}.sav")
+    try:
+        with open(temp_path, "wb") as f:
+            f.write(binary_data)
+        os.replace(temp_path, output_path)
+    except Exception:
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+        raise
+
+# Alias for backward and external compatibility
+backup_save = create_backup
+

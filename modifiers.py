@@ -3,11 +3,62 @@ import time
 import os
 import uuid
 import sqlite3
+import shutil
 from collections import Counter
 from game_data import CLASS_CODE_ALIASES
 
 ALL_DECALS_FILE = os.path.join(os.path.dirname(__file__), "all_decals_encyclopedia.json")
 ALL_EQUIPMENT_FILE = os.path.join(os.path.dirname(__file__), "all_equipment_encyclopedia.json")
+
+def get_player_uid(save):
+    """
+    Robustly resolves the primary player UID from user, soul, bodyuser, or pts.
+    Never hardcodes a developer UID fallback.
+    """
+    if not isinstance(save, dict):
+        return "0"
+    user_uid = save.get("user", {}).get("uid")
+    if user_uid is not None:
+        return str(user_uid)
+    soul_uid = save.get("soul", {}).get("uid")
+    if soul_uid is not None:
+        return str(soul_uid)
+    bodyuser = save.get("bodyuser", {})
+    if isinstance(bodyuser, dict) and bodyuser:
+        return str(next(iter(bodyuser.keys())))
+    pts = save.get("part", {}).get("pts", {})
+    if isinstance(pts, dict) and pts:
+        valid_keys = [k for k in pts.keys() if k != "-1"]
+        if valid_keys:
+            return str(valid_keys[0])
+    return "0"
+
+def get_masters_db_path(custom_path=None, save_path=None):
+    """
+    Dynamically discovers the authentic masters.db file:
+    1. custom_path if provided and exists
+    2. Relative to save_path: ../../BrgGame/Content/masters.db
+    3. Detected Steam libraries from save_io
+    4. Local masters.db.original.bak in project directory
+    """
+    if custom_path and os.path.exists(custom_path):
+        return custom_path
+    if save_path:
+        candidate = os.path.abspath(os.path.join(os.path.dirname(save_path), "..", "BrgGame", "Content", "masters.db"))
+        if os.path.exists(candidate):
+            return candidate
+    try:
+        import save_io
+        for d in save_io.get_all_detected_steam_dirs():
+            candidate = os.path.abspath(os.path.join(d, "..", "BrgGame", "Content", "masters.db"))
+            if os.path.exists(candidate):
+                return candidate
+    except Exception:
+        pass
+    local_bak = os.path.join(os.path.dirname(__file__), "masters.db.original.bak")
+    if os.path.exists(local_bak):
+        return local_bak
+    return r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
 
 def load_all_known_decals():
     if os.path.exists(ALL_DECALS_FILE):
@@ -47,7 +98,7 @@ def load_all_equipment():
     return res
 
 def get_save_summary(save):
-    uid = str(save.get("user", {}).get("uid", "Unknown"))
+    uid = get_player_uid(save)
     user = save.get("user", {})
     soul = save.get("soul", {})
     
@@ -182,7 +233,7 @@ def upgrade_waiting_room(save, bank_level=10, tank_level=10):
     soul["spirit_tank_level"] = int(tank_level)
 
 def max_fighter_level_and_stats(save, fighter_index=0, level=247):
-    uid = str(save.get("user", {}).get("uid", "443455"))
+    uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
     if 0 <= fighter_index < len(fighters):
@@ -276,13 +327,19 @@ def set_single_weapon_mastery(save, ptarmtp, target_lvl, abp=None):
     })
 
 def revive_all_fighters(save):
-    uid = str(save.get("user", {}).get("uid", "443455"))
+    uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
     
-    save.get("soul", {})["current_died_cid"] = False
+    save.setdefault("soul", {})["current_died_cid"] = ""
     save.get("soul", {})["die_flag"] = 0
     save.get("soul", {})["resurrection"] = 0
+    
+    # Reset crash force shutdown counts
+    fs_counts = save.get("force_shutdown_counts", {})
+    if isinstance(fs_counts, dict):
+        for k in fs_counts:
+            fs_counts[k] = 0
     
     for f in fighters:
         f["die"] = 0
@@ -297,7 +354,7 @@ def revive_all_fighters(save):
             c["state"] = "GUARD"
 
 def update_fighter(save, fighter_idx, name=None, clazz=None, grade=None, lvl=None, hp=None, str_stat=None, dex=None, vit=None, stm=None, luk=None, bag=None, param_hp=None, param_stm=None, param_str=None, param_dex=None, param_vit=None, param_luk=None):
-    uid = str(save.get("user", {}).get("uid", "443455"))
+    uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
     
@@ -342,8 +399,12 @@ def update_fighter(save, fighter_idx, name=None, clazz=None, grade=None, lvl=Non
             f["luk"] = min(45, max(1, int(param_luk)))
             
         if bag is not None:
+            bag_val = int(bag)
             # BagAddMax is 3 in the engine; values > 3 cause crash on levelup!
-            f["bag"] = min(3, max(0, int(bag)))
+            f["bag"] = min(3, max(0, bag_val))
+            # True total deathbag capacity lives in soul["bag_slot"]
+            if bag_val >= 20:
+                save.setdefault("soul", {})["bag_slot"] = bag_val
             
     if 0 <= fighter_idx < len(chr_chrs):
         c = chr_chrs[fighter_idx]
@@ -440,7 +501,7 @@ def repair_and_sanitize_blueprints(save):
     # Connect to master_part to query authentic evolution links
     next_map = {}
     parent_map = {}
-    db_path = r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
+    db_path = get_masters_db_path()
     if os.path.exists(db_path):
         try:
             import sqlite3
@@ -748,10 +809,13 @@ def repair_all_storage_equipment(save):
             p["spare"] = 0
 
 def add_equipment_to_storage(save, ptid, count=1, lvl=5, dur=50000):
-    uid_int = int(save.get("user", {}).get("uid", 443455))
+    uid_str = get_player_uid(save)
+    try:
+        uid_int = int(uid_str)
+    except ValueError:
+        uid_int = 0
     pts_list = save.setdefault("part", {}).setdefault("pts", [])
     if isinstance(pts_list, dict):
-        uid_str = str(uid_int)
         pts_list = pts_list.setdefault(uid_str, [])
     now = int(time.time())
     added = 0
@@ -912,7 +976,7 @@ def expand_death_bag(save, slots=50, fighter_index=None):
     # In LET IT DIE, bodyuser['bag'] is the M.I.N.G.O. upgrade stat which has BagAddMax=3.
     # Exceeding 3 causes 'body_deathbag distribute failed' crash on levelup!
     # True deathbag capacity is expanded naturally by Royal Express VIP pass (+10) and Collector class.
-    uid = str(save.get("user", {}).get("uid", "443455"))
+    uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     if fighter_index is not None and 0 <= fighter_index < len(fighters):
         fighters[fighter_index]["bag"] = 3
@@ -1061,15 +1125,7 @@ def analyze_active_recipes_materials(save, db_path=None):
     calculates total material requirements, compares against current stock in storage,
     and returns a list of items with their required, in-stock, and deficit quantities.
     """
-    if db_path is None:
-        default_p = r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
-        local_bak = os.path.join(os.path.dirname(__file__), "masters.db.original.bak")
-        if os.path.exists(default_p):
-            db_path = default_p
-        elif os.path.exists(local_bak):
-            db_path = local_bak
-        else:
-            db_path = default_p
+    db_path = get_masters_db_path(db_path)
         
     stock_res = analyze_storage_stock(save)
     stock = stock_res["stock_by_id"]
@@ -1256,8 +1312,7 @@ def expand_storage_capacity(save, target_capacity=6000, db_path=None):
     2. Expands soul.cl in save to target_capacity slots.
     Returns (old_capacity, new_capacity).
     """
-    if db_path is None:
-        db_path = r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
+    db_path = get_masters_db_path(db_path)
         
     soul = save.setdefault("soul", {})
     cl = soul.setdefault("cl", [])
@@ -1287,6 +1342,122 @@ def expand_storage_capacity(save, target_capacity=6000, db_path=None):
         })
         
     return old_capacity, target_capacity
+
+def get_deathbag_masters_status(db_path=None):
+    """
+    Returns the current Death Bag modification status from masters.db.
+    """
+    db_path = get_masters_db_path(db_path)
+    if not os.path.exists(db_path):
+        return {"exists": False, "db_path": db_path}
+    try:
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        cur.execute("SELECT MIN(bag_capacity), MAX(bag_capacity) FROM master_body_detail;")
+        min_bag, max_bag = cur.fetchone()
+        cur.execute("SELECT value FROM master_const_int WHERE id='VIP_INCREASE_DEATHBAG';")
+        r = cur.fetchone()
+        vip_val = r[0] if r else 10
+        conn.close()
+        is_modded = bool(min_bag and min_bag > 18 or vip_val > 10)
+        return {
+            "exists": True,
+            "db_path": db_path,
+            "min_bag": min_bag,
+            "max_bag": max_bag,
+            "vip_bonus": vip_val,
+            "is_modded": is_modded
+        }
+    except Exception as e:
+        return {"exists": True, "db_path": db_path, "error": str(e), "is_modded": False}
+
+def expand_deathbag_capacity(target_capacity=60, vip_bonus=10, db_path=None):
+    """
+    Expands the Death Bag capacity in masters.db for all fighter classes and grades:
+    1. Backs up masters.db to masters.db.bak if not already present.
+    2. Updates master_body_detail.bag_capacity to at least target_capacity.
+    3. Updates master_bodylvl_status_value.bag to at least target_capacity.
+    4. Updates master_const_int.VIP_INCREASE_DEATHBAG.
+    Returns summary dict.
+    """
+    db_path = get_masters_db_path(db_path)
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"masters.db not found at: {db_path}")
+        
+    bak_path = db_path + ".bak"
+    if not os.path.exists(bak_path):
+        try:
+            shutil.copy2(db_path, bak_path)
+        except Exception as e:
+            print(f"Warning: Could not create backup {bak_path}: {e}")
+            
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    target_capacity = int(target_capacity)
+    vip_bonus = int(vip_bonus)
+    
+    cur.execute("UPDATE master_body_detail SET bag_capacity = MAX(bag_capacity, ?);", (target_capacity,))
+    rows_detail = cur.rowcount
+    
+    cur.execute("UPDATE master_bodylvl_status_value SET bag = MAX(bag, ?);", (target_capacity,))
+    rows_lvl = cur.rowcount
+    
+    cur.execute("UPDATE master_const_int SET value = ? WHERE id = 'VIP_INCREASE_DEATHBAG';", (vip_bonus,))
+    
+    conn.commit()
+    conn.close()
+    
+    return {
+        "success": True,
+        "target_capacity": target_capacity,
+        "vip_bonus": vip_bonus,
+        "rows_detail": rows_detail,
+        "rows_lvl": rows_lvl,
+        "db_path": db_path
+    }
+
+def restore_deathbag_capacity(db_path=None):
+    """
+    Restores original Death Bag capacity in masters.db using masters.db.original.bak or masters.db.bak.
+    """
+    db_path = get_masters_db_path(db_path)
+    if not os.path.exists(db_path):
+        raise FileNotFoundError(f"masters.db not found at: {db_path}")
+        
+    local_orig = os.path.join(os.path.dirname(__file__), "masters.db.original.bak")
+    bak_path = db_path + ".bak"
+    src_path = local_orig if os.path.exists(local_orig) else (bak_path if os.path.exists(bak_path) else None)
+    
+    if not src_path or not os.path.exists(src_path):
+        raise FileNotFoundError("No original masters.db backup found to restore from.")
+        
+    src_conn = sqlite3.connect(src_path)
+    src_cur = src_conn.cursor()
+    orig_details = src_cur.execute("SELECT type, grade, limit_break, bag_capacity FROM master_body_detail;").fetchall()
+    orig_lvls = src_cur.execute("SELECT lvl, type, grade, limit_break, bag FROM master_bodylvl_status_value;").fetchall()
+    orig_vip_row = src_cur.execute("SELECT value FROM master_const_int WHERE id='VIP_INCREASE_DEATHBAG';").fetchone()
+    orig_vip = orig_vip_row[0] if orig_vip_row else 10
+    src_conn.close()
+    
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    for t, g, lb, cap in orig_details:
+        cur.execute("UPDATE master_body_detail SET bag_capacity = ? WHERE type = ? AND grade = ? AND limit_break = ?;", (cap, t, g, lb))
+        
+    for lvl, t, g, lb, bag in orig_lvls:
+        cur.execute("UPDATE master_bodylvl_status_value SET bag = ? WHERE lvl = ? AND type = ? AND grade = ? AND limit_break = ?;", (bag, lvl, t, g, lb))
+        
+    cur.execute("UPDATE master_const_int SET value = ? WHERE id = 'VIP_INCREASE_DEATHBAG';", (orig_vip,))
+    conn.commit()
+    conn.close()
+    
+    return {
+        "success": True,
+        "restored_details": len(orig_details),
+        "restored_lvls": len(orig_lvls),
+        "vip_bonus": orig_vip,
+        "db_path": db_path
+    }
 
 def get_equipment_inventory_counts(save):
     """
@@ -1394,7 +1565,7 @@ def get_mystery_bags_summary(save):
     return res
 
 def get_all_fighters_info(save):
-    uid = str(save.get("user", {}).get("uid", "443455"))
+    uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
     res = []
@@ -1608,15 +1779,16 @@ def set_infinite_durability_all_equipment(save, target_dur=999999):
     """
     Sets extreme durability on all equipment stored in Coin Locker and fighters' bags.
     """
-    uid = str(save.get("user", {}).get("uid", "443455"))
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
-    pts_list = pts_dict.setdefault(uid, [])
+    pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
     
     modified_count = 0
-    for p in pts_list:
-        if isinstance(p, dict):
-            p["dur"] = int(target_dur)
-            modified_count += 1
+    for pts_list in pts_lists:
+        if isinstance(pts_list, list):
+            for p in pts_list:
+                if isinstance(p, dict):
+                    p["dur"] = int(target_dur)
+                    modified_count += 1
             
     # Also update any equipment in fighters' deathbags
     deathbags = save.get("soul", {}).get("deathbag", {})
@@ -1634,34 +1806,36 @@ def set_massive_ammo_all_weapons(save, ammo=9999):
     """
     Sets magazine capacity (rest) and spare reserve ammo (spare) on all ranged weapons.
     """
-    uid = str(save.get("user", {}).get("uid", "443455"))
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
-    pts_list = pts_dict.setdefault(uid, [])
+    pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
     
     modified_count = 0
-    for p in pts_list:
-        if isinstance(p, dict):
-            ptid = str(p.get("ptid", ""))
-            # Any weapon (PT_ARM_) gets massive capacity and reserve ammo
-            if ptid.startswith("PT_ARM_") or "rest" in p or "spare" in p:
-                p["rest"] = int(ammo)
-                p["spare"] = int(ammo)
-                modified_count += 1
+    for pts_list in pts_lists:
+        if isinstance(pts_list, list):
+            for p in pts_list:
+                if isinstance(p, dict):
+                    ptid = str(p.get("ptid", ""))
+                    # Any weapon (PT_ARM_) gets massive capacity and reserve ammo
+                    if ptid.startswith("PT_ARM_") or "rest" in p or "spare" in p:
+                        p["rest"] = int(ammo)
+                        p["spare"] = int(ammo)
+                        modified_count += 1
     return modified_count
 
 def upgrade_all_equipment_max_level(save, target_lvl=19):
     """
     Upgrades all equipment in storage to the specified level (e.g. 19 for Tier 4 +19 uncapped).
     """
-    uid = str(save.get("user", {}).get("uid", "443455"))
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
-    pts_list = pts_dict.setdefault(uid, [])
+    pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
     
     modified_count = 0
-    for p in pts_list:
-        if isinstance(p, dict):
-            p["lvl"] = max(p.get("lvl", 1), int(target_lvl))
-            modified_count += 1
+    for pts_list in pts_lists:
+        if isinstance(pts_list, list):
+            for p in pts_list:
+                if isinstance(p, dict):
+                    p["lvl"] = max(p.get("lvl", 1), int(target_lvl))
+                    modified_count += 1
     return modified_count
 
 # ================= META DECAL PRESETS FOR FIGHTERS =================
@@ -1743,9 +1917,7 @@ def equip_decal_preset_on_fighter(save, cid, preset_key="tengoku_climber"):
     add_or_update_decals(save, decals, count=1, premium=True)
     
     # 2. Get body_uid
-    body_uid = list(save.get("bodyuser", {}).keys())[0] if save.get("bodyuser") else None
-    if not body_uid:
-        body_uid = str(save.get("soul", {}).get("uid", "443455"))
+    body_uid = get_player_uid(save)
         
     soul = save.setdefault("soul", {})
     skl = soul.setdefault("skl", {})
@@ -1755,9 +1927,9 @@ def equip_decal_preset_on_fighter(save, cid, preset_key="tengoku_climber"):
     # Remove existing equipped decals for this cid
     cleaned_eq = [e for e in user_eq if isinstance(e, dict) and e.get("cid") != cid]
     
-    # Equip up to 5 decals from preset
+    # Equip all decals defined in preset (up to 8 slots for Tier 8 / Grade 6 uncapped)
     equipped_count = 0
-    for idx, did in enumerate(decals[:5]):
+    for idx, did in enumerate(decals[:8]):
         cleaned_eq.append({
             "cid": cid,
             "sklid": did,

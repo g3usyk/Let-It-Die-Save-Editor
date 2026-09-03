@@ -338,6 +338,18 @@ class CompleteSaveEditorGUI(tk.Tk):
         )
 
     def _load_all_databases(self):
+        self._icon_index = {}
+        if os.path.isdir(ICONS_DIR):
+            for root, _, files in os.walk(ICONS_DIR):
+                for f in files:
+                    full_p = os.path.join(root, f)
+                    lower_f = f.lower()
+                    if lower_f not in self._icon_index:
+                        self._icon_index[lower_f] = full_p
+                    base_no_ext = os.path.splitext(lower_f)[0]
+                    if base_no_ext not in self._icon_index:
+                        self._icon_index[base_no_ext] = full_p
+
         if os.path.exists(ICON_MAP_PATH):
             with open(ICON_MAP_PATH, "r", encoding="utf-8") as f:
                 self.icon_map = json.load(f)
@@ -380,21 +392,15 @@ class CompleteSaveEditorGUI(tk.Tk):
             return self.img_cache[key]
             
         clean_rel = str(rel_path).replace("\\", "/")
-        subdirs = ["", "cards", "sets", "all_official", "armor", "weapons", "materials", "decals", "shrooms", "gear", "thumbs"]
         found_path = None
         
-        # 1. Direct path or subdirs with common extensions
-        extensions = ["", ".png", ".jpg", ".jpeg", ".webp"]
-        for sub in subdirs:
-            for ext in extensions:
-                p = os.path.join(ICONS_DIR, sub, clean_rel + ext)
-                if os.path.exists(p) and not os.path.isdir(p):
-                    found_path = p
-                    break
-            if found_path:
-                break
-                
-        # 2. Check icon_map if available
+        # 1. Fast O(1) index lookup
+        clean_base = os.path.basename(clean_rel).lower()
+        clean_stem = os.path.splitext(clean_base)[0]
+        idx = getattr(self, "_icon_index", {})
+        found_path = idx.get(clean_base) or idx.get(clean_stem)
+        
+        # 2. Check icon_map if not found directly
         if not found_path and hasattr(self, "icon_map"):
             mapped = self.icon_map.get("gear_icons", {}).get(clean_rel) or \
                      self.icon_map.get("gear_cards", {}).get(clean_rel) or \
@@ -403,10 +409,18 @@ class CompleteSaveEditorGUI(tk.Tk):
                      self.icon_map.get("decals_icons", {}).get(clean_rel) or \
                      self.icon_map.get("equipment_thumbs", {}).get(clean_rel)
             if mapped:
-                mapped_clean = mapped.replace("\\", "/")
-                for sub in subdirs:
-                    for ext in extensions:
-                        p = os.path.join(ICONS_DIR, sub, mapped_clean + ext)
+                mapped_base = os.path.basename(mapped.replace("\\", "/")).lower()
+                mapped_stem = os.path.splitext(mapped_base)[0]
+                found_path = idx.get(mapped_base) or idx.get(mapped_stem)
+                
+        # 3. Direct filesystem fallback
+        if not found_path:
+            if os.path.isabs(clean_rel) and os.path.exists(clean_rel):
+                found_path = clean_rel
+            else:
+                for sub in ["", "cards", "sets", "all_official", "armor", "weapons", "materials", "decals", "shrooms", "gear", "thumbs"]:
+                    for ext in ["", ".png", ".jpg", ".jpeg", ".webp"]:
+                        p = os.path.join(ICONS_DIR, sub, clean_rel + ext)
                         if os.path.exists(p) and not os.path.isdir(p):
                             found_path = p
                             break
@@ -798,15 +812,19 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.f_lvl_select_var = tk.StringVar(value="125")
         ttk.Entry(id_frame, textvariable=self.f_lvl_select_var, width=8, justify="center").grid(row=1, column=3, padx=4, pady=3, sticky="w")
         
-        # Row 2: HP Actual and Bag Slots
+        # Row 2: HP Actual and MINGO Bag Bonus
         ttk.Label(id_frame, text=t("f_lbl_hp_cur")).grid(row=2, column=0, sticky="w", padx=4, pady=3)
         self.f_hp_current_var = tk.StringVar(value="15000")
         ttk.Entry(id_frame, textvariable=self.f_hp_current_var, width=10, justify="center").grid(row=2, column=1, padx=4, pady=3, sticky="w")
         
-        ttk.Label(id_frame, text=t("f_lbl_bag")).grid(row=2, column=2, sticky="w", padx=4, pady=3)
-        self.f_bag_select_var = tk.StringVar(value="50")
-        cb_fbag = ttk.Combobox(id_frame, textvariable=self.f_bag_select_var, values=["20", "25", "30", "35", "40", "45", "50", "60"], state="readonly", width=6)
+        ttk.Label(id_frame, text="Bono MINGO (0-3):").grid(row=2, column=2, sticky="w", padx=4, pady=3)
+        self.f_bag_select_var = tk.StringVar(value="3")
+        cb_fbag = ttk.Combobox(id_frame, textvariable=self.f_bag_select_var, values=["0", "1", "2", "3"], state="readonly", width=6)
         cb_fbag.grid(row=2, column=3, padx=4, pady=3, sticky="w")
+        
+        # Row 3: Real In-Game Capacity indicator
+        self.f_real_bag_lbl = ttk.Label(id_frame, text="🎒 Capacidad Real: Calculando...", foreground=ACCENT_GOLD, font=("Segoe UI", 9, "bold"))
+        self.f_real_bag_lbl.grid(row=3, column=0, columnspan=4, sticky="w", padx=4, pady=3)
         
         # Stats Form Grid (3 columns for perfect balance)
         stats_frame = ttk.LabelFrame(right_box, text=t("f_base_stats_box"), padding=8)
@@ -830,13 +848,15 @@ class CompleteSaveEditorGUI(tk.Tk):
             self.f_stats_vars[k] = v
             ttk.Entry(stats_frame, textvariable=v, width=6, justify="center").grid(row=r, column=c+1, padx=4, pady=4)
             
-        # Equipped Decals Preview Frame
+        # Equipped Decals Preview Frame (8 slots for Grade 6 Tier 8)
         self.f_decals_frame = ttk.LabelFrame(right_box, text=t("f_equipped_decals_box"), padding=8)
         self.f_decals_frame.pack(fill="x", pady=4)
         self.f_decal_slots_lbls = []
-        for slot_idx in range(5):
+        for slot_idx in range(8):
             lbl = ttk.Label(self.f_decals_frame, text=f"{t('f_slot_prefix')} {slot_idx+1}: {t('f_slot_empty')}", font=("Segoe UI", 8), compound="left")
-            lbl.pack(anchor="w", pady=1)
+            r = slot_idx % 4
+            c = slot_idx // 4
+            lbl.grid(row=r, column=c, sticky="w", padx=6, pady=2)
             self.f_decal_slots_lbls.append(lbl)
 
         # Quick Fighter Actions
@@ -851,6 +871,22 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         btn_max_fighter = ttk.Button(act_frame, text=t("f_max_stats_btn"), command=self.max_current_fighter)
         btn_max_fighter.pack(side="left", padx=3, fill="x", expand=True)
+
+        # Engine Mod: Death Bag Capacity in masters.db
+        bag_mod_box = ttk.LabelFrame(right_box, text="🎒 Mod de Bolsa en el Juego (masters.db)", padding=8)
+        bag_mod_box.pack(fill="x", pady=4)
+        
+        self.f_bag_db_status_lbl = ttk.Label(bag_mod_box, text="Verificando masters.db...", font=("Segoe UI", 8))
+        self.f_bag_db_status_lbl.pack(anchor="w", pady=2)
+        
+        bag_btn_row = ttk.Frame(bag_mod_box)
+        bag_btn_row.pack(fill="x", pady=2)
+        
+        btn_expand_bag = ttk.Button(bag_btn_row, text="🎒 Expandir a 60+ Slots", style="Accent.TButton", command=self._expand_deathbag_masters_action)
+        btn_expand_bag.pack(side="left", padx=2, fill="x", expand=True)
+        
+        btn_restore_bag = ttk.Button(bag_btn_row, text="🔄 Restaurar Original", command=self._restore_deathbag_masters_action)
+        btn_restore_bag.pack(side="left", padx=2, fill="x", expand=True)
 
         # Meta Decal Presets for Fighters
         decal_preset_box = ttk.LabelFrame(right_box, text=t("f_presets_box"), padding=8)
@@ -912,7 +948,21 @@ class CompleteSaveEditorGUI(tk.Tk):
             self.f_grade_select_var.set(str(grade))
             self.f_lvl_select_var.set(str(lvl))
             self.f_hp_current_var.set(str(hp_cur))
-            self.f_bag_select_var.set(str(bag))
+            mingo_bag = min(3, max(0, int(f.get("bag", 0))))
+            self.f_bag_select_var.set(str(mingo_bag))
+            
+            # Calculate real in-game bag capacity
+            db_st = modifiers.get_deathbag_masters_status()
+            vip_active = bool(self.save_json.get("soul", {}).get("vip", {}).get("flag", 0))
+            vip_bonus = db_st.get("vip_bonus", 10) if vip_active else 0
+            base_slots = db_st.get("min_bag", 20)
+            total_slots = base_slots + mingo_bag + vip_bonus
+            vip_txt = f" + VIP: +{vip_bonus}" if vip_bonus > 0 else ""
+            if hasattr(self, "f_real_bag_lbl"):
+                self.f_real_bag_lbl.config(
+                    text=f"🎒 Total Real en Juego: {total_slots} slots (Base: {base_slots} + MINGO: +{mingo_bag}{vip_txt})"
+                )
+            self._refresh_deathbag_db_status()
             
             self.f_stats_vars["hp"].set(str(f.get("hp_pts", 20)))
             self.f_stats_vars["stm"].set(str(f.get("stm", 20)))
@@ -921,11 +971,12 @@ class CompleteSaveEditorGUI(tk.Tk):
             self.f_stats_vars["vit"].set(str(f.get("vit", 20)))
             self.f_stats_vars["luk"].set(str(f.get("luk", 20)))
             
-            # Update equipped decals preview
+            # Update equipped decals preview (up to 8 slots)
             cid = f.get("cid", "")
-            eq_list = self.save_json.get("soul", {}).get("skl", {}).get("eqskl", {}).get(list(self.save_json.get("bodyuser", {}).keys())[0] if self.save_json.get("bodyuser") else "", [])
+            body_uid = modifiers.get_player_uid(self.save_json)
+            eq_list = self.save_json.get("soul", {}).get("skl", {}).get("eqskl", {}).get(body_uid, [])
             fighter_eq = [e for e in eq_list if e.get("cid") == cid]
-            for s_idx in range(5):
+            for s_idx in range(len(self.f_decal_slots_lbls)):
                 matching = [e for e in fighter_eq if e.get("slot") == s_idx]
                 if matching:
                     did = matching[0].get("sklid", "")
@@ -1029,6 +1080,73 @@ class CompleteSaveEditorGUI(tk.Tk):
             f"en los espacios de combate de {f_info.get('name', 'Luchador')}!\n"
             f"Guardado automáticamente."
         )
+
+    def _refresh_deathbag_db_status(self):
+        if not hasattr(self, "f_bag_db_status_lbl"):
+            return
+        st = modifiers.get_deathbag_masters_status()
+        if not st.get("exists"):
+            self.f_bag_db_status_lbl.config(text="⚠️ masters.db no encontrado", foreground=FG_MUTED)
+        elif st.get("is_modded"):
+            min_b = st.get("min_bag", 60)
+            vip_b = st.get("vip_bonus", 10)
+            self.f_bag_db_status_lbl.config(
+                text=f"✅ Mod Activo: Base {min_b} slots (+VIP = {min_b + vip_b} slots)",
+                foreground=ACCENT_GREEN
+            )
+        else:
+            self.f_bag_db_status_lbl.config(
+                text="ℹ️ masters.db Original: 18 a 54 slots oficiales según clase/grado (+10 VIP)",
+                foreground=FG_MUTED
+            )
+
+    def _expand_deathbag_masters_action(self):
+        target = simpledialog.askinteger(
+            "🎒 Expandir Bolsa en masters.db",
+            "Introduce la capacidad base de slots para todos los luchadores:\n\n"
+            "Valores sugeridos: 50, 60, 70, 80\n"
+            "(Nota: Con el Pase VIP obtendrás +10 slots adicionales sobre este valor)",
+            initialvalue=60,
+            minvalue=30,
+            maxvalue=100,
+            parent=self
+        )
+        if not target:
+            return
+        try:
+            res = modifiers.expand_deathbag_capacity(target_capacity=target, vip_bonus=10)
+            self._refresh_deathbag_db_status()
+            if hasattr(self, "current_fighter_idx"):
+                self._on_fighter_select(None)
+            messagebox.showinfo(
+                "Bolsa Modificada",
+                f"¡Bolsa de luchadores ampliada con éxito en el juego!\n\n"
+                f"• Capacidad base para todas las clases: {target} slots\n"
+                f"• Con Pase VIP activo: {target + 10} slots\n\n"
+                f"Archivo modificado:\n{res['db_path']}"
+            )
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo modificar masters.db:\n{e}")
+
+    def _restore_deathbag_masters_action(self):
+        if not messagebox.askyesno(
+            "Restaurar Bolsa",
+            "¿Deseas restaurar la capacidad oficial de la bolsa del juego (18-54 slots según clase)?",
+            parent=self
+        ):
+            return
+        try:
+            res = modifiers.restore_deathbag_capacity()
+            self._refresh_deathbag_db_status()
+            if hasattr(self, "current_fighter_idx"):
+                self._on_fighter_select(None)
+            messagebox.showinfo(
+                "Bolsa Restaurada",
+                f"¡Capacidad de bolsa restaurada a los valores oficiales del juego!\n\n"
+                f"Archivo:\n{res['db_path']}"
+            )
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo restaurar masters.db:\n{e}")
 
     def max_all_currencies(self):
         if not self.save_json:
@@ -1921,15 +2039,15 @@ class CompleteSaveEditorGUI(tk.Tk):
         if "PT_DIY" in itemid:
             faction = "🔨 D.O.D. ARMS"
             faction_key = "DOD"
-        elif "PT_SPO" in itemid:
+        elif "PT_MIL" in itemid:
             faction = "🎖️ WAR ENSEMBLE"
-            faction_key = "SPO"
+            faction_key = "MIL"
         elif "PT_FAN" in itemid:
             faction = "🕯️ CANDLE WOLF"
             faction_key = "FAN"
-        elif "PT_MIL" in itemid:
+        elif "PT_SPO" in itemid:
             faction = "🥛 M.I.L.K."
-            faction_key = "MIL"
+            faction_key = "SPO"
         elif any(k in itemid for k in ["PT_TBR", "TENGOKU", "WHITE", "NAPALM", "THUNDER", "WIND"]):
             faction = "⚡ 4 FORCEMEN & TENGOKU"
             faction_key = "FORCEMEN"
@@ -1946,16 +2064,16 @@ class CompleteSaveEditorGUI(tk.Tk):
             orig = item.get("faction", "")
             if "WAR" in orig:
                 faction = "🎖️ WAR ENSEMBLE"
-                faction_key = "SPO"
+                faction_key = "MIL"
             elif "CANDLE" in orig:
                 faction = "🕯️ CANDLE WOLF"
                 faction_key = "FAN"
             elif "D.O.D" in orig:
                 faction = "🔨 D.O.D. ARMS"
                 faction_key = "DOD"
-            elif "M.I.L.K" in orig:
+            elif "M.I.L.K" in orig or "MILK" in orig:
                 faction = "🥛 M.I.L.K."
-                faction_key = "MIL"
+                faction_key = "SPO"
             else:
                 faction = "⚔️ General / Other" if is_en else "⚔️ General / Otras"
                 faction_key = "GEN"
@@ -2410,9 +2528,9 @@ class CompleteSaveEditorGUI(tk.Tk):
         raw_fac = (item_meta.get("faction") or "").upper() if item_meta else ""
         
         fac_code = "DIY"
-        if "WAR" in raw_fac: fac_code = "SPO"
+        if "WAR" in raw_fac: fac_code = "MIL"
         elif "CANDLE" in raw_fac: fac_code = "FAN"
-        elif "MILK" in raw_fac or "M.I.L.K" in raw_fac: fac_code = "MIL"
+        elif "MILK" in raw_fac or "M.I.L.K" in raw_fac: fac_code = "SPO"
         
         tier_num = 1
         m_tier = re.search(r"_0*(\d)$", ptid)
@@ -2543,9 +2661,9 @@ class CompleteSaveEditorGUI(tk.Tk):
             if fac_filter not in ("Todas", "All"):
                 f_target_key = None
                 if "D.O.D" in fac_filter: f_target_key = "DOD"
-                elif "WAR" in fac_filter: f_target_key = "SPO"
+                elif "WAR" in fac_filter: f_target_key = "MIL"
                 elif "CANDLE" in fac_filter: f_target_key = "FAN"
-                elif "M.I.L.K" in fac_filter: f_target_key = "MIL"
+                elif "M.I.L.K" in fac_filter or "MILK" in fac_filter: f_target_key = "SPO"
                 elif "FORCEMEN" in fac_filter or "TENGOKU" in fac_filter: f_target_key = "FORCEMEN"
                 elif "JACKAL" in fac_filter: f_target_key = "JACKAL"
                 elif "RE" in fac_filter: f_target_key = "RE"
@@ -3191,7 +3309,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         if not self.save_path or not os.path.exists(self.save_path):
             messagebox.showwarning("Aviso", "No hay ninguna partida cargada para respaldar.")
             return
-        bak_file = save_io.backup_save(self.save_path)
+        bak_file = save_io.create_backup(self.save_path)
         self.refresh_backups_list()
         self.status_var.set(f"Respaldo creado: {os.path.basename(bak_file)}")
         messagebox.showinfo("Respaldo Creado", f"¡Copia de seguridad creada con éxito!\n\n{bak_file}")
