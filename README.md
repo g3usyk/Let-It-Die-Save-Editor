@@ -1,4 +1,4 @@
-﻿# LET IT DIE - Offline Save Editor & Encyclopedia
+# LET IT DIE - Offline Save Editor & Encyclopedia
 
 An open-source desktop save editing suite and comprehensive game database for the PC (Steam) release of **LET IT DIE**.
 
@@ -14,7 +14,7 @@ If you just want to use the editor without dealing with code, Python, or command
 
 1. Go to the **[Releases](https://github.com/g3usyk/Let-It-Die-Save-Editor/releases)** page.
 2. Download the latest installer:
-   - `LetItDieSaveEditor_Setup.exe` (or `Instalador_LetItDieSaveEditor_v3.5.exe`)
+   - `LetItDieSaveEditor_Setup.exe`
 3. Double-click the installer and complete the setup wizard.
 4. Launch the application from your Desktop or Start Menu shortcut.
 5. No additional software or dependencies are required.
@@ -40,6 +40,19 @@ The entire codebase is 100% open-source, readable Python. You can clone the repo
    python editor_gui.py
    ```
    Or double-click **`run_editor.bat`**.
+
+---
+
+## Technical Documentation & Reverse Engineering Notes
+
+All reverse-engineering notes, engine save keys, and data tables extracted from `masters.db` are documented in English inside the **[`docs/`](docs/)** directory:
+
+- **[Internal Save Architecture & Soul Modifiers Reference](docs/ADVANCED_GAME_FEATURES_AND_SOUL_MODIFIERS.md)**:
+  Full technical breakdown of internal save paths (`soul.bodyuser`, `soul.chr`, `soul.psskl`, `soul.pr`), fighter stat calculations (level allocations vs combat health), Death 'Roids bonuses, TDM rank tables, inventory slot bindings, and elevator station IDs.
+- **[Verified Material Catalog & R&D Database](docs/GAME_DATABASE_VERIFIED_NOTES.md)**:
+  Complete reference indexing all 106 authentic crafting materials with internal item IDs, localized names, star rarities, and tower sector classifications.
+- **[Master Game Encyclopedia & Data Tables](docs/LET_IT_DIE_COMPLETE_ENCYCLOPEDIA.md)**:
+  Extracted reference tables covering 1,370 equipment pieces, 385 weapons, and 368 decals with exact combat effect descriptions.
 
 ---
 

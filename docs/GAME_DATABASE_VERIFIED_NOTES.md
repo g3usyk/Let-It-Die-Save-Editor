@@ -1,9 +1,9 @@
-# 💀 LET IT DIE - Base de Datos 100% Oficial Verificada (masters.db)
+# LET IT DIE - Verified Game Database & Material Catalog (masters.db)
 
-Esta tabla contiene **todos y cada uno de los 106 materiales auténticos extraídos directamente del ejecutable y la base de datos oficial del juego**:
+This document indexes all 106 authentic crafting materials extracted directly from the official client SQLite master database:
 `E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db`
 
-### 📂 Aluminio (Aluminum) (8 objetos)
+### Aluminum (8 items)
 
 | ID Oficial en Partida | Nombre en Español (`esn`) | Nombre en Inglés (`int`) | Rareza Oficial | Descripción |
 | :--- | :--- | :--- | :---: | :--- |
@@ -18,7 +18,7 @@ Esta tabla contiene **todos y cada uno de los 106 materiales auténticos extraí
 
 ---
 
-### 📂 Cobre (Copper) (8 objetos)
+### Copper (8 items)
 
 | ID Oficial en Partida | Nombre en Español (`esn`) | Nombre en Inglés (`int`) | Rareza Oficial | Descripción |
 | :--- | :--- | :--- | :---: | :--- |
@@ -33,7 +33,7 @@ Esta tabla contiene **todos y cada uno de los 106 materiales auténticos extraí
 
 ---
 
-### 📂 Textiles y Fibras (Cloth) (8 objetos)
+### Textiles & Fibers (8 items)
 
 | ID Oficial en Partida | Nombre en Español (`esn`) | Nombre en Inglés (`int`) | Rareza Oficial | Descripción |
 | :--- | :--- | :--- | :---: | :--- |
@@ -48,7 +48,7 @@ Esta tabla contiene **todos y cada uno de los 106 materiales auténticos extraí
 
 ---
 
-### 📂 Hierro y Acero (Iron & Steel) (8 objetos)
+### Iron & Steel (8 items)
 
 | ID Oficial en Partida | Nombre en Español (`esn`) | Nombre en Inglés (`int`) | Rareza Oficial | Descripción |
 | :--- | :--- | :--- | :---: | :--- |
@@ -63,7 +63,7 @@ Esta tabla contiene **todos y cada uno de los 106 materiales auténticos extraí
 
 ---
 
-### 📂 Petróleo y Aceites (Oil) (8 objetos)
+### Petroleum & Oils (8 items)
 
 | ID Oficial en Partida | Nombre en Español (`esn`) | Nombre en Inglés (`int`) | Rareza Oficial | Descripción |
 | :--- | :--- | :--- | :---: | :--- |
@@ -185,7 +185,7 @@ Esta tabla contiene **todos y cada uno de los 106 materiales auténticos extraí
 
 ---
 
-### 📂 Maderas (Wood) (8 objetos)
+### Wood & Planks (8 items)
 
 | ID Oficial en Partida | Nombre en Español (`esn`) | Nombre en Inglés (`int`) | Rareza Oficial | Descripción |
 | :--- | :--- | :--- | :---: | :--- |

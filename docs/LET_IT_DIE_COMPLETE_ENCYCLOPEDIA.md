@@ -1,4 +1,4 @@
-# 💀 LET IT DIE (Offline) - Gran Enciclopedia Completa de Datos Oficiales
+# LET IT DIE - Master Game Encyclopedia & Data Tables
 
 Extraído y verificado directamente de los archivos del juego (`masters.db`):
 - **1,370 Piezas de Equipo** (385 Armas, 345 Cascos, 326 Pechos, 314 Pantalones)
@@ -9,7 +9,7 @@ Extraído y verificado directamente de los archivos del juego (`masters.db`):
 
 ## 🏷️ 1. Calcomanías Oficiales (`master_skill` - 368 Calcomanías)
 
-| ID Calcomanía | Nombre en Español | Nombre en Inglés | Rareza | Premium | Efecto de Combate |
+| Decal ID | Spanish Name | English Name | Rarity | Type | Combat Effect |
 | :--- | :--- | :--- | :---: | :---: | :--- |
 | `SKL_ABPUP_01` | **Exprimidor** | Squeezer | 1★ | Estándar | Aumenta un 10% los PH ganados. |
 | `SKL_ABPUP_02` | **Superexprimidor** | Super Squeezer | 4★ | Estándar | Aumenta un 40% los PH ganados. |
