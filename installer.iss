@@ -1,6 +1,6 @@
 ; Inno Setup Script for LET IT DIE - Deep Save Editor Pro
 #define MyAppName "LET IT DIE Save Editor"
-#define MyAppVersion "2.6.0"
+#define MyAppVersion "2.6.1"
 #define MyAppPublisher "g3usyk"
 
 #define MyAppURL "https://github.com/g3usyk/Let-It-Die-Save-Editor"

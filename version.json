@@ -1,15 +1,14 @@
 {
-  "version": "2.6.0",
+  "version": "2.6.1",
   "name": "Let It Die - Complete Save Editor & Encyclopedia",
   "release_date": "2026-09-03",
   "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
   "changelog": [
-    "Gestion Completa de Luchadores en el Congelador: Creacion de nuevos personajes, clonacion profunda y eliminacion segura",
-    "Clonacion Profunda de Equipamiento e Inventario: Duplicacion identica de armas, armaduras con durabilidad, calcomanias y bolsa de muerte",
-    "Sincronizacion de Casillas del Congelador (soul.chr.slots) y orden directo 1:1 con el congelador del juego",
-    "Selector de Modelo y Aspecto Fisico: Seleccion directa entre los 16 modelos oficiales 3D (8 masculinos y 8 femeninos)",
-    "Modularizacion de Arquitectura: Division en modulos desacoplados (core/fighters, core/blueprints, core/currencies, core/decals, core/storage, ui/dialogs)",
-    "Suite de Pruebas Automatizadas: 33 pruebas unitarias completas para garantizar la integridad y estabilidad del guardado"
+    "Compresor ZLIB Balanceado: Distribucion en 4 trozos balanceados con UTF-8 estricto compatible con streaming nativo",
+    "Estabilizacion de la Torre: Retirada de inyeccion forzada de habitaciones off-rotation para prevenir cuelgues de carga",
+    "Boton de Rescate de Emergencia: Recuperacion automatica de luchadores atrapados en el vacio o en bucles de carga hacia la Sala de Espera",
+    "Auto-reparador de Esquemas (repair_save_list_structures): Correccion de diccionarios vacios serializados por el juego",
+    "Soporte Hibrido de Almacen: Compatibilidad nativa para inventarios serializados como listas o diccionarios",
+    "Proteccion de Casillas de Bolsa de Muerte: Limitacion a 35 casillas maximas seguras para evitar desbordes en la interfaz del juego"
   ]
 }
-
