@@ -2801,13 +2801,18 @@ class CompleteSaveEditorGUI(tk.Tk):
                 self.cb_single_lvl.config(values=evolve_vals)
                 self.bp_single_lvl_var.set("+4 (In R&D)" if is_en else "+4 (En I+D)")
 
-                nxt_name = (item_meta.get("next_name_en") if is_en else item_meta.get("next_name_es")) or nextptid
+                nxt_meta = next((item for item in self.equipment_db if item["id"] == nextptid), None)
+                nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) or nextptid
                 self.bp_evolve_lbl.config(
                     text=f"🔄 Evolves at +4 to: {nxt_name}" if is_en else f"🔄 Evoluciona a Nvl +4 a: {nxt_name}",
                     foreground=ACCENT_CYAN
                 )
                 if hasattr(self, "btn_evolve_tier"):
-                    btn_txt = f"🔄 Evolve to {nxt_name} (+4)" if is_en else f"🔄 Evolucionar a {nxt_name} (+4)"
+                    is_nxt_uncap = nxt_meta.get("can_uncap", False) if nxt_meta else False
+                    if is_nxt_uncap:
+                        btn_txt = f"⚡ Desbloquear {nxt_name} (+19 en I+D)" if not is_en else f"⚡ Unlock {nxt_name} (+19 in R&D)"
+                    else:
+                        btn_txt = f"🔄 Evolucionar a {nxt_name} (+4)" if not is_en else f"🔄 Evolve to {nxt_name} (+4)"
                     self.btn_evolve_tier.config(text=btn_txt)
                     self.btn_evolve_tier.pack(fill="x", pady=(2, 4))
             
@@ -3039,13 +3044,16 @@ class CompleteSaveEditorGUI(tk.Tk):
         if not nextptid:
             return
             
+        nxt_meta = next((item for item in self.equipment_db if item["id"] == nextptid), None)
+        is_nxt_uncap = nxt_meta.get("can_uncap", False) if nxt_meta else False
         modifiers.unlock_single_blueprint(self.save_json, ptid, level=4, unlock_next_tier=True)
+        if is_nxt_uncap:
+            modifiers.send_blueprint_to_rnd(self.save_json, nextptid, target_level=19)
         self._auto_save()
         self.filter_blueprints_list()
         
         is_en = (i18n.get_language() == "en")
         cur_name = item_meta.get("name_en") if is_en else item_meta.get("name_es")
-        nxt_meta = next((item for item in self.equipment_db if item["id"] == nextptid), None)
         nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else nextptid
         
         self._notify(
@@ -3230,12 +3238,21 @@ class CompleteSaveEditorGUI(tk.Tk):
             return
         cnt = modifiers.upgrade_all_equipment_max_level(self.save_json, target_lvl=target_lvl)
         self._auto_save()
+        self.filter_blueprints_list()
         self.refresh_all_views()
-        self._notify(
-            "Gear Upgraded", "Equipo al Máximo",
-            f"{cnt} equipment pieces upgraded to Level +{target_lvl} (Uncapped) in Storage & Bags!",
-            f"¡Se han mejorado {cnt} piezas de armas y armaduras a Nivel +{target_lvl} (Uncapped) en tu Almacén y Bolsas!"
-        )
+        is_en = (i18n.get_language() == "en")
+        if target_lvl == 19:
+            self._notify(
+                "All Uncapped Gear in R&D (+19)!", "¡Todo el Equipo Destopado a I+D (+19)!",
+                f"Updated {cnt} equipment items in Storage & Bags!\n\n🔨 ALL 377+ uncapped blueprints sent to R&D (+18 in Shop, ready to upgrade to +19)!\nSaved automatically.",
+                f"¡Se han actualizado {cnt} piezas de equipo en Almacén y Bolsas!\n\n🔨 ¡Los 377+ planos destopados se enviaron a I+D (+18 en Tienda, listos para subir a +19)!\nGuardado automáticamente."
+            )
+        else:
+            self._notify(
+                "All Uncapped Gear Maxed!", "¡Todo el Equipo al Máximo Absoluto!",
+                f"Updated {cnt} items! All uncapped gear set to Level +19 in Shop & Storage!\nSaved automatically.",
+                f"¡Se han actualizado {cnt} piezas! ¡Todo el equipo destopado se estableció al Máximo en Tienda y Almacén!\nGuardado automáticamente."
+            )
 
     def filter_blueprints_list(self):
         self.bp_tree.delete(*self.bp_tree.get_children())

@@ -157,6 +157,19 @@ def unlock_blueprints(save, category="all", max_level=4):
             continue
         if bp_id not in by_ptid:
             added += 1
+        meta = get_equipment_meta(bp_id)
+        can_uncap = meta.get("can_uncap", False)
+        if max_level == 19:
+            target_engine_lvl = 19 if can_uncap else 5
+        elif max_level in (20, 24, 25):
+            target_engine_lvl = 20 if can_uncap else 5
+        elif max_level in (4, 5):
+            target_engine_lvl = 5
+        elif max_level in (1, 2, 3):
+            target_engine_lvl = max_level + 1
+        else:
+            target_engine_lvl = 5
+
         bp_entries = [
             {
                 "ptid": bp_id,
@@ -168,18 +181,18 @@ def unlock_blueprints(save, category="all", max_level=4):
                 "before_ptid": bp_id if lvl > 1 else "",
                 "before_lvl": lvl - 1 if lvl > 1 else 0
             }
-            for lvl in range(1, 5)
+            for lvl in range(1, target_engine_lvl)
         ]
-        # Level 5 (Completed +4, available to purchase in Chokufunsha)
+        # Highest level entry marked as CHARGE so it can be bought in Chokufunsha Shop
         bp_entries.append({
             "ptid": bp_id,
-            "lvl": 5,
+            "lvl": target_engine_lvl,
             "research_type": "FINISHED",
             "receive_type": "CHARGE",
             "is_announced": 1,
             "is_checked": 3,
-            "before_ptid": bp_id,
-            "before_lvl": 4
+            "before_ptid": bp_id if target_engine_lvl > 1 else "",
+            "before_lvl": target_engine_lvl - 1 if target_engine_lvl > 1 else 0
         })
         by_ptid[bp_id] = bp_entries
         
@@ -774,22 +787,53 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
                             b_item["dur"] = max(b_item.get("dur", 50000), 999999)
                         modified_count += 1
 
-    # Also upgrade unlocked blueprints in Chokufunsha Shop (soul.partresearch.user) so they can be bought at +19!
+    # Upgrade and send all uncapped blueprints in Chokufunsha to R&D (or Shop Max)
     soul = save.setdefault("soul", {})
     pr_dict = soul.setdefault("partresearch", {})
     pr_list = pr_dict.setdefault("user", [])
     
-    bp_charge_ptids = set()
+    # Pre-cache parent map from database for fast ancestor resolution
+    parent_map = {}
+    db_path = get_masters_db_path()
+    if os.path.exists(db_path):
+        try:
+            import sqlite3
+            conn = sqlite3.connect(db_path)
+            cur = conn.cursor()
+            cur.execute("SELECT id, nextptid FROM master_part WHERE nextptid != '';")
+            for p, nxt in cur.fetchall():
+                if nxt:
+                    parent_map[nxt] = p
+            conn.close()
+        except Exception:
+            pass
+
+    eq = load_all_equipment()
+    all_ptids = eq.get("all", [])
+    uncapped_targets = [p for p in all_ptids if p not in DUMMY_OR_CLOSED_PARTS and get_equipment_meta(p).get("can_uncap")]
+
+    # Also include any existing ptids in pr_list that have CHARGE
     for e in pr_list:
         if isinstance(e, dict) and e.get("receive_type") == "CHARGE":
-            bp_charge_ptids.add(e.get("ptid"))
-            
-    for ptid in bp_charge_ptids:
-        meta = get_equipment_meta(ptid)
-        if meta.get("can_uncap", True):
-            # For target_lvl=19, sets shop to +18 (de fabrica max) and R&D ready for +19!
-            bp_lvl = 19 if target_lvl == 19 else 20
-            unlock_single_blueprint(save, ptid, level=bp_lvl, unlock_next_tier=False, auto_unlock_ancestors=False)
+            p = e.get("ptid")
+            if p and p not in uncapped_targets and p not in DUMMY_OR_CLOSED_PARTS:
+                if get_equipment_meta(p).get("can_uncap"):
+                    uncapped_targets.append(p)
+
+    for ptid in uncapped_targets:
+        # Unlock ancestors at Level 5 (+4) if needed
+        for anc in get_equipment_ancestors(ptid, parent_map):
+            anc_e = [e for e in pr_list if e.get("ptid") == anc]
+            has_lvl5 = any(e.get("lvl") == 5 and e.get("research_type") == "FINISHED" for e in anc_e)
+            if not has_lvl5:
+                unlock_single_blueprint(save, anc, level=4, unlock_next_tier=False, auto_unlock_ancestors=False)
+
+        # For target_lvl=19: sets shop to +18 (de fabrica max) and R&D ready for +19!
+        # For target_lvl in (20, 24): sets shop to +19 fully finished!
+        if target_lvl == 19:
+            send_blueprint_to_rnd(save, ptid, target_level=19, auto_unlock_ancestors=False)
+        else:
+            unlock_single_blueprint(save, ptid, level=20, unlock_next_tier=False, auto_unlock_ancestors=False)
                         
     return modified_count
 
