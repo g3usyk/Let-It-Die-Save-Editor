@@ -118,8 +118,10 @@ TRANSLATIONS = {
         "vip_days_lbl": "Días de Pase VIP:",
         "activate_vip_btn": "👑 Activar VIP",
         "vip_30d": "30 Días",
-        "vip_60d": "60 Días",
-        "vip_90d": "90 Días (Máx Seguro)",
+        "vip_safe_note": "⚠️ Máximo 30 días activo para evitar errores en el ascensor.\nPuedes almacenar hasta 99 pases en reserva.",
+        "deactivate_vip_btn": "❌ Cancelar VIP",
+        "vip_30d_btn": "🎫 30 Días (+99 Reserva)",
+        "vip_1d_btn": "🎟️ 1 Día (+99 Reserva)",
         "vip_stock_passes": "📦 +99 Pases Reserva",
 
         "account_perks_title": "🎒 Ventajas de Cuenta y Bolsa de Muerte",
@@ -330,6 +332,10 @@ TRANSLATIONS = {
         "bp_upg_all19_btn": "⚡ Mejorar Todo a Nivel +19 (Uncapped)",
         "bp_upg_all24_btn": "🔥 Mejorar Todo a Nivel +24 (Máximo Uncapped)",
         "bp_unlock_all_btn": "🌟 DESBLOQUEAR TODO",
+        "bp_evolve_tier_btn": "🔄 Desbloquear Sig. Tier (+4)",
+        "bp_endgame_box_title": "🛡️ Inyector de Sets Endgame",
+        "bp_inject_set_btn": "🛡️ Inyectar Set Completo al Almacén",
+        "bp_status_uncapped": "⭐ Tienda (+{lvl} Destope)",
 
         # Tab 6: Weapon Masteries
         "wm_target_lvl_lbl": "Nivel Deseado:",
@@ -345,6 +351,7 @@ TRANSLATIONS = {
         "tw_elev_title": "🛗 Ascensores y Pisos de la Torre (1 al 51+ Tengoku)",
         "tw_elev_sub": "Desbloquea el acceso directo a todos los pisos del 1 al 40, Battle Royale 41-50 y Tengoku.",
         "tw_elev_btn": "🛗 Desbloquear TODOS los Ascensores y Pisos",
+        "tw_rescue_btn": "🚨 Rescate a Sala de Espera (Fix Carga)",
         "tw_stamp_title": "🎯 Stamp Rally 100% Perfecto (Sellos del Tío Death)",
         "tw_stamp_sub": "Marca todos los sellos de la Torre en PERFECT. Desbloquea la Guadaña del Tío Death.",
         "tw_stamp_btn": "⭐ Completar Sellos en PERFECT (Desbloquea Guadaña)",
@@ -546,10 +553,11 @@ TRANSLATIONS = {
         "vip_days_lbl": "VIP Pass Days:",
         "activate_vip_btn": "👑 Activate VIP",
         "vip_30d": "30 Days",
-
-        "vip_60d": "60 Days",
-        "vip_90d": "90 Days (Safe Max)",
-        "vip_stock_passes": "📦 +99 Passes in Stock",
+        "vip_safe_note": "⚠️ Maximum 30 active days to avoid elevator clerk errors.\nYou can keep up to 99 reserve passes in inventory.",
+        "deactivate_vip_btn": "❌ Cancel VIP",
+        "vip_30d_btn": "🎫 30 Days (+99 Reserve)",
+        "vip_1d_btn": "🎟️ 1 Day (+99 Reserve)",
+        "vip_stock_passes": "📦 +99 Reserve Passes",
 
         "account_perks_title": "🎒 Account Perks & Death Bag Expansion",
         "account_summary_title": "📋 Account Profile & Save Metadata",
@@ -759,6 +767,10 @@ TRANSLATIONS = {
         "bp_upg_all19_btn": "⚡ Upgrade All to Level +19 (Uncapped)",
         "bp_upg_all24_btn": "🔥 Upgrade All to Level +24 (Max Uncapped)",
         "bp_unlock_all_btn": "🌟 UNLOCK ALL",
+        "bp_evolve_tier_btn": "🔄 Unlock Next Tier (+4)",
+        "bp_endgame_box_title": "🛡️ Endgame Sets Injector",
+        "bp_inject_set_btn": "🛡️ Inject Full Set to Storage",
+        "bp_status_uncapped": "⭐ In Shop (+{lvl} Uncapped)",
 
         # Tab 6: Weapon Masteries
         "wm_target_lvl_lbl": "Desired Level:",
@@ -774,6 +786,7 @@ TRANSLATIONS = {
         "tw_elev_title": "🛗 Elevators & Tower Floors (1 to 51+ Tengoku)",
         "tw_elev_sub": "Unlocks direct access to all floors 1-40, Battle Royale 41-50, and Tengoku.",
         "tw_elev_btn": "🛗 Unlock ALL Elevators & Floors",
+        "tw_rescue_btn": "🚨 Waiting Room Emergency Rescue (Fix Stuck Loop)",
         "tw_stamp_title": "🎯 Stamp Rally 100% Perfect (Uncle Death)",
         "tw_stamp_sub": "Marks all stamps as PERFECT. Unlocks Uncle Death's Scythe.",
         "tw_stamp_btn": "⭐ Complete All Stamps in PERFECT (Unlocks Scythe)",

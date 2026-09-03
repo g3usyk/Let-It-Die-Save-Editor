@@ -1040,7 +1040,11 @@ class CompleteSaveEditorGUI(tk.Tk):
 
             
             self.f_title_lbl.config(text=name)
-            self.f_sub_lbl.config(text=f"Clase: {cls_name} ({cls_code}) | Grado: Tier {grade} ★ | Nivel: {lvl}")
+            is_en = (i18n.get_language() == "en")
+            if is_en:
+                self.f_sub_lbl.config(text=f"Class: {cls_name} ({cls_code}) | Grade: Tier {grade} ★ | Level: {lvl}")
+            else:
+                self.f_sub_lbl.config(text=f"Clase: {cls_name} ({cls_code}) | Grado: Tier {grade} ★ | Nivel: {lvl}")
             
             cls_icon_filename = FIGHTER_CLASSES.get(cls_code, ("", "all-rounder.png"))[1]
             ico = self.get_photo(cls_icon_filename, (48, 48)) or self.get_photo("all-rounder", (48, 48))
@@ -2627,6 +2631,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.bp_tree.bind("<<TreeviewSelect>>", self._on_bp_select)
         
         # Tags styling
+        self.bp_tree.tag_configure("tag_uncapped", foreground="#ff79c6")
         self.bp_tree.tag_configure("tag_shop", foreground=ACCENT_GOLD)
         self.bp_tree.tag_configure("tag_remodel", foreground=ACCENT_BLUE)
         self.bp_tree.tag_configure("tag_locked", foreground=FG_MUTED)
@@ -2687,10 +2692,11 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.bp_evolve_lbl = ttk.Label(indiv_box, text="", font=("Segoe UI", 9, "bold"), wraplength=260, justify="center")
         self.bp_evolve_lbl.pack(fill="x", pady=(4, 2))
         
-        self.btn_evolve_tier = ttk.Button(indiv_box, text="🔄 Desbloquear Sig. Tier (+4)", style="Accent.TButton", command=self._evolve_selected_bp_to_next_tier)
+        self.btn_evolve_tier = ttk.Button(indiv_box, text=t("bp_evolve_tier_btn"), style="Accent.TButton", command=self._evolve_selected_bp_to_next_tier)
 
         # Endgame Sets Injector Box
-        endgame_box = ttk.LabelFrame(self.bp_card, text="🛡️ Inyector de Sets Endgame", padding=8)
+        is_en = (i18n.get_language() == "en")
+        endgame_box = ttk.LabelFrame(self.bp_card, text=t("bp_endgame_box_title"), padding=8)
         endgame_box.pack(fill="x", pady=4)
         
         self.endgame_set_var = tk.StringVar(value="44CE White Steel (D.O.D. Arms)")
@@ -2699,12 +2705,12 @@ class CompleteSaveEditorGUI(tk.Tk):
             "44CE Red Napalm (War Ensemble)",
             "44CE Black Thunder (Candle Wolf)",
             "44CE Pale Wind (M.I.L.K.)",
-            "Sets Jackals v1 / v2 / v3",
-            "Armas Legendarias de Tengoku (51F+)"
+            "Jackals Sets v1 / v2 / v3" if is_en else "Sets Jackals v1 / v2 / v3",
+            "Tengoku Legendary Weapons (51F+)" if is_en else "Armas Legendarias de Tengoku (51F+)"
         ]
         cb_endgame = ttk.Combobox(endgame_box, textvariable=self.endgame_set_var, values=set_choices, state="readonly", width=28)
         cb_endgame.pack(fill="x", pady=2)
-        ttk.Button(endgame_box, text="🛡️ Inyectar Set Completo al Almacén", style="Accent.TButton", command=self._inject_endgame_set_action).pack(fill="x", pady=2)
+        ttk.Button(endgame_box, text=t("bp_inject_set_btn"), style="Accent.TButton", command=self._inject_endgame_set_action).pack(fill="x", pady=2)
 
         # Global Equipment Modifiers Box
         global_gear_box = ttk.LabelFrame(self.bp_card, text=t("bp_mass_actions_title"), padding=8)
@@ -2749,8 +2755,10 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         self.current_bp_selection = ptid
         self.bp_title_lbl.config(text=f"{full_title}\n({ptid})")
-        self.bp_faction_lbl.config(text=f"{slot} • {faction}")
-        self.bp_status_lbl.config(text=t("bp_status_info", status=status, storage=storage_str, bag=bag_str))
+        if "+19" in status or "Uncapped" in status or "Destope" in status:
+            self.bp_status_lbl.config(text=t("bp_status_info", status=status, storage=storage_str, bag=bag_str), foreground="#ff79c6")
+        else:
+            self.bp_status_lbl.config(text=t("bp_status_info", status=status, storage=storage_str, bag=bag_str), foreground=ACCENT_CYAN)
         
         # Check if this item belongs to an armor set
         lookup_id = ptid
@@ -2783,7 +2791,7 @@ class CompleteSaveEditorGUI(tk.Tk):
                 self.bp_single_lvl_var.set("+19 (Uncapped)" if is_en else "+19 (Destope)")
                 self.bp_evolve_lbl.config(
                     text="⭐ Final Tier: Can be Uncapped to +19 / +24!" if is_en else "⭐ Tier Final: ¡Permite Destope (Uncapped) a +19 / +24!",
-                    foreground=ACCENT_GOLD
+                    foreground="#ff79c6"
                 )
                 if hasattr(self, "btn_evolve_tier"):
                     self.btn_evolve_tier.pack_forget()
@@ -3273,15 +3281,19 @@ class CompleteSaveEditorGUI(tk.Tk):
             if bp_id in pr_map:
                 forge_info = pr_map[bp_id]
                 forge_code = forge_info["status"]
+                lvl_val = forge_info.get("lvl", 20)
+                plus_lvl = lvl_val - 1 if lvl_val > 1 else lvl_val
                 if is_en:
-                    if forge_code == "STORE_PLUS4": forge_status = "⭐ In Shop (+4)"
+                    if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ In Shop (+{plus_lvl} Uncapped)"
+                    elif forge_code == "STORE_PLUS4": forge_status = "⭐ In Shop (+4)"
                     elif forge_code == "STORE": forge_status = f"🛒 In Shop (+{forge_info.get('level', 1)})"
-                    elif forge_code == "FINISHED_LVL": forge_status = f"🔨 In R&D (+{forge_info.get('lvl', 1)-1} → +{forge_info.get('lvl', 1)})"
+                    elif forge_code == "FINISHED_LVL": forge_status = f"🔨 In R&D (+{lvl_val-1} → +{lvl_val})"
                     elif forge_code == "REMODEL": forge_status = "🔨 In R&D (Evolution +0)"
                     elif forge_code == "MAP": forge_status = "📜 In R&D (Blueprint +0)"
                     else: forge_status = forge_info.get("label", forge_code)
                 else:
-                    forge_status = forge_info["label"]
+                    if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ Tienda (+{plus_lvl} Destope)"
+                    else: forge_status = forge_info["label"]
 
             else:
                 forge_status = "❌ Locked" if is_en else "❌ Bloqueado"
@@ -3293,7 +3305,7 @@ class CompleteSaveEditorGUI(tk.Tk):
             # 4. Filter by Possession
             if ("Almacén" in poss_filter or "Storage" in poss_filter) and storage_count <= 0:
                 continue
-            elif ("Desbloqueados" in poss_filter or "Unlocked" in poss_filter) and forge_code != "STORE_PLUS4":
+            elif ("Desbloqueados" in poss_filter or "Unlocked" in poss_filter) and forge_code not in ("STORE_PLUS4", "STORE_UNCAPPED"):
                 continue
             elif ("I+D" in poss_filter or "R&D" in poss_filter) and forge_code not in ("REMODEL", "MAP", "FINISHED_LVL"):
                 continue
@@ -3346,7 +3358,14 @@ class CompleteSaveEditorGUI(tk.Tk):
             storage_str = f"{storage_count} pcs." if is_en and storage_count > 0 else (f"{storage_count} u." if storage_count > 0 else "-")
             bag_str = f"{bag_count} pcs." if is_en and bag_count > 0 else (f"{bag_count} u." if bag_count > 0 else "-")
             
-            tag = "tag_shop" if forge_code == "STORE_PLUS4" else ("tag_remodel" if forge_code in ("REMODEL", "MAP") else "tag_locked")
+            if forge_code == "STORE_UNCAPPED":
+                tag = "tag_uncapped"
+            elif forge_code == "STORE_PLUS4":
+                tag = "tag_shop"
+            elif forge_code in ("REMODEL", "MAP"):
+                tag = "tag_remodel"
+            else:
+                tag = "tag_locked"
             
             art_rel = self._find_equipment_art(bp_id)
             thumb = self.get_photo(art_rel, size=(36, 36), preserve_aspect=True)
@@ -3925,32 +3944,33 @@ class CompleteSaveEditorGUI(tk.Tk):
                 self.vip_status_lbl.config(text=t("vip_inactive"), foreground=ACCENT_RED)
             
         # Account Metadata & Login Streak (Tab 1)
+        is_en = (i18n.get_language() == "en")
         acct = modifiers.get_account_overview(self.save_json)
         if hasattr(self, "acct_uid_lbl"):
             self.acct_uid_lbl.config(text=f"UID: {acct.get('uid', '---')} | Steam ID: {acct.get('steam_id', '---')}")
         if hasattr(self, "acct_streak_lbl"):
-            self.acct_streak_lbl.config(text=f"🔥 Racha Login: {acct.get('login_streak', 1)} días")
+            self.acct_streak_lbl.config(text=f"🔥 Login Streak: {acct.get('login_streak', 1)} days" if is_en else f"🔥 Racha Login: {acct.get('login_streak', 1)} días")
         
         # Tower Playlog & Records (Tab 1 & Tab 7)
         pl = modifiers.get_tower_playlog(self.save_json)
         if hasattr(self, "acct_playtime_lbl"):
-            self.acct_playtime_lbl.config(text=f"⏱️ Horas Jugadas: {pl.get('playtime_hours', 0.0)} hrs")
+            self.acct_playtime_lbl.config(text=f"⏱️ Playtime: {pl.get('playtime_hours', 0.0)} hrs" if is_en else f"⏱️ Horas Jugadas: {pl.get('playtime_hours', 0.0)} hrs")
         if hasattr(self, "max_floor_var"):
             self.max_floor_var.set(str(pl.get("max_floor", 40)))
         if hasattr(self, "interrupt_lbl"):
-            self.interrupt_lbl.config(text=f"{pl.get('interruptions', 0):,} penalizaciones")
+            self.interrupt_lbl.config(text=f"{pl.get('interruptions', 0):,} penalties" if is_en else f"{pl.get('interruptions', 0):,} penalizaciones")
         if hasattr(self, "pl_elev_lbl"):
-            self.pl_elev_lbl.config(text=f"🛗 Ascensores: {pl.get('elevators', 0):,}")
+            self.pl_elev_lbl.config(text=f"🛗 Elevators: {pl.get('elevators', 0):,}" if is_en else f"🛗 Ascensores: {pl.get('elevators', 0):,}")
         if hasattr(self, "pl_esc_lbl"):
-            self.pl_esc_lbl.config(text=f"🪜 Escaleras: {pl.get('escalators', 0):,}")
+            self.pl_esc_lbl.config(text=f"🪜 Escalators: {pl.get('escalators', 0):,}" if is_en else f"🪜 Escaleras: {pl.get('escalators', 0):,}")
         if hasattr(self, "pl_mats_lbl"):
-            self.pl_mats_lbl.config(text=f"📦 Materiales: {pl.get('materials_collected', 0):,}")
+            self.pl_mats_lbl.config(text=f"📦 Materials: {pl.get('materials_collected', 0):,}" if is_en else f"📦 Materiales: {pl.get('materials_collected', 0):,}")
         if hasattr(self, "pl_res_lbl"):
-            self.pl_res_lbl.config(text=f"🔬 Investigaciones: {pl.get('researches', 0):,}")
+            self.pl_res_lbl.config(text=f"🔬 Researches: {pl.get('researches', 0):,}" if is_en else f"🔬 Investigaciones: {pl.get('researches', 0):,}")
         if hasattr(self, "pl_boss_lbl"):
-            self.pl_boss_lbl.config(text=f"💀 Jefes Vencidos: {pl.get('boss_kills', 0):,}")
+            self.pl_boss_lbl.config(text=f"💀 Bosses Defeated: {pl.get('boss_kills', 0):,}" if is_en else f"💀 Jefes Vencidos: {pl.get('boss_kills', 0):,}")
         if hasattr(self, "pl_time_lbl"):
-            self.pl_time_lbl.config(text=f"⏱️ Horas Torre: {pl.get('playtime_hours', 0.0)} hrs")
+            self.pl_time_lbl.config(text=f"⏱️ Tower Hours: {pl.get('playtime_hours', 0.0)} hrs" if is_en else f"⏱️ Horas Torre: {pl.get('playtime_hours', 0.0)} hrs")
         
         # 2. Update Fighters List (1:1 with in-game Fighter Freezer)
         self.fighters_tree.delete(*self.fighters_tree.get_children())
