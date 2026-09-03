@@ -445,15 +445,19 @@ def get_blueprints_unlock_map(save):
             
     unlock_map = {}
     for ptid, lvl in max_finished_lvl.items():
-        if lvl >= 20:
-            unlock_map[ptid] = {"status": "STORE_UNCAPPED", "lvl": lvl, "label": f"⭐ Tienda (+{lvl-1} Destope)"}
-        elif lvl == 5:
-            unlock_map[ptid] = {"status": "STORE_PLUS4", "lvl": lvl, "label": "⭐ Tienda (+4)"}
-        elif lvl > 5:
-            unlock_map[ptid] = {"status": "STORE_UNCAPPED", "lvl": lvl, "label": f"⭐ Tienda (+{lvl-1} Destope)"}
+        meta = get_equipment_meta(ptid)
+        can_uncap = meta.get("can_uncap", True)
+        max_limit = 20 if can_uncap else 5
+        
+        if lvl >= max_limit:
+            if can_uncap:
+                unlock_map[ptid] = {"status": "STORE_UNCAPPED", "lvl": lvl, "label": f"⭐ Tienda (+{lvl-1} Destope)"}
+            else:
+                unlock_map[ptid] = {"status": "STORE_PLUS4", "lvl": lvl, "label": "⭐ Tienda (+4)"}
         else:
+            status_code = "RND_UNCAPPED" if (can_uncap and lvl >= 5) else "FINISHED_LVL"
             unlock_map[ptid] = {
-                "status": "FINISHED_LVL",
+                "status": status_code,
                 "lvl": lvl,
                 "label": f"🔨 En I+D (+{lvl-1} → +{lvl})"
             }
@@ -530,24 +534,25 @@ def send_blueprint_to_rnd(save, ptid, target_level=0, auto_unlock_ancestors=True
         # Researched up to target_level in shop, next level actively waiting in R&D
         meta = get_equipment_meta(ptid)
         can_uncap = meta.get("can_uncap", True)
-        if target_level in (19, 24):
-            engine_lvl = 20
+        if target_level in (19, 20, 24, 25):
+            engine_lvl = 19 if can_uncap else 4
         elif target_level == 4:
-            engine_lvl = 5
+            engine_lvl = 4
         elif target_level > 5:
-            engine_lvl = min(target_level, 20)
+            engine_lvl = min(target_level, 19) if can_uncap else 4
         else:
             engine_lvl = target_level
 
         if not can_uncap and engine_lvl > 5:
-            engine_lvl = 5
+            engine_lvl = 4
             
         for l in range(1, engine_lvl + 1):
+            is_highest = (l == engine_lvl)
             pr_list.append({
                 "ptid": ptid,
                 "lvl": l,
                 "research_type": "FINISHED",
-                "receive_type": "FINISHED",
+                "receive_type": "CHARGE" if is_highest else "FINISHED",
                 "is_announced": 1,
                 "is_checked": 1,
                 "before_ptid": (parent if l == 1 and parent else (ptid if l > 1 else "")),
@@ -598,14 +603,16 @@ def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True, auto_unl
     # level=1, 2, 3 -> engine level 2, 3, 4
     # level=0 -> engine level 1 (+0)
     level = int(level)
-    if level in (19, 20, 24, 25):
-        target_engine_lvl = 20
+    if level == 19:
+        target_engine_lvl = 19 if can_uncap else 4
+    elif level in (20, 24, 25):
+        target_engine_lvl = 20 if can_uncap else 5
     elif level in (4, 5):
         target_engine_lvl = 5
     elif level in (1, 2, 3):
         target_engine_lvl = level + 1
     elif level > 5:
-        target_engine_lvl = min(level, 20)
+        target_engine_lvl = min(level, 20 if can_uncap else 5)
     else:
         target_engine_lvl = 1
 
@@ -780,7 +787,9 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
     for ptid in bp_charge_ptids:
         meta = get_equipment_meta(ptid)
         if meta.get("can_uncap", True):
-            unlock_single_blueprint(save, ptid, level=uncap_internal, unlock_next_tier=False, auto_unlock_ancestors=False)
+            # For target_lvl=19, sets shop to +18 (de fabrica max) and R&D ready for +19!
+            bp_lvl = 19 if target_lvl == 19 else 20
+            unlock_single_blueprint(save, ptid, level=bp_lvl, unlock_next_tier=False, auto_unlock_ancestors=False)
                         
     return modified_count
 

@@ -2787,17 +2787,19 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         if hasattr(self, "cb_single_lvl") and hasattr(self, "bp_evolve_lbl"):
             if can_uncap:
-                self.cb_single_lvl.config(values=["+19 (Uncapped)", "+24 (Max)", "+4", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+19 (Destope)", "+24 (Máx)", "+4", "+3", "+2", "+1", "+0 (Plano)"])
-                self.bp_single_lvl_var.set("+19 (Uncapped)" if is_en else "+19 (Destope)")
+                uncap_vals = ["+19 (In R&D)", "+19 (Shop Max)", "+4", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+19 (En I+D)", "+19 (Tienda Máx)", "+4", "+3", "+2", "+1", "+0 (Plano)"]
+                self.cb_single_lvl.config(values=uncap_vals)
+                self.bp_single_lvl_var.set("+19 (In R&D)" if is_en else "+19 (En I+D)")
                 self.bp_evolve_lbl.config(
-                    text="⭐ Final Tier: Can be Uncapped to +19 / +24!" if is_en else "⭐ Tier Final: ¡Permite Destope (Uncapped) a +19 / +24!",
+                    text="⭐ Final Tier: Ready in R&D to Uncap to +19!" if is_en else "⭐ Tier Final: ¡Listo en I+D para Destope a +19!",
                     foreground="#ff79c6"
                 )
                 if hasattr(self, "btn_evolve_tier"):
                     self.btn_evolve_tier.pack_forget()
             else:
-                self.cb_single_lvl.config(values=["+4 (Evolves)", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+4 (Evoluciona)", "+3", "+2", "+1", "+0 (Plano)"])
-                self.bp_single_lvl_var.set("+4 (Evolves)" if is_en else "+4 (Evoluciona)")
+                evolve_vals = ["+4 (In R&D)", "+4 (Shop Max)", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+4 (En I+D)", "+4 (Tienda Máx)", "+3", "+2", "+1", "+0 (Plano)"]
+                self.cb_single_lvl.config(values=evolve_vals)
+                self.bp_single_lvl_var.set("+4 (In R&D)" if is_en else "+4 (En I+D)")
 
                 nxt_name = (item_meta.get("next_name_en") if is_en else item_meta.get("next_name_es")) or nextptid
                 self.bp_evolve_lbl.config(
@@ -2930,11 +2932,14 @@ class CompleteSaveEditorGUI(tk.Tk):
             return
         ptid = self.current_bp_selection
         val = str(self.bp_single_lvl_var.get())
-        if "24" in val or "19" in val:
-            lvl = 20
+        if "Tienda" in val or "Shop" in val:
+            lvl = 20 if ("19" in val or "24" in val) else 5
+            display_lvl = 19 if ("19" in val or "24" in val) else 4
+        elif "19" in val or "24" in val:
+            lvl = 19
             display_lvl = 19
         elif "4" in val:
-            lvl = 5
+            lvl = 4 if ("I+D" in val or "R&D" in val) else 5
             display_lvl = 4
         elif "3" in val:
             lvl = 4
@@ -2949,7 +2954,7 @@ class CompleteSaveEditorGUI(tk.Tk):
             lvl = 1
             display_lvl = 0
         else:
-            lvl = 20
+            lvl = 19
             display_lvl = 19
         next_unlocked = modifiers.unlock_single_blueprint(self.save_json, ptid, level=lvl, unlock_next_tier=True)
         self._auto_save()
@@ -3285,14 +3290,16 @@ class CompleteSaveEditorGUI(tk.Tk):
                 plus_lvl = lvl_val - 1 if lvl_val > 1 else lvl_val
                 if is_en:
                     if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ In Shop (+{plus_lvl} Uncapped)"
+                    elif forge_code == "RND_UNCAPPED": forge_status = f"🔨 In R&D (+{plus_lvl} → +{plus_lvl+1})"
                     elif forge_code == "STORE_PLUS4": forge_status = "⭐ In Shop (+4)"
                     elif forge_code == "STORE": forge_status = f"🛒 In Shop (+{forge_info.get('level', 1)})"
-                    elif forge_code == "FINISHED_LVL": forge_status = f"🔨 In R&D (+{lvl_val-1} → +{lvl_val})"
+                    elif forge_code == "FINISHED_LVL": forge_status = f"🔨 In R&D (+{plus_lvl} → +{plus_lvl+1})"
                     elif forge_code == "REMODEL": forge_status = "🔨 In R&D (Evolution +0)"
                     elif forge_code == "MAP": forge_status = "📜 In R&D (Blueprint +0)"
                     else: forge_status = forge_info.get("label", forge_code)
                 else:
                     if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ Tienda (+{plus_lvl} Destope)"
+                    elif forge_code == "RND_UNCAPPED": forge_status = f"🔨 En I+D (+{plus_lvl} → +{plus_lvl+1})"
                     else: forge_status = forge_info["label"]
 
             else:
@@ -3305,9 +3312,9 @@ class CompleteSaveEditorGUI(tk.Tk):
             # 4. Filter by Possession
             if ("Almacén" in poss_filter or "Storage" in poss_filter) and storage_count <= 0:
                 continue
-            elif ("Desbloqueados" in poss_filter or "Unlocked" in poss_filter) and forge_code not in ("STORE_PLUS4", "STORE_UNCAPPED"):
+            elif ("Desbloqueados" in poss_filter or "Unlocked" in poss_filter) and forge_code not in ("STORE_PLUS4", "STORE_UNCAPPED", "RND_UNCAPPED"):
                 continue
-            elif ("I+D" in poss_filter or "R&D" in poss_filter) and forge_code not in ("REMODEL", "MAP", "FINISHED_LVL"):
+            elif ("I+D" in poss_filter or "R&D" in poss_filter) and forge_code not in ("REMODEL", "MAP", "FINISHED_LVL", "RND_UNCAPPED"):
                 continue
             elif ("Bloqueados" in poss_filter or "Locked" in poss_filter) and forge_code != "LOCKED":
 
@@ -3358,11 +3365,11 @@ class CompleteSaveEditorGUI(tk.Tk):
             storage_str = f"{storage_count} pcs." if is_en and storage_count > 0 else (f"{storage_count} u." if storage_count > 0 else "-")
             bag_str = f"{bag_count} pcs." if is_en and bag_count > 0 else (f"{bag_count} u." if bag_count > 0 else "-")
             
-            if forge_code == "STORE_UNCAPPED":
+            if forge_code in ("STORE_UNCAPPED", "RND_UNCAPPED"):
                 tag = "tag_uncapped"
             elif forge_code == "STORE_PLUS4":
                 tag = "tag_shop"
-            elif forge_code in ("REMODEL", "MAP"):
+            elif forge_code in ("REMODEL", "MAP", "FINISHED_LVL"):
                 tag = "tag_remodel"
             else:
                 tag = "tag_locked"

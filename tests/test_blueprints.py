@@ -135,12 +135,19 @@ class TestBlueprints(unittest.TestCase):
         self.assertEqual(len(dups), 0, f"No duplicates allowed in save: {dups}")
 
     def test_uncapped_blueprint_and_storage_upgrade(self):
-        # Unlocking final tier (PT_ARM_WP001_005) to +19 Uncapped
+        # 1. Unlocking final tier (PT_ARM_WP001_005) to level 19 (R&D ready for +19)
         modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=19, unlock_next_tier=False)
         pr_map = modifiers.get_blueprints_unlock_map(self.save)
-        self.assertEqual(pr_map["PT_ARM_WP001_005"]["status"], "STORE_UNCAPPED")
-        self.assertEqual(pr_map["PT_ARM_WP001_005"]["lvl"], 20)
-        self.assertIn("+19", pr_map["PT_ARM_WP001_005"]["label"])
+        self.assertEqual(pr_map["PT_ARM_WP001_005"]["status"], "RND_UNCAPPED")
+        self.assertEqual(pr_map["PT_ARM_WP001_005"]["lvl"], 19)
+        self.assertIn("+18 → +19", pr_map["PT_ARM_WP001_005"]["label"])
+        
+        # 2. Unlocking final tier to level 20 (Shop Max)
+        modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=20, unlock_next_tier=False)
+        pr_map2 = modifiers.get_blueprints_unlock_map(self.save)
+        self.assertEqual(pr_map2["PT_ARM_WP001_005"]["status"], "STORE_UNCAPPED")
+        self.assertEqual(pr_map2["PT_ARM_WP001_005"]["lvl"], 20)
+        self.assertIn("+19", pr_map2["PT_ARM_WP001_005"]["label"])
         
         # Verify CHARGE is set on level 20
         pr_u = self.save["soul"]["partresearch"]["user"]
