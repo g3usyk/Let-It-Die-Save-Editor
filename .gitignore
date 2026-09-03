@@ -29,3 +29,4 @@ desktop.ini
 *.log
 .system_generated/
 scratch/
+config.json

@@ -114,7 +114,13 @@ class UpdateNotificationDialog(tk.Toplevel):
         self.remote_info = remote_info
         self.on_update_complete = on_update_complete
         
-        self.title("⚡ Actualización Disponible - Let It Die Save Editor")
+        try:
+            import i18n
+            title_txt = i18n.t("updater_avail_title")
+        except Exception:
+            title_txt = "⚡ Update Available - Let It Die Save Editor"
+            
+        self.title(title_txt)
         self.geometry("540x420")
         self.minsize(480, 360)
         self.configure(bg="#151824")
@@ -124,6 +130,12 @@ class UpdateNotificationDialog(tk.Toplevel):
         self._build_ui()
         
     def _build_ui(self):
+        try:
+            import i18n
+            t = i18n.t
+        except Exception:
+            t = lambda k, **kw: k
+            
         local_info = get_local_version_info()
         loc_v = local_info.get("version", CURRENT_VERSION)
         rem_v = self.remote_info.get("version", "Nueva")
@@ -135,13 +147,13 @@ class UpdateNotificationDialog(tk.Toplevel):
         
         tk.Label(
             header,
-            text="🚀 ¡NUEVA VERSIÓN DISPONIBLE!",
+            text=t("updater_avail_header"),
             font=("Segoe UI", 12, "bold"),
             fg="#f39c12",
             bg="#1c2030"
         ).pack(anchor="w")
         
-        sub = f"Versión actual: v{loc_v}  ➔  Nueva versión: v{rem_v}"
+        sub = t("updater_current_vs_new", current=loc_v, remote=rem_v)
         if rel_date:
             sub += f"  ({rel_date})"
         tk.Label(
@@ -158,7 +170,7 @@ class UpdateNotificationDialog(tk.Toplevel):
         
         tk.Label(
             content_frame,
-            text="Novedades y Mejoras:",
+            text=t("updater_changelog_title"),
             font=("Segoe UI", 10, "bold"),
             fg="#00e5ff",
             bg="#151824"
@@ -189,13 +201,14 @@ class UpdateNotificationDialog(tk.Toplevel):
             for item in changelog:
                 text_box.insert("end", f" • {item}\n\n")
         else:
-            text_box.insert("end", " • Correcciones de estabilidad y mejoras generales del sistema.\n")
+            default_changelog = " • General stability fixes and performance improvements.\n" if (hasattr(i18n, "get_language") and i18n.get_language() == "en") else " • Correcciones de estabilidad y mejoras generales del sistema.\n"
+            text_box.insert("end", default_changelog)
         text_box.config(state="disabled")
 
         # Status label for download
         self.status_lbl = tk.Label(
             self,
-            text="Tus partidas guardadas se conservarán 100% seguras.",
+            text=t("updater_safe_notice"),
             font=("Segoe UI", 8),
             fg="#9aa0b4",
             bg="#151824"
@@ -208,7 +221,7 @@ class UpdateNotificationDialog(tk.Toplevel):
         
         self.btn_update = tk.Button(
             btn_bar,
-            text="⚡ ACTUALIZAR AHORA",
+            text=t("updater_btn_now"),
             font=("Segoe UI", 10, "bold"),
             bg="#f39c12",
             fg="#121212",
@@ -224,7 +237,7 @@ class UpdateNotificationDialog(tk.Toplevel):
         
         btn_later = tk.Button(
             btn_bar,
-            text="Más tarde",
+            text=t("updater_btn_later"),
             font=("Segoe UI", 9),
             bg="#252b40",
             fg="#ffffff",
@@ -252,30 +265,47 @@ class UpdateNotificationDialog(tk.Toplevel):
         threading.Thread(target=run_upd, daemon=True).start()
 
     def _on_success(self):
-        messagebox.showinfo(
-            "Actualización Completa",
-            "¡El editor se ha actualizado correctamente!\n\nReinicia el programa para aplicar todas las mejoras."
-        )
+        try:
+            import i18n
+            msg = i18n.t("updater_success")
+            title = i18n.t("notice")
+        except Exception:
+            msg = "Editor updated successfully!\nPlease restart to apply all changes."
+            title = "Notice"
+        messagebox.showinfo(title, msg)
         self.destroy()
         if self.on_update_complete:
             self.on_update_complete()
 
     def _on_error(self, err_msg):
+        try:
+            import i18n
+            msg = i18n.t("updater_error", error=err_msg)
+            title = i18n.t("error")
+        except Exception:
+            msg = f"Automatic update could not complete:\n\n{err_msg}"
+            title = "Error"
         self.btn_update.config(state="normal", text="Reintentar")
         self.status_lbl.config(text="Error al actualizar. Revisa la consola o tu conexión.", fg="#e74c3c")
-        messagebox.showerror("Error al Actualizar", f"No se pudo completar la actualización automática:\n\n{err_msg}")
+        messagebox.showerror(title, msg)
 
 def check_updates_background(root_window, silent=True):
     """Checks for updates in a separate thread so GUI startup is instant."""
     def worker():
+        try:
+            import i18n
+            t = i18n.t
+        except Exception:
+            t = lambda k, **kw: k
+            
         has_update, remote_info, err = check_for_updates()
         if has_update and remote_info:
             root_window.after(0, lambda: UpdateNotificationDialog(root_window, remote_info))
         elif not silent:
             if err:
-                root_window.after(0, lambda: messagebox.showwarning("Actualizaciones", f"No se pudo comprobar actualizaciones:\n{err}"))
+                root_window.after(0, lambda: messagebox.showwarning(t("updates"), t("updater_check_err", error=err)))
             else:
                 loc = get_local_version_info().get("version", CURRENT_VERSION)
-                root_window.after(0, lambda: messagebox.showinfo("Actualizado", f"¡Tienes la versión más reciente (v{loc})!"))
+                root_window.after(0, lambda: messagebox.showinfo(t("updates"), t("updater_up_to_date", version=loc)))
 
     threading.Thread(target=worker, daemon=True).start()

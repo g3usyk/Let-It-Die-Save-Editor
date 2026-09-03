@@ -17,6 +17,8 @@ import save_io
 from save_io import get_default_save_path, decompress_save, save_to_file
 import modifiers
 import updater
+import i18n
+from i18n import t, get_item_name, get_item_desc, get_set_name
 
 # Base paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -362,34 +364,44 @@ class CompleteSaveEditorGUI(tk.Tk):
         top_frame = tk.Frame(self, bg=BG_PANEL, padx=14, pady=8)
         top_frame.pack(fill="x", padx=10, pady=(6, 2))
         
-        lbl_file = tk.Label(top_frame, text="PARTIDA (.sav):", font=("Segoe UI", 9, "bold"), fg=ACCENT_GOLD, bg=BG_PANEL)
-        lbl_file.pack(side="left", padx=(0, 8))
+        self.lbl_file = tk.Label(top_frame, text=t("save_file"), font=("Segoe UI", 9, "bold"), fg=ACCENT_GOLD, bg=BG_PANEL)
+        self.lbl_file.pack(side="left", padx=(0, 8))
         
         self.path_entry = ttk.Entry(top_frame)
         self.path_entry.pack(side="left", fill="x", expand=True, padx=(0, 8))
         if self.save_path:
             self.path_entry.insert(0, self.save_path)
             
-        browse_btn = ttk.Button(top_frame, text="📁 Examinar...", command=self.browse_save)
-        browse_btn.pack(side="left", padx=2)
+        self.browse_btn = ttk.Button(top_frame, text=t("browse"), command=self.browse_save)
+        self.browse_btn.pack(side="left", padx=2)
         
-        reload_btn = ttk.Button(top_frame, text="🔄 Recargar", command=lambda: self.load_save(self.path_entry.get()))
-        reload_btn.pack(side="left", padx=2)
+        self.reload_btn = ttk.Button(top_frame, text=t("reload"), command=lambda: self.load_save(self.path_entry.get()))
+        self.reload_btn.pack(side="left", padx=2)
         
-        backup_btn = ttk.Button(top_frame, text="🛡️ Backup", command=self.create_manual_backup)
-        backup_btn.pack(side="left", padx=2)
+        self.backup_btn = ttk.Button(top_frame, text=t("backup"), command=self.create_manual_backup)
+        self.backup_btn.pack(side="left", padx=2)
         
-        btn_sets_hud = ttk.Button(top_frame, text="👘 Sets de Armadura", style="Accent.TButton", command=self._open_armor_set_viewer)
-        btn_sets_hud.pack(side="left", padx=(6, 2))
+        self.btn_sets_hud = ttk.Button(top_frame, text=t("armor_sets"), style="Accent.TButton", command=self._open_armor_set_viewer)
+        self.btn_sets_hud.pack(side="left", padx=(6, 2))
         
-        btn_rnd_hud = ttk.Button(top_frame, text="🧠 Analizador I+D", command=self._open_smart_analyzer)
-        btn_rnd_hud.pack(side="left", padx=2)
+        self.btn_rnd_hud = ttk.Button(top_frame, text=t("rnd_analyzer"), command=self._open_smart_analyzer)
+        self.btn_rnd_hud.pack(side="left", padx=2)
         
-        btn_update_hud = ttk.Button(top_frame, text="⚡ Actualizaciones", command=self._check_app_updates)
-        btn_update_hud.pack(side="left", padx=2)
+        self.btn_update_hud = ttk.Button(top_frame, text=t("updates"), command=self._check_app_updates)
+        self.btn_update_hud.pack(side="left", padx=2)
         
-        save_btn = ttk.Button(top_frame, text="💾 GUARDAR PARTIDA", style="Accent.TButton", command=self.save_current)
-        save_btn.pack(side="left", padx=(8, 0))
+        # Language Switcher (Español / English)
+        self.lbl_lang = tk.Label(top_frame, text=t("lang_label"), font=("Segoe UI", 9, "bold"), fg=ACCENT_GOLD, bg=BG_PANEL)
+        self.lbl_lang.pack(side="left", padx=(6, 2))
+        
+        cur_lang_str = "English" if i18n.get_language() == "en" else "Español"
+        self.lang_var = tk.StringVar(value=cur_lang_str)
+        self.lang_cb = ttk.Combobox(top_frame, textvariable=self.lang_var, values=["Español", "English"], state="readonly", width=8)
+        self.lang_cb.pack(side="left", padx=(0, 4))
+        self.lang_cb.bind("<<ComboboxSelected>>", self._on_language_changed)
+        
+        self.save_btn = ttk.Button(top_frame, text=t("save_game"), style="Accent.TButton", command=self.save_current)
+        self.save_btn.pack(side="left", padx=(6, 0))
 
         # 2. Player Status Cyberpunk HUD Dashboard
         self.dashboard_frame = tk.Frame(self, bg=BG_CARD, padx=14, pady=8, relief="flat", highlightbackground=BG_CARD_LIGHT, highlightthickness=1)
@@ -435,42 +447,42 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         # TAB 1: CURRENCIES
         self.tab_currencies = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_currencies, text=" Monedas y VIP ", image=self.get_photo("dm", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_currencies, text=t("tab_currencies"), image=self.get_photo("dm", (18, 18)) or "", compound="left")
         self._build_currencies_tab()
         
         # TAB 2: FIGHTERS
         self.tab_fighters = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_fighters, text=" Luchadores (Congelador) ", image=self.get_photo("all-rounder", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_fighters, text=t("tab_fighters"), image=self.get_photo("all-rounder", (18, 18)) or "", compound="left")
         self._build_fighters_tab()
         
         # TAB 3: MATERIALS
         self.tab_materials = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_materials, text=" Materiales y Forja (106) ", image=self.get_photo("special_steel", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_materials, text=t("tab_materials"), image=self.get_photo("special_steel", (18, 18)) or "", compound="left")
         self._build_materials_tab()
         
         # TAB 4: DECALS
         self.tab_decals = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_decals, text=" Calcomanías (626) ", image=self.get_photo("decal_p", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_decals, text=t("tab_decals"), image=self.get_photo("decal_p", (18, 18)) or "", compound="left")
         self._build_decals_tab()
         
         # TAB 5: BLUEPRINTS
         self.tab_blueprints = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_blueprints, text=" Planos Chokufunsha (1,370) ", image=self.get_photo("blueprint", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_blueprints, text=t("tab_blueprints"), image=self.get_photo("blueprint", (18, 18)) or "", compound="left")
         self._build_blueprints_tab()
         
         # TAB 6: MASTERY
         self.tab_mastery = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_mastery, text=" Maestría de Armas ", image=self.get_photo("weapon", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_mastery, text=t("tab_mastery"), image=self.get_photo("weapon", (18, 18)) or "", compound="left")
         self._build_mastery_tab()
         
         # TAB 7: TOWER & MASTER UNLOCKS
         self.tab_tower = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_tower, text=" Desbloqueos Maestros y Torre ", image=self.get_photo("re_point", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_tower, text=t("tab_tower"), image=self.get_photo("re_point", (18, 18)) or "", compound="left")
         self._build_tower_tab()
         
         # TAB 8: ENCYCLOPEDIA & ADVANCED
         self.tab_advanced = ttk.Frame(self.notebook, padding=12)
-        self.notebook.add(self.tab_advanced, text=" Enciclopedia y Respaldos ", image=self.get_photo("reversal_metal", (18, 18)) or "", compound="left")
+        self.notebook.add(self.tab_advanced, text=t("tab_advanced"), image=self.get_photo("reversal_metal", (18, 18)) or "", compound="left")
         self._build_advanced_tab()
 
         # 4. Bottom Status Bar
@@ -1319,7 +1331,10 @@ class CompleteSaveEditorGUI(tk.Tk):
                 stock_str = f"{cnt} u." if cnt > 0 else "-"
                 tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
                     
-                display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
+                if i18n.get_language() == "en":
+                    display_title = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
+                else:
+                    display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
                 icon_k = self._get_mat_photo_key(itemid, name_en or name_es)
                 thumb = self.get_photo(icon_k, size=(36, 36), preserve_aspect=True)
                 node_id = self.mat_tree.insert(
@@ -1753,11 +1768,16 @@ class CompleteSaveEditorGUI(tk.Tk):
                 if query not in full_txt:
                     continue
                     
-            display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
+            if i18n.get_language() == "en":
+                display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
+                std_txt = "STANDARD"
+            else:
+                display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
+                std_txt = "ESTÁNDAR"
             stars_str = f"{d_rarity}★"
             art_rel = self._find_decal_art(did)
             thumb = self.get_photo(art_rel, size=(36, 36), preserve_aspect=True)
-            node_id = self.decals_tree.insert("", "end", text=f" {display_name}", image=thumb or "", values=(stars_str, did, "PREMIUM" if is_p else "ESTÁNDAR", f"x{cnt}" if cnt > 0 else "-"))
+            node_id = self.decals_tree.insert("", "end", text=f" {display_name}", image=thumb or "", values=(stars_str, did, "PREMIUM" if is_p else std_txt, f"x{cnt}" if cnt > 0 else "-"))
             self.tree_images[node_id] = thumb
             if not first_row:
                 first_row = node_id
@@ -2117,17 +2137,17 @@ class CompleteSaveEditorGUI(tk.Tk):
             
         if lookup_id in self.armor_set_by_item_id:
             set_obj, tier_obj, piece_obj = self.armor_set_by_item_id[lookup_id]
-            set_title = set_obj.get("name_es") or set_obj.get("name_en", "")
-            self.bp_set_btn.config(text=f"👘 Ver Conjunto: {set_title}", state="normal")
+            set_title = get_set_name(set_obj)
+            self.bp_set_btn.config(text=f"{t('view_set_btn')}: {set_title}", state="normal")
             if "def" in piece_obj:
-                self.bp_stats_lbl.config(text=f"Defensa Base: {piece_obj.get('def', '-')} (Def+4: {piece_obj.get('def_plus4', '-')}) | Durabilidad: {piece_obj.get('durability', '-')}")
+                self.bp_stats_lbl.config(text=f"{t('def_base_label')} {piece_obj.get('def', '-')} (Def+4: {piece_obj.get('def_plus4', '-')}) | {t('dur_label')} {piece_obj.get('durability', '-')}")
             elif "atk" in piece_obj:
-                self.bp_stats_lbl.config(text=f"Ataque Base: {piece_obj.get('atk', '-')} (Atk+4: {piece_obj.get('atk_plus4', '-')}) | Durabilidad: {piece_obj.get('durability', '-')}")
+                self.bp_stats_lbl.config(text=f"{t('atk_base_label')} {piece_obj.get('atk', '-')} (Atk+4: {piece_obj.get('atk_plus4', '-')}) | {t('dur_label')} {piece_obj.get('durability', '-')}")
             else:
-                self.bp_stats_lbl.config(text=f"Conjunto: {set_title}")
+                self.bp_stats_lbl.config(text=f"{t('view_set_btn')}: {set_title}")
         else:
-            self.bp_set_btn.config(text="👘 No pertenece a un conjunto", state="disabled")
-            self.bp_stats_lbl.config(text="Pieza individual de equipamiento o arma")
+            self.bp_set_btn.config(text=t("no_set_btn"), state="disabled")
+            self.bp_stats_lbl.config(text="Pieza individual de equipamiento o arma" if i18n.get_language() == "es" else "Single equipment piece or weapon")
             
         card_art = None
         if hasattr(self, "icon_map") and "gear_cards" in self.icon_map:
@@ -2174,6 +2194,39 @@ class CompleteSaveEditorGUI(tk.Tk):
 
     def _check_app_updates(self):
         updater.check_updates_background(self, silent=False)
+
+    def _on_language_changed(self, event=None):
+        val = self.lang_var.get()
+        new_lang = "en" if "Eng" in val else "es"
+        if new_lang != i18n.get_language():
+            i18n.set_language(new_lang)
+            self._refresh_all_language_texts()
+
+    def _refresh_all_language_texts(self):
+        """Dynamically re-applies all translated titles and strings across the UI."""
+        self.title(t("app_title"))
+        if hasattr(self, "lbl_file"): self.lbl_file.config(text=t("save_file"))
+        if hasattr(self, "browse_btn"): self.browse_btn.config(text=t("browse"))
+        if hasattr(self, "reload_btn"): self.reload_btn.config(text=t("reload"))
+        if hasattr(self, "backup_btn"): self.backup_btn.config(text=t("backup"))
+        if hasattr(self, "btn_sets_hud"): self.btn_sets_hud.config(text=t("armor_sets"))
+        if hasattr(self, "btn_rnd_hud"): self.btn_rnd_hud.config(text=t("rnd_analyzer"))
+        if hasattr(self, "btn_update_hud"): self.btn_update_hud.config(text=t("updates"))
+        if hasattr(self, "save_btn"): self.save_btn.config(text=t("save_game"))
+        if hasattr(self, "lbl_lang"): self.lbl_lang.config(text=t("lang_label"))
+        
+        # Notebook Tab titles
+        if hasattr(self, "notebook"):
+            if hasattr(self, "tab_currencies"): self.notebook.tab(self.tab_currencies, text=t("tab_currencies"))
+            if hasattr(self, "tab_fighters"): self.notebook.tab(self.tab_fighters, text=t("tab_fighters"))
+            if hasattr(self, "tab_materials"): self.notebook.tab(self.tab_materials, text=t("tab_materials"))
+            if hasattr(self, "tab_decals"): self.notebook.tab(self.tab_decals, text=t("tab_decals"))
+            if hasattr(self, "tab_blueprints"): self.notebook.tab(self.tab_blueprints, text=t("tab_blueprints"))
+            if hasattr(self, "tab_mastery"): self.notebook.tab(self.tab_mastery, text=t("tab_mastery"))
+            if hasattr(self, "tab_tower"): self.notebook.tab(self.tab_tower, text=t("tab_tower"))
+            if hasattr(self, "tab_advanced"): self.notebook.tab(self.tab_advanced, text=t("tab_advanced"))
+            
+        self.refresh_all_views()
 
     def _unlock_single_bp_shop(self):
         if not self.current_bp_selection or not self.save_json:
@@ -2417,7 +2470,10 @@ class CompleteSaveEditorGUI(tk.Tk):
                 elif collab == "44CE" and not any(k in n_en or k in n_es for k in ["white steel", "red napalm", "black thunder", "pale wind", "m2g"]):
                     continue
                     
-            display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
+            if i18n.get_language() == "en":
+                display_title = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
+            else:
+                display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
             storage_str = f"{storage_count} u." if storage_count > 0 else "-"
             bag_str = f"{bag_count} u." if bag_count > 0 else "-"
             
@@ -3021,7 +3077,7 @@ class CompleteSaveEditorGUI(tk.Tk):
 class SmartInventoryAnalyzerDialog(tk.Toplevel):
     def __init__(self, parent, save_json, on_modified_cb=None):
         super().__init__(parent)
-        self.title("🧠 Analizador Inteligente de Inventario y Forja (R&D) - LET IT DIE")
+        self.title(t("dialog_smart_analyzer_title"))
         self.geometry("880x640")
         self.minsize(740, 520)
         self.configure(bg=BG_DARK)
@@ -3042,7 +3098,7 @@ class SmartInventoryAnalyzerDialog(tk.Toplevel):
         
         title_lbl = tk.Label(
             header_frame,
-            text="🧠 Analizador Inteligente de Inventario y Forja (R&D)",
+            text=t("dialog_smart_analyzer_title"),
             font=("Segoe UI", 13, "bold"),
             bg=BG_PANEL,
             fg=ACCENT_GOLD
@@ -3051,7 +3107,7 @@ class SmartInventoryAnalyzerDialog(tk.Toplevel):
         
         sub_lbl = tk.Label(
             header_frame,
-            text="Calcula las necesidades exactas de tus recetas activas en I+D para abastecer tu almacén sin saturarlo ni meter cosas de más.",
+            text=t("dialog_smart_analyzer_sub"),
             font=("Segoe UI", 9),
             bg=BG_PANEL,
             fg=FG_MUTED
@@ -3278,7 +3334,7 @@ class InventoryViewerDialog(tk.Toplevel):
     """Dialog that displays the complete physical inventory of the player's Coin Locker and Fighter Deathbag."""
     def __init__(self, parent, save_json, equipment_db, materials_db):
         super().__init__(parent)
-        self.title("📋 Visor de Inventario Completo en Partida (Almacén y Mochila)")
+        self.title(t("dialog_inventory_title"))
         self.geometry("960x650")
         self.configure(bg=BG_DARK)
         self.transient(parent)
@@ -3416,7 +3472,10 @@ class InventoryViewerDialog(tk.Toplevel):
                 if query and (query not in name_es.lower() and query not in name_en.lower() and query not in itemid.lower() and query not in cat.lower()):
                     continue
                     
-                display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
+                if i18n.get_language() == "en":
+                    display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
+                else:
+                    display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
                 icon_k = self.parent_app._get_mat_photo_key(itemid, name_en or name_es)
                 thumb = self.parent_app.get_photo(icon_k, size=(24, 24))
                 
@@ -3474,7 +3533,10 @@ class InventoryViewerDialog(tk.Toplevel):
                 if query and (query not in name_es.lower() and query not in name_en.lower() and query not in ptid.lower() and query not in cat.lower()):
                     continue
                     
-                display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
+                if i18n.get_language() == "en":
+                    display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
+                else:
+                    display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
                 art_rel = self.parent_app._find_equipment_art(ptid)
                 thumb = self.parent_app.get_photo(art_rel, size=(24, 24))
                 
@@ -3501,7 +3563,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.parent_app = parent
         self.save_json = save_json
         self.armor_sets = armor_sets
-        self.title("👘 Visor Oficial de Sets y Tiers de Armadura (Wiki.gg)")
+        self.title(t("dialog_armor_viewer_title"))
         self.geometry("1140x840")
         self.minsize(1020, 720)
         self.configure(bg=BG_DARK)
@@ -3522,6 +3584,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.display_current_set()
         
     def _build_ui(self):
+        is_en = (i18n.get_language() == "en")
         # 1. Header Toolbar
         header = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
         header.pack(fill="x")
@@ -3529,9 +3592,9 @@ class ArmorSetViewerDialog(tk.Toplevel):
         row1 = ttk.Frame(header)
         row1.pack(fill="x")
         
-        ttk.Label(row1, text="👘 CONJUNTO DE ARMADURA:", font=("Segoe UI", 11, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=(0, 8))
+        ttk.Label(row1, text=t("dialog_armor_set_label"), font=("Segoe UI", 11, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=(0, 8))
         
-        set_names = [f"{s['name_en']} ({s.get('name_es', s['name_en'])}) • {s['faction']}" for s in self.armor_sets]
+        set_names = [f"{s['name_en']} • {s['faction']}" if is_en else f"{s.get('name_es', s['name_en'])} ({s['name_en']}) • {s['faction']}" for s in self.armor_sets]
         self.cb_set_var = tk.StringVar(value=set_names[self.set_index] if self.armor_sets else "")
         cb_sets = ttk.Combobox(row1, textvariable=self.cb_set_var, values=set_names, state="readonly", width=52)
         cb_sets.pack(side="left", padx=4)
@@ -3544,7 +3607,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         tier_bar = tk.Frame(self, bg=BG_CARD, padx=10, pady=8)
         tier_bar.pack(fill="x", pady=(2, 4))
         
-        ttk.Label(tier_bar, text="Evolución / Nivel:", font=("Segoe UI", 10, "bold"), foreground=FG_MAIN).pack(side="left", padx=(4, 10))
+        ttk.Label(tier_bar, text=t("dialog_evolution_label"), font=("Segoe UI", 10, "bold"), foreground=FG_MAIN).pack(side="left", padx=(4, 10))
         
         self.tier_buttons = []
         for tnum in [1, 2, 3, 4]:
@@ -3561,7 +3624,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         content_box.pack(fill="both", expand=True, padx=10, pady=6)
         
         # Left Side: Character Armor Model Showcase
-        left_box = ttk.LabelFrame(content_box, text="🧍 Previsualización del Conjunto (Modelo 3D Oficial)", padding=10)
+        left_box = ttk.LabelFrame(content_box, text=t("dialog_preview_title"), padding=10)
         left_box.pack(side="left", fill="both", expand=False, padx=(0, 6))
         left_box.config(width=340)
         
@@ -3575,13 +3638,15 @@ class ArmorSetViewerDialog(tk.Toplevel):
         right_box = ttk.Frame(content_box)
         right_box.pack(side="right", fill="both", expand=True)
         
+        slot_defs = [
+            ("head", "🪖 HEAD (Helmet)" if is_en else "🪖 CASCO (Head)", "🪖"),
+            ("body", "👕 BODY (Chest Armor)" if is_en else "👕 PECHERA (Body Armor)", "👕"),
+            ("legs", "👖 LEGS (Pants)" if is_en else "👖 PANTALONES (Legs / Pants)", "👖"),
+            ("weapon", "⚔️ SIGNATURE WEAPON" if is_en else "⚔️ ARMA CARACTERÍSTICA (Signature Weapon)", "⚔️")
+        ]
+        
         self.piece_cards = {}
-        for slot_key, slot_title, emoji in [
-            ("head", "🪖 CASCO (Head)", "🪖"),
-            ("body", "👕 PECHERA (Body Armor)", "👕"),
-            ("legs", "👖 PANTALONES (Legs / Pants)", "👖"),
-            ("weapon", "⚔️ ARMA CARACTERÍSTICA (Signature Weapon)", "⚔️")
-        ]:
+        for slot_key, slot_title, emoji in slot_defs:
             card_lf = ttk.LabelFrame(right_box, text=slot_title, padding=6)
             card_lf.pack(fill="x", expand=True, pady=3)
             
@@ -3617,10 +3682,10 @@ class ArmorSetViewerDialog(tk.Toplevel):
             btns_row = ttk.Frame(action_col)
             btns_row.pack(fill="x", pady=2)
             
-            btn_unlock = ttk.Button(btns_row, text="⭐ Desbloquear +4", style="Accent.TButton", width=16)
+            btn_unlock = ttk.Button(btns_row, text="⭐ Unlock +4" if is_en else "⭐ Desbloquear +4", style="Accent.TButton", width=16)
             btn_unlock.pack(side="left", padx=2)
             
-            btn_add = ttk.Button(btns_row, text="🎁 +1 al Almacén", width=14)
+            btn_add = ttk.Button(btns_row, text="🎁 +1 to Storage" if is_en else "🎁 +1 al Almacén", width=14)
             btn_add.pack(side="left", padx=2)
             
             self.piece_cards[slot_key] = {
@@ -3642,7 +3707,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         
         btn_unlock_set = ttk.Button(
             bottom_bar,
-            text="⭐ Desbloquear Set + Arma Completa (Tier a +4 en Tienda y Almacén)",
+            text="⭐ Unlock Complete Set + Weapon (+4)" if is_en else "⭐ Desbloquear Set + Arma Completa (Tier a +4 en Tienda y Almacén)",
             style="Accent.TButton",
             command=self.unlock_current_tier_set
         )
@@ -3650,19 +3715,20 @@ class ArmorSetViewerDialog(tk.Toplevel):
         
         btn_add_set = ttk.Button(
             bottom_bar,
-            text="🎁 Añadir Set Completo al Almacén (Casco + Pechera + Piernas)",
+            text="🎁 Add Complete Set to Storage" if is_en else "🎁 Añadir Set Completo al Almacén (Casco + Pechera + Piernas)",
             command=self.add_current_tier_set_storage
         )
         btn_add_set.pack(side="left", padx=4)
         
-        btn_close = ttk.Button(bottom_bar, text="Cerrar", command=self.destroy)
+        btn_close = ttk.Button(bottom_bar, text="Close" if is_en else "Cerrar", command=self.destroy)
         btn_close.pack(side="right", padx=4)
 
     def _on_set_changed(self, event=None):
         sel_idx = self.cb_set_var.get()
         for idx, s in enumerate(self.armor_sets):
-            label = f"{s['name_en']} ({s.get('name_es', s['name_en'])}) • {s['faction']}"
-            if label == sel_idx:
+            lbl_es = f"{s.get('name_es', s['name_en'])} ({s['name_en']}) • {s['faction']}"
+            lbl_en = f"{s['name_en']} • {s['faction']}"
+            if sel_idx in (lbl_es, lbl_en):
                 self.set_index = idx
                 break
         self.display_current_set()
