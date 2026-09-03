@@ -1,19 +1,36 @@
 import os
+import sys
 import shutil
 import struct
 import zlib
 import json
 import datetime
 
+COMMON_STEAM_DIRS = [
+    r"E:\SteamLibrary\steamapps\common\LET IT DIE\Savedata",
+    r"C:\Program Files (x86)\Steam\steamapps\common\LET IT DIE\Savedata",
+    r"C:\Program Files\Steam\steamapps\common\LET IT DIE\Savedata",
+    r"C:\SteamLibrary\steamapps\common\LET IT DIE\Savedata",
+    r"D:\SteamLibrary\steamapps\common\LET IT DIE\Savedata",
+    r"F:\SteamLibrary\steamapps\common\LET IT DIE\Savedata",
+    r"G:\SteamLibrary\steamapps\common\LET IT DIE\Savedata",
+]
+
 DEFAULT_SAVEDATA_DIR = r"E:\SteamLibrary\steamapps\common\LET IT DIE\Savedata"
 
-PROJECT_BACKUPS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Backups")
+if getattr(sys, "frozen", False):
+    APP_DATA_DIR = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    APP_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+
+PROJECT_BACKUPS_DIR = os.path.join(APP_DATA_DIR, "Backups")
 
 def get_default_save_path():
-    if os.path.isdir(DEFAULT_SAVEDATA_DIR):
-        sav_files = [os.path.join(DEFAULT_SAVEDATA_DIR, f) for f in os.listdir(DEFAULT_SAVEDATA_DIR) if f.endswith(".sav")]
-        if sav_files:
-            return sav_files[0]
+    for d in COMMON_STEAM_DIRS:
+        if os.path.isdir(d):
+            sav_files = [os.path.join(d, f) for f in os.listdir(d) if f.endswith(".sav")]
+            if sav_files:
+                return sav_files[0]
     return None
 
 def create_backup(save_path, backup_dir=None, max_backups=10):

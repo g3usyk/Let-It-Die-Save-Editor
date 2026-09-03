@@ -12,7 +12,7 @@ import urllib.request
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-CURRENT_VERSION = "2.2.0"
+CURRENT_VERSION = "2.3.0"
 REPO_OWNER = "g3usyk"
 REPO_NAME = "Let-It-Die-Save-Editor"
 RAW_VERSION_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/version.json"
@@ -29,7 +29,14 @@ def parse_version_tuple(v_str):
 
 def get_local_version_info():
     """Reads local version.json if present, fallback to CURRENT_VERSION."""
-    v_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "version.json")
+    if getattr(sys, "frozen", False):
+        exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+        base_dir = getattr(sys, "_MEIPASS", exe_dir)
+        if not os.path.exists(os.path.join(base_dir, "version.json")) and os.path.exists(os.path.join(exe_dir, "version.json")):
+            base_dir = exe_dir
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    v_file = os.path.join(base_dir, "version.json")
     if os.path.exists(v_file):
         try:
             with open(v_file, "r", encoding="utf-8") as f:

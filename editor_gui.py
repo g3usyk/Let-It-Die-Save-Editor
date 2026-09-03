@@ -21,7 +21,13 @@ import i18n
 from i18n import t, get_item_name, get_item_desc, get_set_name
 
 # Base paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, "frozen", False):
+    exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+    mei_dir = getattr(sys, "_MEIPASS", exe_dir)
+    BASE_DIR = exe_dir if os.path.isdir(os.path.join(exe_dir, "icons")) else mei_dir
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 ICONS_DIR = os.path.join(BASE_DIR, "icons")
 ICON_ICO_PATH = os.path.join(ICONS_DIR, "app_icon.ico")
 ICON_PNG_PATH = os.path.join(ICONS_DIR, "app_icon.png")
@@ -50,70 +56,141 @@ ACCENT_PINK = "#ff4081"    # Death Metal vibrant magenta
 from game_data import SPECIAL_MUSHROOMS, SPECIAL_BEASTS, WEAPON_CATEGORIES, FIGHTER_CLASSES
 WEAPON_MASTERY_ICONS = {wt: img for wt, nm, img in WEAPON_CATEGORIES}
 
-EXPERT_WEAPON_NAMES = {
-    "PTARMTP_00": "Manos Desnudas / Fists",
-    "PTARMTP_01": "Machete / Machete (DOD ARMS)",
-    "PTARMTP_02": "Martillo / Hammer (DOD ARMS)",
-    "PTARMTP_03": "Plancha / Iron (DOD ARMS)",
-    "PTARMTP_04": "Pistola de Clavos / Nail Gun (DOD ARMS)",
-    "PTARMTP_05": "Sierra Circular / Buzzsaw (DOD ARMS)",
-    "PTARMTP_06": "Picahielo / Pickaxe (DOD ARMS)",
-    "PTARMTP_07": "Palo de Golf / Golf Club (WAR ENSEMBLE)",
-    "PTARMTP_08": "Cuchillo de Caza / Hunting Knife (WAR ENSEMBLE)",
-    "PTARMTP_09": "Hacha de Batalla / Battle Axe (CANDLE WOLF)",
-    "PTARMTP_10": "Espada Larga / Longsword (CANDLE WOLF)",
-    "PTARMTP_11": "Maza de Guerra / Flail (CANDLE WOLF)",
+EXPERT_WEAPON_NAMES_ES = {
+    "PTARMTP_00": "Manos Desnudas",
+    "PTARMTP_01": "Machete (DOD ARMS)",
+    "PTARMTP_02": "Martillo (DOD ARMS)",
+    "PTARMTP_03": "Plancha (DOD ARMS)",
+    "PTARMTP_04": "Pistola de Clavos (DOD ARMS)",
+    "PTARMTP_05": "Sierra Circular (DOD ARMS)",
+    "PTARMTP_06": "Picahielo (DOD ARMS)",
+    "PTARMTP_07": "Palo de Golf (WAR ENSEMBLE)",
+    "PTARMTP_08": "Cuchillo de Caza (WAR ENSEMBLE)",
+    "PTARMTP_09": "Hacha de Batalla (CANDLE WOLF)",
+    "PTARMTP_10": "Espada Larga (CANDLE WOLF)",
+    "PTARMTP_11": "Maza de Guerra / Mayal (CANDLE WOLF)",
     "PTARMTP_12": "Cuchillo Arrojadizo / Shuriken",
-    "PTARMTP_13": "Lanza / Spear (CANDLE WOLF)",
-    "PTARMTP_14": "Vara de Trueno / Thunder Rod (CANDLE WOLF)",
-    "PTARMTP_15": "Guantelete / Claws (WAR ENSEMBLE)",
-    "PTARMTP_16": "Pistola Magnum / Magnum (WAR ENSEMBLE)",
-    "PTARMTP_17": "Fusil de Asalto KAMAS / Assault Rifle (WAR ENSEMBLE)",
-    "PTARMTP_18": "Escopeta / Shotgun (WAR ENSEMBLE)",
-    "PTARMTP_19": "Fusil Francotirador / Sniper Rifle (WAR ENSEMBLE)",
-    "PTARMTP_20": "Lanzacohetes / Rocket Launcher (WAR ENSEMBLE)",
-    "PTARMTP_21": "Fuegos Artificiales / Fireworks (DOD ARMS)",
-    "PTARMTP_22": "Motosierra / Chainsaw (DOD ARMS)",
-    "PTARMTP_23": "Motor Psycho / Motor Psycho (WAR ENSEMBLE)",
-    "PTARMTP_24": "Taladro / Drill Arm (DOD ARMS)",
-    "PTARMTP_25": "Katana Masamune / Katana (CANDLE WOLF)",
-    "PTARMTP_26": "Bate de Béisbol / Baseball Bat (M.I.L.K.)",
-    "PTARMTP_27": "Palo de Hockey / Hockey Stick (M.I.L.K.)",
-    "PTARMTP_28": "Bolas de Bolos / Bowling Ball (M.I.L.K.)",
-    "PTARMTP_29": "Estatua Shishimai / Shishimai",
-    "PTARMTP_30": "Espada Cortante / Cleaver Saber (WAR ENSEMBLE)",
-    "PTARMTP_31": "Lanzallamas / Flamethrower (DOD ARMS)",
-    "PTARMTP_32": "Arma Taser / Taser Gun (DOD ARMS)",
-    "PTARMTP_33": "Pala / Shovel (DOD ARMS)",
-    "PTARMTP_34": "Pistola de Dardos / Crossbow (CANDLE WOLF)",
-    "PTARMTP_35": "Lanza de Dragón / Dragon Buster (CANDLE WOLF)",
+    "PTARMTP_13": "Lanza (CANDLE WOLF)",
+    "PTARMTP_14": "Vara de Trueno (CANDLE WOLF)",
+    "PTARMTP_15": "Guantelete / Garras (WAR ENSEMBLE)",
+    "PTARMTP_16": "Pistola Mágnum (WAR ENSEMBLE)",
+    "PTARMTP_17": "Fusil de Asalto KAMAS (WAR ENSEMBLE)",
+    "PTARMTP_18": "Escopeta (WAR ENSEMBLE)",
+    "PTARMTP_19": "Fusil Francotirador (WAR ENSEMBLE)",
+    "PTARMTP_20": "Lanzacohetes (WAR ENSEMBLE)",
+    "PTARMTP_21": "Lanzador de Fuegos Artificiales (DOD ARMS)",
+    "PTARMTP_22": "Motosierra (DOD ARMS)",
+    "PTARMTP_23": "Motor Psycho (WAR ENSEMBLE)",
+    "PTARMTP_24": "Taladro (DOD ARMS)",
+    "PTARMTP_25": "Katana Masamune (CANDLE WOLF)",
+    "PTARMTP_26": "Bate de Béisbol (M.I.L.K.)",
+    "PTARMTP_27": "Palo de Hockey (M.I.L.K.)",
+    "PTARMTP_28": "Bolas de Bolos (M.I.L.K.)",
+    "PTARMTP_29": "Estatua Shishimai",
+    "PTARMTP_30": "Sable Cortador (WAR ENSEMBLE)",
+    "PTARMTP_31": "Lanzallamas (DOD ARMS)",
+    "PTARMTP_32": "Arma Taser (DOD ARMS)",
+    "PTARMTP_33": "Pala de Trinchera (DOD ARMS)",
+    "PTARMTP_34": "Ballesta (CANDLE WOLF)",
+    "PTARMTP_35": "Lanza Dragon Buster (CANDLE WOLF)",
     "PTARMTP_36": "Vara Eléctrica / Stun Rod (M.I.L.K.)",
-    "PTARMTP_37": "Palo de Madera / Timber (DOD ARMS)",
-    "PTARMTP_38": "Bate de Pitching / Pitching Machine (M.I.L.K.)",
-    "PTARMTP_39": "Guantelete de Boxeo / Boxing Glove (M.I.L.K.)",
-    "PTARMTP_40": "Maza de Clavos / Spiked Bat (M.I.L.K.)",
-    "PTARMTP_41": "Espada Láser / Beam Katana (NO MORE HEROES)",
-    "PTARMTP_42": "Pistola de Bengala / Flare Gun (WAR ENSEMBLE)",
-    "PTARMTP_43": "Espadón / Greatsword (CANDLE WOLF)",
-    "PTARMTP_44": "Yo-yo de Combate / Yo-yo (DOD ARMS)",
-    "PTARMTP_45": "Látigo / Whip (M.I.L.K.)",
-    "PTARMTP_46": "Maza Pesada / Heavy Mace (TENGOKU)",
-    "PTARMTP_47": "Cuchillo Mariposa / Butterfly Knife",
-    "PTARMTP_48": "Nunchaku / Nunchaku (WAR ENSEMBLE)",
-    "PTARMTP_50": "Pistola de Plasma / Plasma Pistol (TENGOKU)",
-    "PTARMTP_51": "Espada Electromagnética / EMP Saber (TENGOKU)",
-    "PTARMTP_52": "Lanzador EMP / EMP Launcher (TENGOKU)",
-    "PTARMTP_53": "Fusil Láser TDM / Laser Rifle TDM",
-    "PTARMTP_54": "Maza Pesada TDM / Heavy Mace TDM",
-    "PTARMTP_55": "Masajeador TDM / Massager (44CE White Steel)",
-    "PTARMTP_56": "Lanzador de Púas / Spike Launcher (44CE Red Napalm)",
-    "PTARMTP_57": "Espada de Energía / Energy Sword (44CE Black Thunder)",
-    "PTARMTP_58": "Pistola de Veneno / Poison Gun (44CE Pale Wind)",
-    "PTARMTP_59": "Esquís de Combate / Ski Blades (TENGOKU)",
-    "PTARMTP_62": "Arma Jackal X / Jackal X Blaster",
-    "PTARMTP_63": "Arma Jackal Y / Jackal Y Saber",
-    "PTARMTP_64": "Arma Jackal Z / Jackal Z Yo-yo"
+    "PTARMTP_37": "Palo de Madera (DOD ARMS)",
+    "PTARMTP_38": "Máquina de Pitching (M.I.L.K.)",
+    "PTARMTP_39": "Guantelete de Boxeo (M.I.L.K.)",
+    "PTARMTP_40": "Bate de Clavos (M.I.L.K.)",
+    "PTARMTP_41": "Katana Láser Beam (NO MORE HEROES)",
+    "PTARMTP_42": "Pistola de Bengalas (WAR ENSEMBLE)",
+    "PTARMTP_43": "Espadón (CANDLE WOLF)",
+    "PTARMTP_44": "Yo-yo de Combate (DOD ARMS)",
+    "PTARMTP_45": "Látigo (M.I.L.K.)",
+    "PTARMTP_46": "Maza Pesada (TENGOKU)",
+    "PTARMTP_47": "Navaja Mariposa",
+    "PTARMTP_48": "Nunchaku (WAR ENSEMBLE)",
+    "PTARMTP_50": "Pistola de Plasma (TENGOKU)",
+    "PTARMTP_51": "Sable EMP (TENGOKU)",
+    "PTARMTP_52": "Lanzador EMP (TENGOKU)",
+    "PTARMTP_53": "Fusil Láser TDM",
+    "PTARMTP_54": "Maza Pesada TDM",
+    "PTARMTP_55": "Masajeador Estático (44CE White Steel)",
+    "PTARMTP_56": "Lanzador de Púas M2G (44CE Red Napalm)",
+    "PTARMTP_57": "Espada de Energía (44CE Black Thunder)",
+    "PTARMTP_58": "Pistola de Bolas / Bobbin Gun (44CE Pale Wind)",
+    "PTARMTP_59": "Esquís de Combate (TENGOKU)",
+    "PTARMTP_62": "Blaster Jackal X",
+    "PTARMTP_63": "Sable Jackal Y",
+    "PTARMTP_64": "Yo-yo Jackal Z"
 }
+
+EXPERT_WEAPON_NAMES_EN = {
+    "PTARMTP_00": "Bare Fists",
+    "PTARMTP_01": "Machete (DOD ARMS)",
+    "PTARMTP_02": "Hammer (DOD ARMS)",
+    "PTARMTP_03": "Red Hot Iron (DOD ARMS)",
+    "PTARMTP_04": "Nail Gun (DOD ARMS)",
+    "PTARMTP_05": "Buzzsaw (DOD ARMS)",
+    "PTARMTP_06": "Pickaxe (DOD ARMS)",
+    "PTARMTP_07": "Golf Club (WAR ENSEMBLE)",
+    "PTARMTP_08": "Hunting Knife (WAR ENSEMBLE)",
+    "PTARMTP_09": "Battle Axe (CANDLE WOLF)",
+    "PTARMTP_10": "Longsword (CANDLE WOLF)",
+    "PTARMTP_11": "Flail (CANDLE WOLF)",
+    "PTARMTP_12": "Shuriken",
+    "PTARMTP_13": "Spear (CANDLE WOLF)",
+    "PTARMTP_14": "Thunder Rod (CANDLE WOLF)",
+    "PTARMTP_15": "Claws (WAR ENSEMBLE)",
+    "PTARMTP_16": "Magnum (WAR ENSEMBLE)",
+    "PTARMTP_17": "KAMAS Assault Rifle (WAR ENSEMBLE)",
+    "PTARMTP_18": "Shotgun (WAR ENSEMBLE)",
+    "PTARMTP_19": "Sniper Rifle (WAR ENSEMBLE)",
+    "PTARMTP_20": "Rocket Launcher (WAR ENSEMBLE)",
+    "PTARMTP_21": "Fireworks Launcher (DOD ARMS)",
+    "PTARMTP_22": "Chainsaw (DOD ARMS)",
+    "PTARMTP_23": "Motor Psycho (WAR ENSEMBLE)",
+    "PTARMTP_24": "Drill Arm (DOD ARMS)",
+    "PTARMTP_25": "Masamune Katana (CANDLE WOLF)",
+    "PTARMTP_26": "Baseball Bat (M.I.L.K.)",
+    "PTARMTP_27": "Hockey Stick (M.I.L.K.)",
+    "PTARMTP_28": "Bowling Ball (M.I.L.K.)",
+    "PTARMTP_29": "Shishimai Statue",
+    "PTARMTP_30": "Cleaver Saber (WAR ENSEMBLE)",
+    "PTARMTP_31": "Flamethrower (DOD ARMS)",
+    "PTARMTP_32": "Taser Gun (DOD ARMS)",
+    "PTARMTP_33": "Trench Shovel (DOD ARMS)",
+    "PTARMTP_34": "Crossbow (CANDLE WOLF)",
+    "PTARMTP_35": "Dragon Buster Sword (CANDLE WOLF)",
+    "PTARMTP_36": "Stun Rod (M.I.L.K.)",
+    "PTARMTP_37": "Timber (DOD ARMS)",
+    "PTARMTP_38": "Pitching Machine (M.I.L.K.)",
+    "PTARMTP_39": "Boxing Glove (M.I.L.K.)",
+    "PTARMTP_40": "Spiked Bat (M.I.L.K.)",
+    "PTARMTP_41": "Beam Katana (NO MORE HEROES)",
+    "PTARMTP_42": "Flare Gun (WAR ENSEMBLE)",
+    "PTARMTP_43": "Greatsword (CANDLE WOLF)",
+    "PTARMTP_44": "Combat Yo-yo (DOD ARMS)",
+    "PTARMTP_45": "Whip (M.I.L.K.)",
+    "PTARMTP_46": "Heavy Mace (TENGOKU)",
+    "PTARMTP_47": "Butterfly Knife",
+    "PTARMTP_48": "Nunchaku (WAR ENSEMBLE)",
+    "PTARMTP_50": "Plasma Pistol (TENGOKU)",
+    "PTARMTP_51": "EMP Saber (TENGOKU)",
+    "PTARMTP_52": "EMP Launcher (TENGOKU)",
+    "PTARMTP_53": "TDM Laser Rifle",
+    "PTARMTP_54": "TDM Heavy Mace",
+    "PTARMTP_55": "Static Massager (44CE White Steel)",
+    "PTARMTP_56": "M2G-87 Spike Launcher (44CE Red Napalm)",
+    "PTARMTP_57": "Energy Sword (44CE Black Thunder)",
+    "PTARMTP_58": "Bobbin Gun (44CE Pale Wind)",
+    "PTARMTP_59": "Ski Blades (TENGOKU)",
+    "PTARMTP_62": "Jackal X Blaster",
+    "PTARMTP_63": "Jackal Y Saber",
+    "PTARMTP_64": "Jackal Z Yo-yo"
+}
+
+def get_expert_weapon_name(ptid):
+    if i18n.get_language() == "en":
+        return EXPERT_WEAPON_NAMES_EN.get(ptid, EXPERT_WEAPON_NAMES_ES.get(ptid, ptid))
+    else:
+        return EXPERT_WEAPON_NAMES_ES.get(ptid, EXPERT_WEAPON_NAMES_EN.get(ptid, ptid))
 
 class CompleteSaveEditorGUI(tk.Tk):
     def __init__(self):
@@ -498,15 +575,15 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.tab_currencies.rowconfigure(1, weight=1, uniform="tab1_row")
         
         # Card 1 (Top-Left): Currencies
-        box_curr = ttk.LabelFrame(self.tab_currencies, text="💰 Recursos y Divisas Principales", padding=12)
+        box_curr = ttk.LabelFrame(self.tab_currencies, text=t("curr_box_title"), padding=12)
         box_curr.grid(row=0, column=0, sticky="nsew", padx=6, pady=6)
         
         entries = [
-            ("Metales de Muerte (DM):", "dm_var", "dm"),
-            ("Monedas Kill Coins (KC):", "kc_var", "kc"),
-            ("Litio SPLithium (SPL):", "spl_var", "spl"),
-            ("Sangrenio (Bloodnium):", "bl_var", "bloodnium"),
-            ("Puntos de Reciclaje (RE):", "re_var", "re_point"),
+            (t("dm_lbl"), "dm_var", "dm"),
+            (t("kc_lbl"), "kc_var", "kc"),
+            (t("spl_lbl"), "spl_var", "spl"),
+            (t("bl_lbl"), "bl_var", "bloodnium"),
+            (t("re_lbl"), "re_var", "re_point"),
         ]
         
         for idx, (lbl_text, var_name, icon_name) in enumerate(entries):
@@ -519,17 +596,17 @@ class CompleteSaveEditorGUI(tk.Tk):
             ent = ttk.Entry(row, textvariable=var, width=14, font=("Segoe UI", 9, "bold"), justify="right")
             ent.pack(side="right")
             
-        btn_max_all = ttk.Button(box_curr, text="⭐ MAXIMIZAR TODAS LAS DIVISAS AL TOPE", style="Accent.TButton", command=self.max_all_currencies)
+        btn_max_all = ttk.Button(box_curr, text=t("max_all_curr_btn"), style="Accent.TButton", command=self.max_all_currencies)
         btn_max_all.pack(fill="x", pady=(10, 2))
 
         # Card 2 (Top-Right): Waiting Room Upgrades
-        box_wr = ttk.LabelFrame(self.tab_currencies, text="🏦 Mejoras de Instalaciones de la Sala de Espera", padding=12)
+        box_wr = ttk.LabelFrame(self.tab_currencies, text=t("wr_box_title"), padding=12)
         box_wr.grid(row=0, column=1, sticky="nsew", padx=6, pady=6)
         
         upgrades = [
-            ("Nivel del Banco de KC (1-10):", "safe_lvl_var"),
-            ("Nivel del Tanque de SPL (1-10):", "tank_lvl_var"),
-            ("Rango de Jugador (1-100):", "rank_var"),
+            (t("bank_lvl_lbl"), "safe_lvl_var"),
+            (t("tank_lvl_lbl"), "tank_lvl_var"),
+            (t("player_rank_lbl"), "rank_var"),
         ]
         for lbl_t, var_n in upgrades:
             r = ttk.Frame(box_wr)
@@ -539,32 +616,32 @@ class CompleteSaveEditorGUI(tk.Tk):
             setattr(self, var_n, v)
             ttk.Entry(r, textvariable=v, width=8, justify="center").pack(side="right")
             
-        btn_max_base = ttk.Button(box_wr, text="🏦 Maximizar Banco y Tanque (Nivel 10)", command=self._max_waiting_room_facilities)
+        btn_max_base = ttk.Button(box_wr, text=t("max_wr_btn"), command=self._max_waiting_room_facilities)
         btn_max_base.pack(fill="x", pady=(18, 2))
 
         # Card 3 (Bottom-Left): VIP Royal Express
-        box_vip = ttk.LabelFrame(self.tab_currencies, text="👑 Pase Expreso Royal VIP", padding=12)
+        box_vip = ttk.LabelFrame(self.tab_currencies, text=t("vip_box_title"), padding=12)
         box_vip.grid(row=1, column=0, sticky="nsew", padx=6, pady=6)
         
-        self.vip_status_lbl = ttk.Label(box_vip, text="Estado: Inactivo", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD)
+        self.vip_status_lbl = ttk.Label(box_vip, text=t("vip_inactive"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD)
         self.vip_status_lbl.pack(anchor="w", pady=(0, 4))
         
         vip_f = ttk.Frame(box_vip)
         vip_f.pack(fill="x", pady=4)
-        ttk.Label(vip_f, text="Días de Pase VIP:").pack(side="left", padx=2)
+        ttk.Label(vip_f, text=t("vip_days_lbl")).pack(side="left", padx=2)
         self.vip_days_var = tk.StringVar(value="30")
         ttk.Entry(vip_f, textvariable=self.vip_days_var, width=8, justify="center").pack(side="left", padx=4)
-        ttk.Button(vip_f, text="👑 Activar VIP", style="Accent.TButton", command=self._activate_custom_vip).pack(side="left", padx=4)
+        ttk.Button(vip_f, text=t("activate_vip_btn"), style="Accent.TButton", command=self._activate_custom_vip).pack(side="left", padx=4)
         
         vip_quick = ttk.Frame(box_vip)
         vip_quick.pack(fill="x", pady=4)
-        ttk.Button(vip_quick, text="30 Días", command=lambda: self._set_vip_entry_and_act(30)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text="90 Días", command=lambda: self._set_vip_entry_and_act(90)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text="1 Año", command=lambda: self._set_vip_entry_and_act(365)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text="10 Años", command=lambda: self._set_vip_entry_and_act(3650)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_30d"), command=lambda: self._set_vip_entry_and_act(30)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_90d"), command=lambda: self._set_vip_entry_and_act(90)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_1y"), command=lambda: self._set_vip_entry_and_act(365)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_10y"), command=lambda: self._set_vip_entry_and_act(3650)).pack(side="left", fill="x", expand=True, padx=2)
 
         # Card 4 (Bottom-Right): TDM Mystery Bags
-        box_mb = ttk.LabelFrame(self.tab_currencies, text="🌈 Bolsas Misteriosas TDM (Mystery Bags)", padding=12)
+        box_mb = ttk.LabelFrame(self.tab_currencies, text=t("mb_box_title"), padding=12)
         box_mb.grid(row=1, column=1, sticky="nsew", padx=6, pady=6)
         
         self.mystery_status_lbl = ttk.Label(box_mb, text="🌈 Arcoíris: 0 | ⚪ Platino: 0 | 🟡 Oro: 0 | 🔘 Plata: 0 | 🟤 Cobre: 0", font=("Segoe UI", 9))
@@ -572,21 +649,21 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         mb_f = ttk.Frame(box_mb)
         mb_f.pack(fill="x", pady=4)
-        ttk.Label(mb_f, text="Rareza:").pack(side="left", padx=2)
+        ttk.Label(mb_f, text=t("mb_rarity_lbl")).pack(side="left", padx=2)
         self.mystery_type_var = tk.StringVar(value="RAINBOW")
         cb_mtype = ttk.Combobox(mb_f, textvariable=self.mystery_type_var, values=["RAINBOW", "PLATINUM", "GOLD", "SILVER", "COPPER", "TODAS"], width=10, state="readonly")
         cb_mtype.pack(side="left", padx=2)
         
-        ttk.Label(mb_f, text="Cant:").pack(side="left", padx=2)
+        ttk.Label(mb_f, text=t("mb_qty_lbl")).pack(side="left", padx=2)
         self.mystery_qty_var = tk.StringVar(value="10")
         ttk.Entry(mb_f, textvariable=self.mystery_qty_var, width=5, justify="center").pack(side="left", padx=2)
-        ttk.Button(mb_f, text="➕ Añadir Bolsas", style="Accent.TButton", command=self._add_custom_mystery_bags).pack(side="left", padx=4)
+        ttk.Button(mb_f, text=t("mb_add_btn"), style="Accent.TButton", command=self._add_custom_mystery_bags).pack(side="left", padx=4)
         
         mb_quick = ttk.Frame(box_mb)
         mb_quick.pack(fill="x", pady=4)
-        ttk.Button(mb_quick, text="+10 Arcoíris", command=lambda: self._quick_add_mystery("RAINBOW", 10)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(mb_quick, text="+50 Arcoíris", command=lambda: self._quick_add_mystery("RAINBOW", 50)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(mb_quick, text="Pack Todas (x10)", command=lambda: self._quick_add_mystery("TODAS", 10)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(mb_quick, text=t("mb_add10_rainbow"), command=lambda: self._quick_add_mystery("RAINBOW", 10)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(mb_quick, text=t("mb_add50_rainbow"), command=lambda: self._quick_add_mystery("RAINBOW", 50)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(mb_quick, text=t("mb_pack_all"), command=lambda: self._quick_add_mystery("TODAS", 10)).pack(side="left", fill="x", expand=True, padx=2)
 
     def _max_waiting_room_facilities(self):
         self.safe_lvl_var.set("10")
@@ -652,22 +729,19 @@ class CompleteSaveEditorGUI(tk.Tk):
 
     def _quick_add_mystery(self, rarity, count):
         self.mystery_type_var.set(rarity)
-        self.mystery_qty_var.set(str(count))
-        self._add_custom_mystery_bags()
-
-    # ================= TAB 2: FIGHTERS STUDIO =================
+            # ================= TAB 2: FIGHTERS FREEZER =================
     def _build_fighters_tab(self):
         paned = ttk.PanedWindow(self.tab_fighters, orient="horizontal")
         paned.pack(fill="both", expand=True)
         
-        left_box = ttk.LabelFrame(paned, text="Luchadores en el Congelador (Fighter Freezer)", padding=10)
+        left_box = ttk.LabelFrame(paned, text=t("f_freezer_title"), padding=10)
         paned.add(left_box, weight=2)
         
         self.fighters_tree = ttk.Treeview(left_box, columns=("num", "lvl", "state"), show="tree headings", height=14)
-        self.fighters_tree.heading("#0", text="Luchador / Clase")
-        self.fighters_tree.heading("num", text="#")
-        self.fighters_tree.heading("lvl", text="Nivel")
-        self.fighters_tree.heading("state", text="Estado")
+        self.fighters_tree.heading("#0", text=t("f_col_name"))
+        self.fighters_tree.heading("num", text=t("f_col_num"))
+        self.fighters_tree.heading("lvl", text=t("f_col_lvl"))
+        self.fighters_tree.heading("state", text=t("f_col_state"))
         
         self.fighters_tree.column("#0", width=180)
         self.fighters_tree.column("num", width=35, anchor="center")
@@ -677,7 +751,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.fighters_tree.pack(fill="both", expand=True, pady=4)
         self.fighters_tree.bind("<<TreeviewSelect>>", self._on_fighter_select)
         
-        right_box = ttk.LabelFrame(paned, text="Ficha Técnica del Luchador", padding=14)
+        right_box = ttk.LabelFrame(paned, text=t("f_tech_sheet"), padding=14)
         paned.add(right_box, weight=3)
         
         # Fighter Top Profile
@@ -690,22 +764,22 @@ class CompleteSaveEditorGUI(tk.Tk):
         f_meta = ttk.Frame(prof_f)
         f_meta.pack(side="left")
         
-        self.f_title_lbl = ttk.Label(f_meta, text="Selecciona un luchador", font=("Segoe UI", 13, "bold"), foreground=ACCENT_GOLD)
+        self.f_title_lbl = ttk.Label(f_meta, text=t("f_select_prompt"), font=("Segoe UI", 13, "bold"), foreground=ACCENT_GOLD)
         self.f_title_lbl.pack(anchor="w")
         
         self.f_sub_lbl = ttk.Label(f_meta, text="Clase: --- | Nivel: --- | Rango: Tier ---", font=("Segoe UI", 9), foreground=FG_MUTED)
         self.f_sub_lbl.pack(anchor="w")
         
         # Identity and Configuration Grid
-        id_frame = ttk.LabelFrame(right_box, text="Identidad y Configuración del Luchador", padding=8)
+        id_frame = ttk.LabelFrame(right_box, text=t("f_id_config"), padding=8)
         id_frame.pack(fill="x", pady=4)
         
         # Row 0: Name and Class
-        ttk.Label(id_frame, text="Nombre:").grid(row=0, column=0, sticky="w", padx=4, pady=3)
+        ttk.Label(id_frame, text=t("f_lbl_name")).grid(row=0, column=0, sticky="w", padx=4, pady=3)
         self.f_name_entry_var = tk.StringVar()
         ttk.Entry(id_frame, textvariable=self.f_name_entry_var, width=16).grid(row=0, column=1, padx=4, pady=3, sticky="w")
         
-        ttk.Label(id_frame, text="Clase:").grid(row=0, column=2, sticky="w", padx=4, pady=3)
+        ttk.Label(id_frame, text=t("f_lbl_class")).grid(row=0, column=2, sticky="w", padx=4, pady=3)
         self.f_class_select_var = tk.StringVar(value="BAL (All-Rounder)")
         classes_opts = [
             "BAL (All-Rounder)", "BRE (Striker)", "DEF (Defender)", "TEC (Attacker)",
@@ -715,37 +789,37 @@ class CompleteSaveEditorGUI(tk.Tk):
         cb_cls.grid(row=0, column=3, padx=4, pady=3, sticky="w")
         
         # Row 1: Grade (Tier) and Level
-        ttk.Label(id_frame, text="Grado (Tier ★):").grid(row=1, column=0, sticky="w", padx=4, pady=3)
+        ttk.Label(id_frame, text=t("f_lbl_grade")).grid(row=1, column=0, sticky="w", padx=4, pady=3)
         self.f_grade_select_var = tk.StringVar(value="5")
         cb_grd = ttk.Combobox(id_frame, textvariable=self.f_grade_select_var, values=["1", "2", "3", "4", "5", "6"], state="readonly", width=6)
         cb_grd.grid(row=1, column=1, padx=4, pady=3, sticky="w")
         
-        ttk.Label(id_frame, text="Nivel (1-247):").grid(row=1, column=2, sticky="w", padx=4, pady=3)
+        ttk.Label(id_frame, text=t("f_lbl_level")).grid(row=1, column=2, sticky="w", padx=4, pady=3)
         self.f_lvl_select_var = tk.StringVar(value="125")
         ttk.Entry(id_frame, textvariable=self.f_lvl_select_var, width=8, justify="center").grid(row=1, column=3, padx=4, pady=3, sticky="w")
         
         # Row 2: HP Actual and Bag Slots
-        ttk.Label(id_frame, text="Salud HP Actual:").grid(row=2, column=0, sticky="w", padx=4, pady=3)
+        ttk.Label(id_frame, text=t("f_lbl_hp_cur")).grid(row=2, column=0, sticky="w", padx=4, pady=3)
         self.f_hp_current_var = tk.StringVar(value="15000")
         ttk.Entry(id_frame, textvariable=self.f_hp_current_var, width=10, justify="center").grid(row=2, column=1, padx=4, pady=3, sticky="w")
         
-        ttk.Label(id_frame, text="Bolsa (Slots):").grid(row=2, column=2, sticky="w", padx=4, pady=3)
+        ttk.Label(id_frame, text=t("f_lbl_bag")).grid(row=2, column=2, sticky="w", padx=4, pady=3)
         self.f_bag_select_var = tk.StringVar(value="50")
         cb_fbag = ttk.Combobox(id_frame, textvariable=self.f_bag_select_var, values=["20", "25", "30", "35", "40", "45", "50", "60"], state="readonly", width=6)
         cb_fbag.grid(row=2, column=3, padx=4, pady=3, sticky="w")
         
         # Stats Form Grid (3 columns for perfect balance)
-        stats_frame = ttk.LabelFrame(right_box, text="Nivel de Atributos Base (Puntos de Estadística 1 a 35)", padding=8)
+        stats_frame = ttk.LabelFrame(right_box, text=t("f_base_stats_box"), padding=8)
         stats_frame.pack(fill="x", pady=4)
         
         self.f_stats_vars = {}
         stat_names = [
-            ("hp", "HP (Vitalidad):"),
-            ("stm", "STM (Resistencia):"),
-            ("str", "STR (Fuerza):"),
-            ("dex", "DEX (Destreza):"),
-            ("vit", "VIT (Defensa):"),
-            ("luk", "LUK (Suerte):"),
+            ("hp", t("f_hp_vit")),
+            ("stm", t("f_stm_res")),
+            ("str", t("f_str_pow")),
+            ("dex", t("f_dex_agi")),
+            ("vit", t("f_vit_def")),
+            ("luk", t("f_luk_luck")),
         ]
         
         for idx, (k, label) in enumerate(stat_names):
@@ -757,11 +831,11 @@ class CompleteSaveEditorGUI(tk.Tk):
             ttk.Entry(stats_frame, textvariable=v, width=6, justify="center").grid(row=r, column=c+1, padx=4, pady=4)
             
         # Equipped Decals Preview Frame
-        self.f_decals_frame = ttk.LabelFrame(right_box, text="🏷️ Calcomanías Equipadas en este Luchador", padding=8)
+        self.f_decals_frame = ttk.LabelFrame(right_box, text=t("f_equipped_decals_box"), padding=8)
         self.f_decals_frame.pack(fill="x", pady=4)
         self.f_decal_slots_lbls = []
         for slot_idx in range(5):
-            lbl = ttk.Label(self.f_decals_frame, text=f"Espacio {slot_idx+1}: Vacío", font=("Segoe UI", 8), compound="left")
+            lbl = ttk.Label(self.f_decals_frame, text=f"{t('f_slot_prefix')} {slot_idx+1}: {t('f_slot_empty')}", font=("Segoe UI", 8), compound="left")
             lbl.pack(anchor="w", pady=1)
             self.f_decal_slots_lbls.append(lbl)
 
@@ -769,17 +843,17 @@ class CompleteSaveEditorGUI(tk.Tk):
         act_frame = ttk.Frame(right_box)
         act_frame.pack(fill="x", pady=6)
         
-        btn_save_f = ttk.Button(act_frame, text="💾 APLICAR CAMBIOS AL LUCHADOR", style="Accent.TButton", command=self._save_fighter_changes)
+        btn_save_f = ttk.Button(act_frame, text=t("f_apply_btn"), style="Accent.TButton", command=self._save_fighter_changes)
         btn_save_f.pack(side="left", padx=3, fill="x", expand=True)
         
-        btn_revive = ttk.Button(act_frame, text="💖 Revivir al 100%", style="Success.TButton", command=self.revive_current_fighter)
+        btn_revive = ttk.Button(act_frame, text=t("f_revive_btn"), style="Success.TButton", command=self.revive_current_fighter)
         btn_revive.pack(side="left", padx=3, fill="x", expand=True)
         
-        btn_max_fighter = ttk.Button(act_frame, text="⭐ Maximizar Stats (Lv 247)", command=self.max_current_fighter)
+        btn_max_fighter = ttk.Button(act_frame, text=t("f_max_stats_btn"), command=self.max_current_fighter)
         btn_max_fighter.pack(side="left", padx=3, fill="x", expand=True)
 
         # Meta Decal Presets for Fighters
-        decal_preset_box = ttk.LabelFrame(right_box, text="⚡ Presets de Calcomanías Meta (8 Slots)", padding=8)
+        decal_preset_box = ttk.LabelFrame(right_box, text=t("f_presets_box"), padding=8)
         decal_preset_box.pack(fill="x", pady=6)
         
         preset_r = ttk.Frame(decal_preset_box)
@@ -795,10 +869,10 @@ class CompleteSaveEditorGUI(tk.Tk):
         cb_preset = ttk.Combobox(preset_r, textvariable=self.decal_preset_var, values=preset_names, state="readonly", width=38)
         cb_preset.pack(side="left", padx=4, fill="x", expand=True)
         
-        btn_equip_preset = ttk.Button(decal_preset_box, text="🥋 EQUIPAR PRESET DIRECTO EN ESTE LUCHADOR", style="Accent.TButton", command=self._equip_decal_preset_action)
+        btn_equip_preset = ttk.Button(decal_preset_box, text=t("f_preset_btn"), style="Accent.TButton", command=self._equip_decal_preset_action)
         btn_equip_preset.pack(fill="x", pady=2)
         
-        btn_apply_preset = ttk.Button(decal_preset_box, text="📦 Inyectar Set al Inventario (x5 cada una)", command=self._apply_decal_preset_action)
+        btn_apply_preset = ttk.Button(decal_preset_box, text=t("f_inject_preset_btn"), command=self._apply_decal_preset_action)
         btn_apply_preset.pack(fill="x", pady=2)
 
     def _on_fighter_select(self, event):
@@ -977,61 +1051,81 @@ class CompleteSaveEditorGUI(tk.Tk):
         ctrl_frame = ttk.Frame(left_box)
         ctrl_frame.pack(fill="x", pady=2)
         
-        ttk.Label(ctrl_frame, text="🔍 Buscar:").pack(side="left", padx=2)
+        ttk.Label(ctrl_frame, text=t("mat_search")).pack(side="left", padx=2)
         self.mat_search_var = tk.StringVar()
         self.mat_search_var.trace_add("write", lambda *args: self.filter_materials_list())
         ttk.Entry(ctrl_frame, textvariable=self.mat_search_var, width=12).pack(side="left", padx=2)
         
-        ttk.Label(ctrl_frame, text="Categoría:").pack(side="left", padx=(4, 1))
-        self.mat_cat_var = tk.StringVar(value="Todos")
-        cats = [
-            "Todos",
-            "Aluminio (Aluminum)",
-            "Cobre (Copper)",
-            "Hierro y Acero (Iron & Steel)",
-            "Petróleo y Aceites (Oil)",
-            "Maderas (Wood)",
-            "Textiles y Fibras (Cloth)",
-            "D.O.D. ARMS (Metals)",
-            "WAR ENSEMBLE (Metals)",
-            "CANDLE WOLF (Metals)",
-            "M.I.L.K. (Metals)",
-            "Metales de Jefes (Boss Metals)",
-            "Materiales Jackals y Tengoku",
-            "Esteroides / Rostest (Luchadores)",
-            "🍄 Setas y Criaturas"
-        ]
+        is_en = (i18n.get_language() == "en")
+        ttk.Label(ctrl_frame, text=t("mat_cat_lbl")).pack(side="left", padx=(4, 1))
+        self.mat_cat_var = tk.StringVar(value="All" if is_en else "Todos")
+        if is_en:
+            cats = [
+                "All",
+                "Aluminum",
+                "Copper",
+                "Iron & Steel",
+                "Oil",
+                "Wood",
+                "Cloth & Fibers",
+                "D.O.D. ARMS (Metals)",
+                "WAR ENSEMBLE (Metals)",
+                "CANDLE WOLF (Metals)",
+                "M.I.L.K. (Metals)",
+                "Boss Metals",
+                "Jackals & Tengoku Materials",
+                "Steroids / Rostest (Fighters)",
+                "🍄 Mushrooms & Beasts"
+            ]
+        else:
+            cats = [
+                "Todos",
+                "Aluminio (Aluminum)",
+                "Cobre (Copper)",
+                "Hierro y Acero (Iron & Steel)",
+                "Petróleo y Aceites (Oil)",
+                "Maderas (Wood)",
+                "Textiles y Fibras (Cloth)",
+                "D.O.D. ARMS (Metals)",
+                "WAR ENSEMBLE (Metals)",
+                "CANDLE WOLF (Metals)",
+                "M.I.L.K. (Metals)",
+                "Metales de Jefes (Boss Metals)",
+                "Materiales Jackals y Tengoku",
+                "Esteroides / Rostest (Luchadores)",
+                "🍄 Setas y Criaturas"
+            ]
         cb_cat = ttk.Combobox(ctrl_frame, textvariable=self.mat_cat_var, values=cats, state="readonly", width=18)
         cb_cat.pack(side="left", padx=2)
         cb_cat.bind("<<ComboboxSelected>>", lambda e: self.filter_materials_list())
 
-        ttk.Label(ctrl_frame, text="Stock:").pack(side="left", padx=(4, 1))
-        self.mat_stock_filter_var = tk.StringVar(value="Todo")
-        cb_stock = ttk.Combobox(ctrl_frame, textvariable=self.mat_stock_filter_var, values=["Todo", "📦 En Stock (> 0)", "⚠️ Stock Bajo (< 10)", "❌ Agotado (0)"], state="readonly", width=14)
+        ttk.Label(ctrl_frame, text=t("mat_stock_lbl")).pack(side="left", padx=(4, 1))
+        self.mat_stock_filter_var = tk.StringVar(value=t("mat_all"))
+        cb_stock = ttk.Combobox(ctrl_frame, textvariable=self.mat_stock_filter_var, values=[t("mat_all"), t("mat_in_stock"), t("mat_low_stock"), t("mat_out_stock")], state="readonly", width=14)
         cb_stock.pack(side="left", padx=2)
         cb_stock.bind("<<ComboboxSelected>>", lambda e: self.filter_materials_list())
 
-        ttk.Label(ctrl_frame, text="Rareza:").pack(side="left", padx=(4, 1))
-        self.mat_rarity_filter_var = tk.StringVar(value="Todas")
-        cb_mrarity = ttk.Combobox(ctrl_frame, textvariable=self.mat_rarity_filter_var, values=["Todas", "1★", "2★", "3★", "4★", "5★", "6★", "7★", "8★"], state="readonly", width=6)
+        ttk.Label(ctrl_frame, text=t("mat_rarity_lbl")).pack(side="left", padx=(4, 1))
+        self.mat_rarity_filter_var = tk.StringVar(value=t("decal_all"))
+        cb_mrarity = ttk.Combobox(ctrl_frame, textvariable=self.mat_rarity_filter_var, values=[t("decal_all"), "1★", "2★", "3★", "4★", "5★", "6★", "7★", "8★"], state="readonly", width=6)
         cb_mrarity.pack(side="left", padx=2)
         cb_mrarity.bind("<<ComboboxSelected>>", lambda e: self.filter_materials_list())
         
         btn_open_storage = ttk.Button(ctrl_frame, text="📦 Coin Locker", command=self._open_storage_manager)
         btn_open_storage.pack(side="right", padx=1)
 
-        btn_all_mat = ttk.Button(ctrl_frame, text="✨ Stock Máximo (x100)", style="Accent.TButton", command=self.max_all_materials_preset)
+        btn_all_mat = ttk.Button(ctrl_frame, text="✨ Max Stock (x100)" if is_en else "✨ Stock Máximo (x100)", style="Accent.TButton", command=self.max_all_materials_preset)
         btn_all_mat.pack(side="right", padx=1)
 
         # Row 2: Pisos de la Torre (Wiki Tower Sections Quick Bar)
         ctrl_frame_floors = ttk.Frame(left_box)
         ctrl_frame_floors.pack(fill="x", pady=2)
         
-        ttk.Label(ctrl_frame_floors, text="🗼 Pisos Torre:", font=("Segoe UI", 8, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=2)
+        ttk.Label(ctrl_frame_floors, text=t("mat_floors_lbl"), font=("Segoe UI", 8, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=2)
         self.mat_floor_filter = tk.StringVar(value="TODOS")
         
         floor_buttons = [
-            ("🌐 Todos", "TODOS"),
+            ("🌐 All" if is_en else "🌐 Todos", "TODOS"),
             ("🏢 1F-10F (DOD)", "1_10"),
             ("🏭 11F-20F (WE)", "11_20"),
             ("🏰 21F-30F (CW)", "21_30"),
@@ -1044,11 +1138,11 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         # Materials Treeview
         self.mat_tree = ttk.Treeview(left_box, columns=("stock", "rarity", "category", "id"), show="tree headings", height=16)
-        self.mat_tree.heading("#0", text="Icono / Nombre Oficial del Material (ES / EN)")
-        self.mat_tree.heading("stock", text="En Almacén")
-        self.mat_tree.heading("rarity", text="Rareza")
-        self.mat_tree.heading("category", text="Tipo")
-        self.mat_tree.heading("id", text="Código ID")
+        self.mat_tree.heading("#0", text=t("decal_col_icon"))
+        self.mat_tree.heading("stock", text=t("bp_col_storage"))
+        self.mat_tree.heading("rarity", text=t("decal_col_rare"))
+        self.mat_tree.heading("category", text=t("decal_col_type"))
+        self.mat_tree.heading("id", text=t("wm_col_code"))
         
         self.mat_tree.column("#0", width=280)
         self.mat_tree.column("stock", width=90, anchor="center")
@@ -1064,31 +1158,31 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.mat_tree.tag_configure("tag_out_of_stock", foreground=FG_MUTED)
         
         # Right Material Card (Wiki Showcase)
-        self.mat_card = ttk.LabelFrame(paned, text="Ficha Oficial de Material R&D", padding=12)
+        self.mat_card = ttk.LabelFrame(paned, text=t("mat_card_title"), padding=12)
         paned.add(self.mat_card, weight=2)
         
         self.mat_art_lbl = ttk.Label(self.mat_card)
         self.mat_art_lbl.pack(pady=6)
         
-        self.mat_title_lbl = ttk.Label(self.mat_card, text="Selecciona un material", font=("Segoe UI", 12, "bold"), foreground=ACCENT_GOLD, wraplength=260, justify="center")
+        self.mat_title_lbl = ttk.Label(self.mat_card, text=t("mat_select_prompt"), font=("Segoe UI", 12, "bold"), foreground=ACCENT_GOLD, wraplength=260, justify="center")
         self.mat_title_lbl.pack(pady=2)
         
         self.mat_type_lbl = ttk.Label(self.mat_card, text="---", font=("Segoe UI", 9), foreground=FG_MUTED)
         self.mat_type_lbl.pack(pady=2)
         
-        self.mat_stock_lbl = ttk.Label(self.mat_card, text="📦 En tu Almacén: --", font=("Segoe UI", 10, "bold"), foreground=ACCENT_CYAN)
+        self.mat_stock_lbl = ttk.Label(self.mat_card, text=t("mat_none_in_storage"), font=("Segoe UI", 10, "bold"), foreground=ACCENT_CYAN)
         self.mat_stock_lbl.pack(pady=4)
         
-        self.mat_desc_lbl = ttk.Label(self.mat_card, text="Selecciona cualquier material para ver su icono oficial y gestionar existencias para Chokufunsha.", font=("Segoe UI", 9), foreground=FG_MUTED, wraplength=260, justify="center")
+        self.mat_desc_lbl = ttk.Label(self.mat_card, text=t("mat_desc_default"), font=("Segoe UI", 9), foreground=FG_MUTED, wraplength=260, justify="center")
         self.mat_desc_lbl.pack(pady=6)
         
         # Quantity controls
         qty_f = ttk.Frame(self.mat_card)
         qty_f.pack(pady=4)
-        ttk.Label(qty_f, text="Añadir / Establecer:").pack(side="left", padx=2)
+        ttk.Label(qty_f, text=t("mat_set_qty_lbl")).pack(side="left", padx=2)
         self.mat_qty_entry_var = tk.StringVar(value="50")
         ttk.Entry(qty_f, textvariable=self.mat_qty_entry_var, width=6, justify="center").pack(side="left", padx=4)
-        ttk.Button(qty_f, text="Establecer", style="Accent.TButton", command=self._set_selected_mat_qty).pack(side="left", padx=2)
+        ttk.Button(qty_f, text=t("mat_set_btn"), style="Accent.TButton", command=self._set_selected_mat_qty).pack(side="left", padx=2)
         
         quick_m_box = ttk.Frame(self.mat_card)
         quick_m_box.pack(fill="x", pady=4)
@@ -1097,7 +1191,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         ttk.Button(quick_m_box, text="+100", command=lambda: self._quick_add_material_qty(100)).pack(side="left", fill="x", expand=True, padx=1)
 
         # Capacity expansion frame
-        cap_frame = ttk.LabelFrame(self.mat_card, text="Capacidad del Coin Locker", padding=8)
+        cap_frame = ttk.LabelFrame(self.mat_card, text=t("mat_locker_cap_title"), padding=8)
         cap_frame.pack(fill="x", pady=(10, 0))
         
         self.mat_cap_indicator_lbl = ttk.Label(cap_frame, text="Almacén: 0 / 0 casillas", font=("Segoe UI", 9, "bold"))
@@ -1105,9 +1199,9 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         exp_row = ttk.Frame(cap_frame)
         exp_row.pack(fill="x", pady=2)
-        ttk.Button(exp_row, text="Ampliación +500", command=lambda: self._expand_coin_locker(500)).pack(side="left", fill="x", expand=True, padx=1)
-        ttk.Button(exp_row, text="Ampliación +1000", command=lambda: self._expand_coin_locker(1000)).pack(side="left", fill="x", expand=True, padx=1)
-        ttk.Button(exp_row, text="Al Máximo (2,000)", style="Accent.TButton", command=lambda: self._expand_coin_locker(2000)).pack(side="left", fill="x", expand=True, padx=1)
+        ttk.Button(exp_row, text=t("mat_expand_500"), command=lambda: self._expand_coin_locker(500)).pack(side="left", fill="x", expand=True, padx=1)
+        ttk.Button(exp_row, text=t("mat_expand_1000"), command=lambda: self._expand_coin_locker(1000)).pack(side="left", fill="x", expand=True, padx=1)
+        ttk.Button(exp_row, text=t("mat_expand_max"), style="Accent.TButton", command=lambda: self._expand_coin_locker(2000)).pack(side="left", fill="x", expand=True, padx=1)
 
     def _get_mat_photo_key(self, itemid, name_en):
         if hasattr(self, "icon_map") and "materials_thumbs" in self.icon_map:
@@ -1144,17 +1238,16 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         self.current_mat_selection = (itemid, full_title, cat)
         self.mat_title_lbl.config(text=full_title)
-        self.mat_type_lbl.config(text=f"Categoría: {cat} | Rareza: {stars} ({itemid})")
+        self.mat_type_lbl.config(text=t("mat_cat_info", cat=cat, rare=stars, id=itemid))
         if stock_str != "-":
-            self.mat_stock_lbl.config(text=f"📦 En tu Almacén: {stock_str}", foreground=ACCENT_GOLD)
+            self.mat_stock_lbl.config(text=t("mat_in_storage", qty=stock_str), foreground=ACCENT_GOLD)
         else:
-            self.mat_stock_lbl.config(text="📦 En tu Almacén: 0 u. (No tienes)", foreground=FG_MUTED)
+            self.mat_stock_lbl.config(text=t("mat_none_in_storage"), foreground=FG_MUTED)
         
-        desc = "Material oficial de R&D para fabricar y mejorar armas y armaduras en Chokufunsha."
+        desc = t("mat_desc_default")
         for m in self.materials_db:
             if m["itemid"] == itemid:
-                if m.get("desc_es"): desc = m["desc_es"]
-                elif m.get("desc_en"): desc = m["desc_en"]
+                desc = i18n.get_item_desc(m) or desc
                 break
         self.mat_desc_lbl.config(text=desc)
         
@@ -1285,19 +1378,21 @@ class CompleteSaveEditorGUI(tk.Tk):
                 cnt = stock_map.get(itemid, 0)
                 
                 # Category filter
-                if cat_filter != "Todos" and cat != cat_filter:
-                    continue
+                if cat_filter not in ("Todos", "All"):
+                    c_key = cat_filter.lower().split()[0].replace("(", "").replace(")", "")
+                    if c_key not in cat.lower():
+                        continue
                     
                 # Stock filter
-                if stock_filter == "📦 En Stock (> 0)" and cnt <= 0:
+                if ("En Stock" in stock_filter or "In Stock" in stock_filter) and cnt <= 0:
                     continue
-                elif stock_filter == "⚠️ Stock Bajo (< 10)" and (cnt <= 0 or cnt >= 10):
+                elif ("Stock Bajo" in stock_filter or "Low Stock" in stock_filter) and (cnt <= 0 or cnt >= 10):
                     continue
-                elif stock_filter == "❌ Agotado (0)" and cnt > 0:
+                elif ("Agotado" in stock_filter or "Out of Stock" in stock_filter) and cnt > 0:
                     continue
 
                 # Rarity filter
-                if rarity_filter != "Todas":
+                if rarity_filter not in ("Todas", "All"):
                     try:
                         req_r = int(rarity_filter.replace("★", "").strip())
                         if r != req_r:
@@ -1328,10 +1423,11 @@ class CompleteSaveEditorGUI(tk.Tk):
                 if query and (query not in name_es.lower() and query not in name_en.lower() and query not in cat.lower() and query not in itemid.lower()):
                     continue
                     
-                stock_str = f"{cnt} u." if cnt > 0 else "-"
+                is_en = (i18n.get_language() == "en")
+                stock_str = f"{cnt} pcs." if is_en and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
                 tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
                     
-                if i18n.get_language() == "en":
+                if is_en:
                     display_title = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
                 else:
                     display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
@@ -1350,18 +1446,18 @@ class CompleteSaveEditorGUI(tk.Tk):
                     first_row = node_id
                     
         # 2. Shrooms and Beasts (Tower Exploration)
-        if cat_filter in ["Todos", "🍄 Setas y Criaturas"] and floor_filter == "TODOS" and rarity_filter == "Todas":
+        if (cat_filter in ["Todos", "All"] or "🍄" in cat_filter) and floor_filter == "TODOS" and rarity_filter in ("Todas", "All"):
             for mid, mname, icon_f in SPECIAL_MUSHROOMS:
                 cnt = stock_map.get(mid, 0)
-                if stock_filter == "📦 En Stock (> 0)" and cnt <= 0:
+                if ("En Stock" in stock_filter or "In Stock" in stock_filter) and cnt <= 0:
                     continue
-                elif stock_filter == "⚠️ Stock Bajo (< 10)" and (cnt <= 0 or cnt >= 10):
+                elif ("Stock Bajo" in stock_filter or "Low Stock" in stock_filter) and (cnt <= 0 or cnt >= 10):
                     continue
-                elif stock_filter == "❌ Agotado (0)" and cnt > 0:
+                elif ("Agotado" in stock_filter or "Out of Stock" in stock_filter) and cnt > 0:
                     continue
                 if query and query not in mname.lower() and query not in mid.lower():
                     continue
-                stock_str = f"{cnt} u." if cnt > 0 else "-"
+                stock_str = f"{cnt} pcs." if i18n.get_language() == "en" and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
                 tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
                 thumb = self.get_photo(icon_f, size=(36, 36), preserve_aspect=True) or self.get_photo("01_heartshroom_1", size=(36, 36), preserve_aspect=True)
                 node_id = self.mat_tree.insert(
@@ -1369,7 +1465,7 @@ class CompleteSaveEditorGUI(tk.Tk):
                     "end",
                     text=f" {mname}",
                     image=thumb or "",
-                    values=(stock_str, "★★★", "Setas Especiales", mid),
+                    values=(stock_str, "★★★", "Special Shrooms" if i18n.get_language() == "en" else "Setas Especiales", mid),
                     tags=(tag,)
                 )
                 self.tree_images[node_id] = thumb
@@ -1417,48 +1513,48 @@ class CompleteSaveEditorGUI(tk.Tk):
         ctrl_frame = ttk.Frame(left_box)
         ctrl_frame.pack(fill="x", pady=2)
         
-        ttk.Label(ctrl_frame, text="🔍 Buscar:").pack(side="left", padx=2)
+        ttk.Label(ctrl_frame, text=t("decal_search")).pack(side="left", padx=2)
         self.decal_search_var = tk.StringVar()
         self.decal_search_var.trace_add("write", lambda *args: self.filter_decals_list())
         ttk.Entry(ctrl_frame, textvariable=self.decal_search_var, width=13).pack(side="left", padx=2)
         
-        ttk.Label(ctrl_frame, text="Rareza:").pack(side="left", padx=(4, 1))
-        self.decal_rarity_filter_var = tk.StringVar(value="Todas")
-        cb_rarity = ttk.Combobox(ctrl_frame, textvariable=self.decal_rarity_filter_var, values=["Todas", "1★", "2★", "3★", "4★", "5★"], state="readonly", width=6)
+        ttk.Label(ctrl_frame, text=t("decal_rare_lbl")).pack(side="left", padx=(4, 1))
+        self.decal_rarity_filter_var = tk.StringVar(value=t("decal_all"))
+        cb_rarity = ttk.Combobox(ctrl_frame, textvariable=self.decal_rarity_filter_var, values=[t("decal_all"), "1★", "2★", "3★", "4★", "5★"], state="readonly", width=6)
         cb_rarity.pack(side="left", padx=2)
         cb_rarity.bind("<<ComboboxSelected>>", lambda e: self.filter_decals_list())
 
-        ttk.Label(ctrl_frame, text="Tipo:").pack(side="left", padx=(4, 1))
-        self.decal_type_filter_var = tk.StringVar(value="Todas")
-        cb_dtype = ttk.Combobox(ctrl_frame, textvariable=self.decal_type_filter_var, values=["Todas", "Premium (_P)", "Estándar"], state="readonly", width=12)
+        ttk.Label(ctrl_frame, text=t("decal_type_lbl")).pack(side="left", padx=(4, 1))
+        self.decal_type_filter_var = tk.StringVar(value=t("decal_all"))
+        cb_dtype = ttk.Combobox(ctrl_frame, textvariable=self.decal_type_filter_var, values=[t("decal_all"), t("decal_premium"), t("decal_standard")], state="readonly", width=12)
         cb_dtype.pack(side="left", padx=2)
         cb_dtype.bind("<<ComboboxSelected>>", lambda e: self.filter_decals_list())
 
-        ttk.Label(ctrl_frame, text="Posesión:").pack(side="left", padx=(4, 1))
-        self.decal_poss_filter_var = tk.StringVar(value="Todas")
-        cb_dposs = ttk.Combobox(ctrl_frame, textvariable=self.decal_poss_filter_var, values=["Todas", "📦 Poseídas (> 0)", "❌ Faltantes (0)"], state="readonly", width=14)
+        ttk.Label(ctrl_frame, text=t("decal_poss_lbl")).pack(side="left", padx=(4, 1))
+        self.decal_poss_filter_var = tk.StringVar(value=t("decal_all"))
+        cb_dposs = ttk.Combobox(ctrl_frame, textvariable=self.decal_poss_filter_var, values=[t("decal_all"), t("decal_owned"), t("decal_missing")], state="readonly", width=14)
         cb_dposs.pack(side="left", padx=2)
         cb_dposs.bind("<<ComboboxSelected>>", lambda e: self.filter_decals_list())
 
-        btn_meta = ttk.Button(ctrl_frame, text="🏆 Pack Meta", command=self.add_meta_decals_preset)
+        btn_meta = ttk.Button(ctrl_frame, text=t("decal_pack_meta"), command=self.add_meta_decals_preset)
         btn_meta.pack(side="right", padx=1)
 
-        btn_all_p = ttk.Button(ctrl_frame, text="✨ Desbloquear Todas", style="Accent.TButton", command=self.unlock_all_decals_preset)
+        btn_all_p = ttk.Button(ctrl_frame, text=t("decal_unlock_all"), style="Accent.TButton", command=self.unlock_all_decals_preset)
         btn_all_p.pack(side="right", padx=1)
 
         self.decal_unlock_qty_var = tk.StringVar(value="3")
         ttk.Entry(ctrl_frame, textvariable=self.decal_unlock_qty_var, width=3, justify="center").pack(side="right", padx=1)
-        ttk.Label(ctrl_frame, text="Copias:").pack(side="right", padx=(2, 0))
+        ttk.Label(ctrl_frame, text=t("decal_copies_lbl")).pack(side="right", padx=(2, 0))
 
         # Row 2: Eventos / Colaboraciones Quick Buttons Bar
         ctrl_frame_events = ttk.Frame(left_box)
         ctrl_frame_events.pack(fill="x", pady=2)
         
-        ttk.Label(ctrl_frame_events, text="🎯 Eventos:", font=("Segoe UI", 8, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=2)
+        ttk.Label(ctrl_frame_events, text=t("decal_events_lbl"), font=("Segoe UI", 8, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=2)
         self.decal_event_filter = tk.StringVar(value="TODOS")
         
         decal_event_buttons = [
-            ("🌐 Todas", "TODOS"),
+            (t("decal_event_all"), "TODOS"),
             ("💥 World of Tanks", "WOT"),
             ("⚔️ No More Heroes", "NMH"),
             ("🎯 Killer7", "KILLER7"),
@@ -1472,28 +1568,28 @@ class CompleteSaveEditorGUI(tk.Tk):
         ctrl_frame_styles = ttk.Frame(left_box)
         ctrl_frame_styles.pack(fill="x", pady=2)
         
-        ttk.Label(ctrl_frame_styles, text="⚡ Estilos:", font=("Segoe UI", 8, "bold"), foreground=ACCENT_CYAN).pack(side="left", padx=2)
+        ttk.Label(ctrl_frame_styles, text=t("decal_styles_lbl"), font=("Segoe UI", 8, "bold"), foreground=ACCENT_CYAN).pack(side="left", padx=2)
         self.decal_style_filter = tk.StringVar(value="TODOS")
         
         decal_style_buttons = [
-            ("Todos", "TODOS"),
+            (t("decal_style_all"), "TODOS"),
             ("⚔️ Addicts", "ADDICTS"),
-            ("💥 Crítico", "CRIT_DMG"),
-            ("🛡️ Tanque", "TANK_DEF"),
-            ("🩸 Vampiro", "VAMP_SURV"),
-            ("📦 Farmeo", "FARM_QOL"),
-            ("🎭 Sets", "SETS")
+            (t("decal_style_crit"), "CRIT_DMG"),
+            (t("decal_style_tank"), "TANK_DEF"),
+            (t("decal_style_vamp"), "VAMP_SURV"),
+            (t("decal_style_farm"), "FARM_QOL"),
+            (t("decal_style_sets"), "SETS")
         ]
         for btn_text, mode in decal_style_buttons:
             ttk.Button(ctrl_frame_styles, text=btn_text, command=lambda m=mode: self._set_decal_style_filter(m)).pack(side="left", padx=1)
 
         # Treeview with columns
         self.decals_tree = ttk.Treeview(left_box, columns=("stars", "id", "premium", "count"), show="tree headings", height=16)
-        self.decals_tree.heading("#0", text="Icono / Nombre Oficial en Español e Inglés")
-        self.decals_tree.heading("stars", text="Rareza")
-        self.decals_tree.heading("id", text="ID Calcomanía")
-        self.decals_tree.heading("premium", text="Tipo")
-        self.decals_tree.heading("count", text="Cantidad")
+        self.decals_tree.heading("#0", text=t("decal_col_icon"))
+        self.decals_tree.heading("stars", text=t("decal_col_rare"))
+        self.decals_tree.heading("id", text=t("decal_col_id"))
+        self.decals_tree.heading("premium", text=t("decal_col_type"))
+        self.decals_tree.heading("count", text=t("decal_col_qty"))
         
         self.decals_tree.column("#0", width=300)
         self.decals_tree.column("stars", width=65, anchor="center")
@@ -1505,34 +1601,33 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.decals_tree.bind("<<TreeviewSelect>>", self._on_decal_select)
         self.decals_tree.bind("<Double-1>", self._edit_selected_decal_count)
         
-        self.decal_card = ttk.LabelFrame(paned, text="Tarjeta de Arte Oficial (Full HD)", padding=12)
+        self.decal_card = ttk.LabelFrame(paned, text=t("decal_card_title"), padding=12)
         paned.add(self.decal_card, weight=2)
         
         self.decal_art_lbl = ttk.Label(self.decal_card)
         self.decal_art_lbl.pack(pady=10)
         
-        self.decal_title_lbl = ttk.Label(self.decal_card, text="Selecciona una calcomanía", font=("Segoe UI", 12, "bold"), wraplength=240, justify="center")
+        self.decal_title_lbl = ttk.Label(self.decal_card, text=t("decal_select_prompt"), font=("Segoe UI", 12, "bold"), wraplength=240, justify="center")
         self.decal_title_lbl.pack(pady=4)
         
         self.decal_type_lbl = ttk.Label(self.decal_card, text="---", font=("Segoe UI", 9), foreground=ACCENT_GOLD)
         self.decal_type_lbl.pack(pady=2)
         
-        self.decal_desc_lbl = ttk.Label(self.decal_card, text="Selecciona cualquier calcomanía de la lista para ver su ilustración original in-game en alta definición y sus efectos.", font=("Segoe UI", 9), foreground=FG_MUTED, wraplength=240, justify="center")
+        self.decal_desc_lbl = ttk.Label(self.decal_card, text="---", font=("Segoe UI", 9), foreground=FG_MUTED, wraplength=240, justify="center")
         self.decal_desc_lbl.pack(pady=10)
         
         qty_box = ttk.Frame(self.decal_card)
         qty_box.pack(pady=4)
-        ttk.Label(qty_box, text="Cantidad:").pack(side="left", padx=4)
+        ttk.Label(qty_box, text=t("decal_copies_edit_lbl")).pack(side="left", padx=4)
         self.decal_qty_var = tk.StringVar(value="0")
         ttk.Entry(qty_box, textvariable=self.decal_qty_var, width=6, justify="center").pack(side="left", padx=4)
-        ttk.Button(qty_box, text="Actualizar", style="Accent.TButton", command=self._update_current_decal_qty).pack(side="left", padx=4)
+        ttk.Button(qty_box, text=t("decal_set_btn"), style="Accent.TButton", command=self._update_current_decal_qty).pack(side="left", padx=4)
         
         d_quick = ttk.Frame(self.decal_card)
         d_quick.pack(fill="x", pady=2)
-        ttk.Button(d_quick, text="+1", width=3, command=lambda: self._quick_add_decal(1)).pack(side="left", fill="x", expand=True, padx=1)
-        ttk.Button(d_quick, text="+3", width=3, command=lambda: self._quick_add_decal(3)).pack(side="left", fill="x", expand=True, padx=1)
-        ttk.Button(d_quick, text="+5", width=3, command=lambda: self._quick_add_decal(5)).pack(side="left", fill="x", expand=True, padx=1)
-        ttk.Button(d_quick, text="+10", width=3, command=lambda: self._quick_add_decal(10)).pack(side="left", fill="x", expand=True, padx=1)
+        ttk.Button(d_quick, text=t("decal_plus1"), width=3, command=lambda: self._quick_add_decal(1)).pack(side="left", fill="x", expand=True, padx=1)
+        ttk.Button(d_quick, text=t("decal_plus5"), width=3, command=lambda: self._quick_add_decal(5)).pack(side="left", fill="x", expand=True, padx=1)
+        ttk.Button(d_quick, text=t("decal_zero"), width=3, command=lambda: self._quick_add_decal(-999)).pack(side="left", fill="x", expand=True, padx=1)
 
     def _find_decal_art(self, decal_id):
         if not hasattr(self, "_decal_disk_map"):
@@ -1607,10 +1702,10 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.current_decal_selection = did
         self.decal_qty_var.set(str(cnt))
         self.decal_title_lbl.config(text=f"{text}\n({did}) • {stars_str}")
-        self.decal_type_lbl.config(text=f"Tipo: {dtype} | Poseídas: x{cnt}")
+        self.decal_type_lbl.config(text=t("decal_type_and_owned", type=dtype, cnt=cnt))
         
         info = self.decals_map.get(did) or self.decals_map.get(did.replace("_P", "")) or {}
-        desc = info.get("desc_es") or info.get("desc_en") or "Calcomanía Oficial de Combate"
+        desc = i18n.get_item_desc(info) or ("Official Combat Skill Decal" if i18n.get_language() == "en" else "Calcomanía Oficial de Combate")
         self.decal_desc_lbl.config(text=desc)
         
         art_rel = self._find_decal_art(did)
@@ -1697,20 +1792,20 @@ class CompleteSaveEditorGUI(tk.Tk):
             info = self.decals_map.get(did) or self.decals_map.get(did.replace("_P", "")) or {}
             
             # 1. Type filter
-            if type_filter == "Premium (_P)" and not is_p:
+            if "Premium" in type_filter and not is_p:
                 continue
-            elif type_filter == "Estándar" and is_p:
+            elif ("Estándar" in type_filter or "Standard" in type_filter) and is_p:
                 continue
                 
             # 2. Possession filter
-            if poss_filter == "📦 Poseídas (> 0)" and cnt <= 0:
+            if ("Poseídas" in poss_filter or "Possessed" in poss_filter) and cnt <= 0:
                 continue
-            elif poss_filter == "❌ Faltantes (0)" and cnt > 0:
+            elif ("Faltantes" in poss_filter or "Missing" in poss_filter) and cnt > 0:
                 continue
 
             # 3. Rarity filter
             d_rarity = info.get("rarity", 1 if not is_p else 3)
-            if rarity_filter != "Todas":
+            if rarity_filter not in ("Todas", "All"):
                 try:
                     req_stars = int(rarity_filter.replace("★", "").strip())
                     if d_rarity != req_stars:
@@ -1806,19 +1901,20 @@ class CompleteSaveEditorGUI(tk.Tk):
     def _get_item_wiki_meta(self, item):
         itemid = item["id"]
         raw_type = item.get("raw_type", "")
+        is_en = (i18n.get_language() == "en")
         
         # 1. Slot (Wiki-style)
         if raw_type == "PTTP_HEAD" or "_HEAD_" in itemid:
-            slot = "🪖 Casco"
+            slot = "🪖 Helmet" if is_en else "🪖 Casco"
             slot_key = "head"
         elif raw_type == "PTTP_BODY" or "_TOPS_" in itemid:
-            slot = "👕 Pecho"
+            slot = "👕 Body" if is_en else "👕 Pecho"
             slot_key = "chest"
         elif raw_type in ("PTTP_PANTS", "PTTP_LEGS") or "_BTM_" in itemid:
-            slot = "👖 Piernas"
+            slot = "👖 Pants" if is_en else "👖 Piernas"
             slot_key = "legs"
         else:
-            slot = "⚔️ Arma"
+            slot = "⚔️ Weapon" if is_en else "⚔️ Arma"
             slot_key = "weapon"
             
         # 2. Faction (Wiki-style)
@@ -1841,10 +1937,10 @@ class CompleteSaveEditorGUI(tk.Tk):
             faction = "🕶️ JACKALS"
             faction_key = "JACKAL"
         elif "PT_REC" in itemid:
-            faction = "♻️ RE (Reciclador)"
+            faction = "♻️ RE (Recycler)" if is_en else "♻️ RE (Reciclador)"
             faction_key = "RE"
         elif any(k in itemid for k in ["PT_SPE", "PT_GAS"]):
-            faction = "🎭 Especial / Evento"
+            faction = "🎭 Special / Event" if is_en else "🎭 Especial / Evento"
             faction_key = "SPE"
         else:
             orig = item.get("faction", "")
@@ -1861,7 +1957,7 @@ class CompleteSaveEditorGUI(tk.Tk):
                 faction = "🥛 M.I.L.K."
                 faction_key = "MIL"
             else:
-                faction = "⚔️ General / Otras"
+                faction = "⚔️ General / Other" if is_en else "⚔️ General / Otras"
                 faction_key = "GEN"
                 
         # 3. Set Code / Series
@@ -1906,94 +2002,94 @@ class CompleteSaveEditorGUI(tk.Tk):
         ctrl_frame = ttk.Frame(left_box)
         ctrl_frame.pack(fill="x", pady=3)
         
-        ttk.Label(ctrl_frame, text="🔍 Buscar:").pack(side="left", padx=2)
+        ttk.Label(ctrl_frame, text=t("bp_search")).pack(side="left", padx=2)
         self.bp_search_var = tk.StringVar()
         self.bp_search_var.trace_add("write", lambda *args: self.filter_blueprints_list())
         ttk.Entry(ctrl_frame, textvariable=self.bp_search_var, width=15).pack(side="left", padx=2)
         
-        ttk.Label(ctrl_frame, text="Ranura:").pack(side="left", padx=(6, 2))
-        self.bp_cat_combo_var = tk.StringVar(value="Todos")
-        cb_bp_cat = ttk.Combobox(ctrl_frame, textvariable=self.bp_cat_combo_var, values=["Todos", "🪖 Cascos", "👕 Pechos", "👖 Piernas", "⚔️ Armas"], state="readonly", width=11)
+        ttk.Label(ctrl_frame, text=t("bp_slot_lbl")).pack(side="left", padx=(6, 2))
+        self.bp_cat_combo_var = tk.StringVar(value=t("bp_slot_all"))
+        cb_bp_cat = ttk.Combobox(ctrl_frame, textvariable=self.bp_cat_combo_var, values=[t("bp_slot_all"), t("bp_slot_helmets"), t("bp_slot_bodies"), t("bp_slot_legs"), t("bp_slot_weapons")], state="readonly", width=11)
         cb_bp_cat.pack(side="left", padx=2)
         cb_bp_cat.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
         
-        ttk.Label(ctrl_frame, text="Facción:").pack(side="left", padx=(6, 2))
-        self.bp_faction_var = tk.StringVar(value="Todas")
+        ttk.Label(ctrl_frame, text=t("bp_faction_lbl")).pack(side="left", padx=(6, 2))
+        self.bp_faction_var = tk.StringVar(value=t("bp_fac_all"))
         factions_list = [
-            "Todas",
-            "🔨 D.O.D. ARMS",
-            "🎖️ WAR ENSEMBLE",
-            "🕯️ CANDLE WOLF",
-            "🥛 M.I.L.K.",
-            "⚡ 4 FORCEMEN & TENGOKU",
-            "🕶️ JACKALS",
-            "♻️ RE (Reciclador)",
-            "🎭 Especial / Evento",
-            "⚔️ General / Otras"
+            t("bp_fac_all"),
+            t("bp_fac_dod"),
+            t("bp_fac_we"),
+            t("bp_fac_cw"),
+            t("bp_fac_milk"),
+            t("bp_fac_44ce"),
+            t("bp_fac_jackals"),
+            t("bp_fac_re"),
+            t("bp_fac_spe"),
+            t("bp_fac_gen")
         ]
         cb_faction = ttk.Combobox(ctrl_frame, textvariable=self.bp_faction_var, values=factions_list, state="readonly", width=18)
         cb_faction.pack(side="left", padx=2)
         cb_faction.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
         
-        btn_sets_viewer = ttk.Button(ctrl_frame, text="👘 Visor de Sets por Nivel", style="Accent.TButton", command=self._open_armor_set_viewer)
+        btn_sets_viewer = ttk.Button(ctrl_frame, text=t("bp_view_sets_btn"), style="Accent.TButton", command=self._open_armor_set_viewer)
         btn_sets_viewer.pack(side="right", padx=3)
         
         # Row 2: Possession Filter + Level + Actions
         ctrl_frame2 = ttk.Frame(left_box)
         ctrl_frame2.pack(fill="x", pady=3)
         
-        ttk.Label(ctrl_frame2, text="Posesión:").pack(side="left", padx=2)
-        self.bp_possession_filter_var = tk.StringVar(value="Todos")
+        ttk.Label(ctrl_frame2, text=t("bp_poss_lbl")).pack(side="left", padx=2)
+        self.bp_possession_filter_var = tk.StringVar(value=t("bp_poss_all"))
         poss_list = [
-            "Todos",
-            "📦 En Almacén (> 0)",
-            "⭐ Desbloqueados en Tienda (+4)",
-            "🔨 En I+D (REMODEL / MAP)",
-            "❌ Bloqueados (Faltantes)"
+            t("bp_poss_all"),
+            t("bp_poss_storage"),
+            t("bp_poss_shop"),
+            t("bp_poss_rnd"),
+            t("bp_poss_locked")
         ]
         cb_poss = ttk.Combobox(ctrl_frame2, textvariable=self.bp_possession_filter_var, values=poss_list, state="readonly", width=18)
         cb_poss.pack(side="left", padx=2)
         cb_poss.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
 
-        ttk.Label(ctrl_frame2, text="Daño:").pack(side="left", padx=(4, 2))
-        self.bp_dmg_type_var = tk.StringVar(value="Todos")
+        ttk.Label(ctrl_frame2, text=t("bp_dmg_lbl")).pack(side="left", padx=(4, 2))
+        self.bp_dmg_type_var = tk.StringVar(value=t("bp_dmg_all"))
         dmg_list = [
-            "Todos",
-            "🗡️ Corte (Slash)",
-            "🔨 Golpe (Blunt)",
-            "🏹 Perforación (Pierce)",
-            "🔥 Fuego (Burn)",
-            "⚡ Electricidad (Electric)",
-            "🧪 Veneno (Poison)"
+            t("bp_dmg_all"),
+            t("bp_dmg_slash"),
+            t("bp_dmg_blunt"),
+            t("bp_dmg_pierce"),
+            t("bp_dmg_fire"),
+            t("bp_dmg_elec"),
+            t("bp_dmg_poison")
         ]
         cb_dmg = ttk.Combobox(ctrl_frame2, textvariable=self.bp_dmg_type_var, values=dmg_list, state="readonly", width=15)
         cb_dmg.pack(side="left", padx=2)
         cb_dmg.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
         
-        ttk.Label(ctrl_frame2, text="Nivel a desbloquear:").pack(side="left", padx=(6, 2))
+        ttk.Label(ctrl_frame2, text=t("bp_unlock_all_lbl")).pack(side="left", padx=(6, 2))
         self.bp_unlock_all_lvl_var = tk.StringVar(value="4")
         cb_bp_all_lvl = ttk.Combobox(ctrl_frame2, textvariable=self.bp_unlock_all_lvl_var, values=["1", "2", "3", "4"], width=3, state="readonly")
         cb_bp_all_lvl.pack(side="left", padx=1)
         
-        btn_all_bp = ttk.Button(ctrl_frame2, text="🌟 DESBLOQUEAR TODO", style="Accent.TButton", command=self.unlock_all_blueprints_preset)
+        btn_all_bp = ttk.Button(ctrl_frame2, text=t("bp_unlock_all_btn"), style="Accent.TButton", command=self.unlock_all_blueprints_preset)
         btn_all_bp.pack(side="right", padx=2)
         
-        btn_repair_bps = ttk.Button(ctrl_frame2, text="🔧 Reparar I+D", command=self._repair_blueprints_action)
+        btn_repair_bps = ttk.Button(ctrl_frame2, text=t("bp_repair_btn"), command=self._repair_blueprints_action)
         btn_repair_bps.pack(side="right", padx=2)
         
         # Row 3: Collabs & Quick Events Filter Bar
         ctrl_frame3 = ttk.Frame(left_box)
         ctrl_frame3.pack(fill="x", pady=2)
         
-        ttk.Label(ctrl_frame3, text="🎯 Eventos:", font=("Segoe UI", 8, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=2)
+        ttk.Label(ctrl_frame3, text=t("bp_collabs_lbl"), font=("Segoe UI", 8, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=2)
         self.bp_collab_filter = tk.StringVar(value="TODOS")
         
         collab_buttons = [
-            ("🌐 Todos", "TODOS"),
+            (t("bp_collab_all"), "TODOS"),
             ("💥 World of Tanks", "WOT"),
             ("⚔️ No More Heroes", "NMH"),
             ("🏆 TDM Seasons", "TDM"),
-            ("♻️ Ediciones RE", "RE"),
+            (t("bp_collab_re"), "RE"),
             ("💀 4 Forcemen", "44CE")
         ]
         for btn_text, mode in collab_buttons:
@@ -2002,13 +2098,13 @@ class CompleteSaveEditorGUI(tk.Tk):
         # Treeview with columns
         cols = ("slot", "faction", "status", "storage", "bag", "id")
         self.bp_tree = ttk.Treeview(left_box, columns=cols, show="tree headings", height=16)
-        self.bp_tree.heading("#0", text="Icono / Nombre Oficial (ES / EN)")
-        self.bp_tree.heading("slot", text="Ranura")
-        self.bp_tree.heading("faction", text="Facción")
-        self.bp_tree.heading("status", text="Estado Forja")
-        self.bp_tree.heading("storage", text="Almacén")
-        self.bp_tree.heading("bag", text="Bolsa")
-        self.bp_tree.heading("id", text="ID Plano")
+        self.bp_tree.heading("#0", text=t("bp_col_item"))
+        self.bp_tree.heading("slot", text=t("bp_col_slot"))
+        self.bp_tree.heading("faction", text=t("bp_col_faction"))
+        self.bp_tree.heading("status", text=t("bp_col_status"))
+        self.bp_tree.heading("storage", text=t("bp_col_storage"))
+        self.bp_tree.heading("bag", text=t("bp_col_bag"))
+        self.bp_tree.heading("id", text=t("bp_col_id"))
         
         self.bp_tree.column("#0", width=260)
         self.bp_tree.column("slot", width=85, anchor="center")
@@ -2027,13 +2123,13 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.bp_tree.tag_configure("tag_locked", foreground=FG_MUTED)
 
         # Right Equipment Blueprint Card (Wiki Showcase)
-        self.bp_card = ttk.LabelFrame(paned, text="Ficha Técnica de Plano Chokufunsha", padding=12)
+        self.bp_card = ttk.LabelFrame(paned, text=t("bp_card_title"), padding=12)
         paned.add(self.bp_card, weight=2)
         
         self.bp_art_lbl = ttk.Label(self.bp_card)
         self.bp_art_lbl.pack(pady=4)
         
-        self.bp_title_lbl = ttk.Label(self.bp_card, text="Selecciona un equipo", font=("Segoe UI", 12, "bold"), foreground=ACCENT_GOLD, wraplength=260, justify="center")
+        self.bp_title_lbl = ttk.Label(self.bp_card, text=t("bp_select_prompt"), font=("Segoe UI", 12, "bold"), foreground=ACCENT_GOLD, wraplength=260, justify="center")
         self.bp_title_lbl.pack(pady=2)
         
         self.bp_faction_lbl = ttk.Label(self.bp_card, text="---", font=("Segoe UI", 9), foreground=FG_MUTED)
@@ -2045,28 +2141,28 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.bp_stats_lbl = ttk.Label(self.bp_card, text="Estadísticas Base: ---", font=("Segoe UI", 9), foreground=FG_MAIN, wraplength=260, justify="center")
         self.bp_stats_lbl.pack(pady=3)
         
-        self.bp_set_btn = ttk.Button(self.bp_card, text="👘 Ver Conjunto en Visor de Sets", command=self._open_selected_piece_set)
+        self.bp_set_btn = ttk.Button(self.bp_card, text=t("bp_view_set_btn"), command=self._open_selected_piece_set)
         self.bp_set_btn.pack(pady=3)
         
         # Individual Actions Box
-        indiv_box = ttk.LabelFrame(self.bp_card, text="Acciones Individuales para esta Pieza", padding=8)
+        indiv_box = ttk.LabelFrame(self.bp_card, text=t("bp_indiv_actions_title"), padding=8)
         indiv_box.pack(fill="x", pady=4)
         
         act_r1 = ttk.Frame(indiv_box)
         act_r1.pack(fill="x", pady=2)
-        ttk.Label(act_r1, text="Nivel:").pack(side="left", padx=2)
+        ttk.Label(act_r1, text=t("bp_lvl_lbl")).pack(side="left", padx=2)
         self.bp_single_lvl_var = tk.StringVar(value="4")
         cb_slvl = ttk.Combobox(act_r1, textvariable=self.bp_single_lvl_var, values=["1", "2", "3", "4"], width=3, state="readonly")
         cb_slvl.pack(side="left", padx=2)
-        ttk.Button(act_r1, text="⭐ Desbloquear en Tienda", style="Accent.TButton", command=self._unlock_single_bp_shop).pack(side="left", padx=4, fill="x", expand=True)
+        ttk.Button(act_r1, text=t("bp_unlock_shop_btn"), style="Accent.TButton", command=self._unlock_single_bp_shop).pack(side="left", padx=4, fill="x", expand=True)
         
         act_r2 = ttk.Frame(indiv_box)
         act_r2.pack(fill="x", pady=2)
-        ttk.Button(act_r2, text="📦 Enviar 1 u. al Almacén", command=self._deliver_single_bp_to_storage).pack(side="left", padx=2, fill="x", expand=True)
+        ttk.Button(act_r2, text=t("bp_send_storage_btn"), command=self._deliver_single_bp_to_storage).pack(side="left", padx=2, fill="x", expand=True)
         
         act_r3 = ttk.Frame(indiv_box)
         act_r3.pack(fill="x", pady=2)
-        ttk.Button(act_r3, text="🛠️ Depositar Kit de Forja (+10 u.)", style="Accent.TButton", command=self._deposit_crafting_kit_for_selected_bp).pack(fill="x", expand=True)
+        ttk.Button(act_r3, text=t("bp_deposit_kit_btn"), style="Accent.TButton", command=self._deposit_crafting_kit_for_selected_bp).pack(fill="x", expand=True)
 
         # Endgame Sets Injector Box
         endgame_box = ttk.LabelFrame(self.bp_card, text="🛡️ Inyector de Sets Endgame", padding=8)
@@ -2086,12 +2182,12 @@ class CompleteSaveEditorGUI(tk.Tk):
         ttk.Button(endgame_box, text="🛡️ Inyectar Set Completo al Almacén", style="Accent.TButton", command=self._inject_endgame_set_action).pack(fill="x", pady=2)
 
         # Global Equipment Modifiers Box
-        global_gear_box = ttk.LabelFrame(self.bp_card, text="⚡ Modificadores de Equipamiento", padding=8)
+        global_gear_box = ttk.LabelFrame(self.bp_card, text=t("bp_mass_actions_title"), padding=8)
         global_gear_box.pack(fill="x", pady=4)
         
-        ttk.Button(global_gear_box, text="✨ Durabilidad Infinita (999,999) en Todo", command=self._set_infinite_durability_action).pack(fill="x", pady=2)
-        ttk.Button(global_gear_box, text="🔫 Munición Masiva (9,999) en Armas", command=self._set_massive_ammo_action).pack(fill="x", pady=2)
-        ttk.Button(global_gear_box, text="⭐ Subir Todo a Nivel +19 (Uncapped)", command=self._upgrade_all_gear_max_lvl_action).pack(fill="x", pady=2)
+        ttk.Button(global_gear_box, text=t("bp_inf_dur_btn"), command=self._set_infinite_durability_action).pack(fill="x", pady=2)
+        ttk.Button(global_gear_box, text=t("bp_inf_ammo_btn"), command=self._set_massive_ammo_action).pack(fill="x", pady=2)
+        ttk.Button(global_gear_box, text=t("bp_upg_all19_btn"), command=self._upgrade_all_gear_max_lvl_action).pack(fill="x", pady=2)
 
     def _find_equipment_art(self, ptid):
         if hasattr(self, "icon_map"):
@@ -2128,7 +2224,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.current_bp_selection = ptid
         self.bp_title_lbl.config(text=f"{full_title}\n({ptid})")
         self.bp_faction_lbl.config(text=f"{slot} • {faction}")
-        self.bp_status_lbl.config(text=f"Forja: {status} | Almacén: {storage_str} | Bolsa: {bag_str}")
+        self.bp_status_lbl.config(text=t("bp_status_info", status=status, storage=storage_str, bag=bag_str))
         
         # Check if this item belongs to an armor set
         lookup_id = ptid
@@ -2138,15 +2234,15 @@ class CompleteSaveEditorGUI(tk.Tk):
         if lookup_id in self.armor_set_by_item_id:
             set_obj, tier_obj, piece_obj = self.armor_set_by_item_id[lookup_id]
             set_title = get_set_name(set_obj)
-            self.bp_set_btn.config(text=f"{t('view_set_btn')}: {set_title}", state="normal")
+            self.bp_set_btn.config(text=f"{t('bp_view_set_btn')}: {set_title}", state="normal")
             if "def" in piece_obj:
-                self.bp_stats_lbl.config(text=f"{t('def_base_label')} {piece_obj.get('def', '-')} (Def+4: {piece_obj.get('def_plus4', '-')}) | {t('dur_label')} {piece_obj.get('durability', '-')}")
+                self.bp_stats_lbl.config(text=t("bp_base_def", def_b=piece_obj.get('def', '-'), def_4=piece_obj.get('def_plus4', '-'), dur=piece_obj.get('durability', '-')))
             elif "atk" in piece_obj:
-                self.bp_stats_lbl.config(text=f"{t('atk_base_label')} {piece_obj.get('atk', '-')} (Atk+4: {piece_obj.get('atk_plus4', '-')}) | {t('dur_label')} {piece_obj.get('durability', '-')}")
+                self.bp_stats_lbl.config(text=t("bp_base_atk", atk_b=piece_obj.get('atk', '-'), atk_4=piece_obj.get('atk_plus4', '-'), dur=piece_obj.get('durability', '-')))
             else:
-                self.bp_stats_lbl.config(text=f"{t('view_set_btn')}: {set_title}")
+                self.bp_stats_lbl.config(text=f"{t('bp_view_set_btn')}: {set_title}")
         else:
-            self.bp_set_btn.config(text=t("no_set_btn"), state="disabled")
+            self.bp_set_btn.config(text=t("bp_no_set"), state="disabled")
             self.bp_stats_lbl.config(text="Pieza individual de equipamiento o arma" if i18n.get_language() == "es" else "Single equipment piece or weapon")
             
         card_art = None
@@ -2203,7 +2299,7 @@ class CompleteSaveEditorGUI(tk.Tk):
             self._refresh_all_language_texts()
 
     def _refresh_all_language_texts(self):
-        """Dynamically re-applies all translated titles and strings across the UI."""
+        """Dynamically re-applies all translated titles and strings across the UI and rebuilds tabs."""
         self.title(t("app_title"))
         if hasattr(self, "lbl_file"): self.lbl_file.config(text=t("save_file"))
         if hasattr(self, "browse_btn"): self.browse_btn.config(text=t("browse"))
@@ -2225,7 +2321,44 @@ class CompleteSaveEditorGUI(tk.Tk):
             if hasattr(self, "tab_mastery"): self.notebook.tab(self.tab_mastery, text=t("tab_mastery"))
             if hasattr(self, "tab_tower"): self.notebook.tab(self.tab_tower, text=t("tab_tower"))
             if hasattr(self, "tab_advanced"): self.notebook.tab(self.tab_advanced, text=t("tab_advanced"))
-            
+
+        # Rebuild tab contents to instantiate translated widgets
+        active_tab_idx = 0
+        if hasattr(self, "notebook") and self.notebook.tabs():
+            try:
+                active_tab_idx = self.notebook.index(self.notebook.select())
+            except Exception:
+                active_tab_idx = 0
+
+        for tab_frame in [
+            getattr(self, "tab_currencies", None),
+            getattr(self, "tab_fighters", None),
+            getattr(self, "tab_materials", None),
+            getattr(self, "tab_decals", None),
+            getattr(self, "tab_blueprints", None),
+            getattr(self, "tab_mastery", None),
+            getattr(self, "tab_tower", None),
+            getattr(self, "tab_advanced", None)
+        ]:
+            if tab_frame:
+                for widget in tab_frame.winfo_children():
+                    widget.destroy()
+
+        if hasattr(self, "tab_currencies"): self._build_currencies_tab()
+        if hasattr(self, "tab_fighters"): self._build_fighters_tab()
+        if hasattr(self, "tab_materials"): self._build_materials_tab()
+        if hasattr(self, "tab_decals"): self._build_decals_tab()
+        if hasattr(self, "tab_blueprints"): self._build_blueprints_tab()
+        if hasattr(self, "tab_mastery"): self._build_mastery_tab()
+        if hasattr(self, "tab_tower"): self._build_tower_tab()
+        if hasattr(self, "tab_advanced"): self._build_advanced_tab()
+
+        if hasattr(self, "notebook") and self.notebook.tabs():
+            try:
+                self.notebook.select(active_tab_idx)
+            except Exception:
+                pass
+
         self.refresh_all_views()
 
     def _unlock_single_bp_shop(self):
@@ -2400,50 +2533,72 @@ class CompleteSaveEditorGUI(tk.Tk):
             slot, slot_key, faction, faction_key, set_code = self._get_item_wiki_meta(item)
             
             # 1. Filter by Slot
-            if cat_filter != "Todos":
-                if cat_filter == "🪖 Cascos" and slot_key != "head": continue
-                elif cat_filter == "👕 Pechos" and slot_key != "chest": continue
-                elif cat_filter == "👖 Piernas" and slot_key != "legs": continue
-                elif cat_filter == "⚔️ Armas" and slot_key != "weapon": continue
+            if cat_filter not in ("Todos", "All"):
+                if any(k in cat_filter for k in ("Casco", "Helmet")) and slot_key != "head": continue
+                elif any(k in cat_filter for k in ("Pecho", "Body")) and slot_key != "chest": continue
+                elif any(k in cat_filter for k in ("Pierna", "Leg", "Pant")) and slot_key != "legs": continue
+                elif any(k in cat_filter for k in ("Arma", "Weapon")) and slot_key != "weapon": continue
                 
             # 2. Filter by Faction
-            if fac_filter != "Todas" and faction != fac_filter:
-                continue
+            if fac_filter not in ("Todas", "All"):
+                f_target_key = None
+                if "D.O.D" in fac_filter: f_target_key = "DOD"
+                elif "WAR" in fac_filter: f_target_key = "SPO"
+                elif "CANDLE" in fac_filter: f_target_key = "FAN"
+                elif "M.I.L.K" in fac_filter: f_target_key = "MIL"
+                elif "FORCEMEN" in fac_filter or "TENGOKU" in fac_filter: f_target_key = "FORCEMEN"
+                elif "JACKAL" in fac_filter: f_target_key = "JACKAL"
+                elif "RE" in fac_filter: f_target_key = "RE"
+                elif "Especial" in fac_filter or "Special" in fac_filter: f_target_key = "SPE"
+                elif "General" in fac_filter or "Other" in fac_filter or "Otras" in fac_filter: f_target_key = "GEN"
+                
+                if f_target_key and faction_key != f_target_key:
+                    continue
+                elif not f_target_key and faction != fac_filter:
+                    continue
                 
             # 3. Forge status
+            is_en = (i18n.get_language() == "en")
             if bp_id in pr_map:
                 forge_info = pr_map[bp_id]
-                forge_status = forge_info["label"]
                 forge_code = forge_info["status"]
+                if is_en:
+                    if forge_code == "STORE_PLUS4": forge_status = "⭐ In Shop (+4)"
+                    elif forge_code == "STORE": forge_status = f"🛒 In Shop (+{forge_info.get('level', 1)})"
+                    elif forge_code == "REMODEL": forge_status = "🔨 In R&D"
+                    elif forge_code == "MAP": forge_status = "📜 Blueprint Ready"
+                    else: forge_status = forge_info.get("label", forge_code)
+                else:
+                    forge_status = forge_info["label"]
             else:
-                forge_status = "❌ Bloqueado"
+                forge_status = "❌ Locked" if is_en else "❌ Bloqueado"
                 forge_code = "LOCKED"
                 
             storage_count = storage_gear.get(bp_id, 0)
             bag_count = bag_gear.get(bp_id, 0)
             
             # 4. Filter by Possession
-            if poss_filter == "📦 En Almacén (> 0)" and storage_count <= 0:
+            if ("Almacén" in poss_filter or "Storage" in poss_filter) and storage_count <= 0:
                 continue
-            elif poss_filter == "⭐ Desbloqueados en Tienda (+4)" and forge_code != "STORE_PLUS4":
+            elif ("Desbloqueados" in poss_filter or "Unlocked" in poss_filter) and forge_code != "STORE_PLUS4":
                 continue
-            elif poss_filter == "🔨 En I+D (REMODEL / MAP)" and forge_code not in ("REMODEL", "MAP"):
+            elif ("I+D" in poss_filter or "R&D" in poss_filter) and forge_code not in ("REMODEL", "MAP"):
                 continue
-            elif poss_filter == "❌ Bloqueados (Faltantes)" and forge_code != "LOCKED":
+            elif ("Bloqueados" in poss_filter or "Locked" in poss_filter) and forge_code != "LOCKED":
                 continue
 
             # 4b. Filter by Damage Type (Weapons only)
             dmg_filter = self.bp_dmg_type_var.get() if hasattr(self, "bp_dmg_type_var") else "Todos"
-            if dmg_filter != "Todos":
+            if dmg_filter not in ("Todos", "All"):
                 if slot_key != "weapon":
                     continue
                 w_dmg = self._get_weapon_damage_type(item)
-                if "Corte" in dmg_filter and w_dmg != "SLASH": continue
-                elif "Golpe" in dmg_filter and w_dmg != "BLUNT": continue
-                elif "Perforación" in dmg_filter and w_dmg != "PIERCE": continue
-                elif "Fuego" in dmg_filter and w_dmg != "FIRE": continue
-                elif "Electricidad" in dmg_filter and w_dmg != "ELECTRIC": continue
-                elif "Veneno" in dmg_filter and w_dmg != "POISON": continue
+                if ("Corte" in dmg_filter or "Slash" in dmg_filter) and w_dmg != "SLASH": continue
+                elif ("Golpe" in dmg_filter or "Blunt" in dmg_filter) and w_dmg != "BLUNT": continue
+                elif ("Perforación" in dmg_filter or "Pierce" in dmg_filter) and w_dmg != "PIERCE": continue
+                elif ("Fuego" in dmg_filter or "Fire" in dmg_filter) and w_dmg != "FIRE": continue
+                elif ("Electricidad" in dmg_filter or "Electric" in dmg_filter) and w_dmg != "ELECTRIC": continue
+                elif ("Veneno" in dmg_filter or "Poison" in dmg_filter) and w_dmg != "POISON": continue
                 
             # 5. Search query (matches name_es, name_en, bp_id, or set_code)
             if query:
@@ -2470,12 +2625,12 @@ class CompleteSaveEditorGUI(tk.Tk):
                 elif collab == "44CE" and not any(k in n_en or k in n_es for k in ["white steel", "red napalm", "black thunder", "pale wind", "m2g"]):
                     continue
                     
-            if i18n.get_language() == "en":
+            if is_en:
                 display_title = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
             else:
                 display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
-            storage_str = f"{storage_count} u." if storage_count > 0 else "-"
-            bag_str = f"{bag_count} u." if bag_count > 0 else "-"
+            storage_str = f"{storage_count} pcs." if is_en and storage_count > 0 else (f"{storage_count} u." if storage_count > 0 else "-")
+            bag_str = f"{bag_count} pcs." if is_en and bag_count > 0 else (f"{bag_count} u." if bag_count > 0 else "-")
             
             tag = "tag_shop" if forge_code == "STORE_PLUS4" else ("tag_remodel" if forge_code in ("REMODEL", "MAP") else "tag_locked")
             
@@ -2502,19 +2657,19 @@ class CompleteSaveEditorGUI(tk.Tk):
         top_ctrl = ttk.Frame(self.tab_mastery)
         top_ctrl.pack(fill="x", pady=6)
         
-        ttk.Label(top_ctrl, text="Nivel Deseado:").pack(side="left", padx=4)
+        ttk.Label(top_ctrl, text=t("wm_target_lvl_lbl")).pack(side="left", padx=4)
         self.mastery_target_lvl_var = tk.StringVar(value="20")
         cb_m_lvl = ttk.Combobox(top_ctrl, textvariable=self.mastery_target_lvl_var, values=[str(i) for i in range(1, 21)], width=4, state="readonly")
         cb_m_lvl.pack(side="left", padx=2)
         
-        btn_max_m = ttk.Button(top_ctrl, text="⭐ Establecer TODAS las Maestrías", style="Accent.TButton", command=self.max_all_mastery)
+        btn_max_m = ttk.Button(top_ctrl, text=t("wm_set_all_btn"), style="Accent.TButton", command=self.max_all_mastery)
         btn_max_m.pack(side="left", padx=6)
         
         self.mastery_tree = ttk.Treeview(self.tab_mastery, columns=("id", "lvl", "points"), show="tree headings", height=15)
-        self.mastery_tree.heading("#0", text="Tipo de Arma")
-        self.mastery_tree.heading("id", text="Código Interno")
-        self.mastery_tree.heading("lvl", text="Nivel de Maestría")
-        self.mastery_tree.heading("points", text="Puntos de Experiencia (EXP)")
+        self.mastery_tree.heading("#0", text=t("wm_col_type"))
+        self.mastery_tree.heading("id", text=t("wm_col_code"))
+        self.mastery_tree.heading("lvl", text=t("wm_col_lvl"))
+        self.mastery_tree.heading("points", text=t("wm_col_exp"))
         
         self.mastery_tree.column("#0", width=260)
         self.mastery_tree.column("id", width=140)
@@ -2538,10 +2693,11 @@ class CompleteSaveEditorGUI(tk.Tk):
             lvl = item.get("lvl", 1)
             pts = item.get("abp", 0)
             
-            name_es = EXPERT_WEAPON_NAMES.get(k, f"Arma Especial ({k})")
+            w_name = get_expert_weapon_name(k)
             ico_file = WEAPON_MASTERY_ICONS.get(k, "weapon")
             thumb = self.get_photo(ico_file, (28, 28), preserve_aspect=True) or self.get_photo("weapon", (24, 24))
-            node_id = self.mastery_tree.insert("", "end", text=f" {name_es}", image=thumb or "", values=(k, f"Nivel {lvl} / 20", f"{pts:,} ABP"))
+            lvl_str = t("wm_lvl_val", lvl=lvl)
+            node_id = self.mastery_tree.insert("", "end", text=f" {w_name}", image=thumb or "", values=(k, lvl_str, f"{pts:,} ABP"))
             self.tree_images[node_id] = thumb
 
     def _edit_mastery_level(self, event):
@@ -2580,60 +2736,60 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.tab_tower.rowconfigure(0, weight=1)
         
         # Left Panel: Tower, Elevators & Stamps
-        box_left = ttk.LabelFrame(self.tab_tower, text="Torre de Barbs, Ascensores y Stamp Rally", padding=12)
+        box_left = ttk.LabelFrame(self.tab_tower, text=t("tw_left_title"), padding=12)
         box_left.grid(row=0, column=0, sticky="nsew", padx=6, pady=6)
         
         # 1. Elevators
-        ttk.Label(box_left, text="🛗 Ascensores y Pisos de la Torre (1 al 51+ Tengoku)", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
-        ttk.Label(box_left, text="Desbloquea el acceso directo a todos los pisos del 1 al 40, Battle Royale 41-50 y Tengoku.", font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
-        btn_unlock_elevators = ttk.Button(box_left, text="🛗 Desbloquear TODOS los Ascensores y Pisos", style="Accent.TButton", command=self._unlock_elevators_action)
+        ttk.Label(box_left, text=t("tw_elev_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_left, text=t("tw_elev_sub"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
+        btn_unlock_elevators = ttk.Button(box_left, text=t("tw_elev_btn"), style="Accent.TButton", command=self._unlock_elevators_action)
         btn_unlock_elevators.pack(fill="x", pady=(2, 8))
         
         # 2. Stamp Rally Perfect
-        ttk.Label(box_left, text="🎯 Stamp Rally 100% Perfecto (Sellos del Tío Death)", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
-        ttk.Label(box_left, text="Marca todos los sellos de la Torre en PERFECT. Desbloquea la Guadaña del Tío Death.", font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
-        btn_stamps_perfect = ttk.Button(box_left, text="⭐ Completar Sellos en PERFECT (Desbloquea Guadaña)", style="Accent.TButton", command=self._set_stamps_perfect_action)
+        ttk.Label(box_left, text=t("tw_stamp_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_left, text=t("tw_stamp_sub"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
+        btn_stamps_perfect = ttk.Button(box_left, text=t("tw_stamp_btn"), style="Accent.TButton", command=self._set_stamps_perfect_action)
         btn_stamps_perfect.pack(fill="x", pady=(2, 8))
         
         # 3. Death Bag Expansion
-        ttk.Label(box_left, text="🎒 Expansión de la Bolsa de la Muerte", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_left, text=t("tw_bag_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
         bag_f = ttk.Frame(box_left)
         bag_f.pack(fill="x", pady=2)
-        ttk.Label(bag_f, text="Capacidad de Slots:").pack(side="left", padx=4)
+        ttk.Label(bag_f, text=t("tw_bag_cap_lbl")).pack(side="left", padx=4)
         self.bag_slots_var = tk.StringVar(value="50")
         cb_bag = ttk.Combobox(bag_f, textvariable=self.bag_slots_var, values=["20", "25", "30", "35", "40", "45", "50", "60"], state="readonly", width=8)
         cb_bag.pack(side="left", padx=4)
-        btn_expand_bag = ttk.Button(bag_f, text="🎒 Expandir Bolsa", command=self._expand_bag_action)
+        btn_expand_bag = ttk.Button(bag_f, text=t("tw_bag_btn"), command=self._expand_bag_action)
         btn_expand_bag.pack(side="left", padx=4)
         
         # 4. Free Continues
         ttk.Separator(box_left, orient="horizontal").pack(fill="x", pady=8)
-        ttk.Label(box_left, text="♾️ Revives / Continues Gratuitos Ilimitados", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_left, text=t("tw_cont_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
         cont_f = ttk.Frame(box_left)
         cont_f.pack(fill="x", pady=2)
-        ttk.Label(cont_f, text="Continues Gratis:").pack(side="left", padx=4)
+        ttk.Label(cont_f, text=t("tw_cont_lbl")).pack(side="left", padx=4)
         self.free_cont_var = tk.StringVar(value="999")
         ttk.Entry(cont_f, textvariable=self.free_cont_var, width=8, justify="center").pack(side="left", padx=4)
-        btn_set_cont = ttk.Button(cont_f, text="♾️ Establecer Continues", command=self._set_continues_action)
+        btn_set_cont = ttk.Button(cont_f, text=t("tw_cont_btn"), command=self._set_continues_action)
         btn_set_cont.pack(side="left", padx=4)
 
         # 4b. Tower Secret Shop & Death Boxes Utilities
         ttk.Separator(box_left, orient="horizontal").pack(fill="x", pady=8)
-        ttk.Label(box_left, text="🛒 Tienda Secreta y Cajas de Muerte", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
-        btn_reset_shop = ttk.Button(box_left, text="🛒 Resetear Cooldown Tienda Gyaku-Funsha", command=self._reset_wandering_shop_action)
+        ttk.Label(box_left, text=t("tw_shop_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        btn_reset_shop = ttk.Button(box_left, text=t("tw_shop_btn"), command=self._reset_wandering_shop_action)
         btn_reset_shop.pack(fill="x", pady=2)
-        btn_open_boxes = ttk.Button(box_left, text="📦 Abrir Inmediatamente Cajas de Muerte (Lost Bags)", command=self._open_deathboxes_action)
+        btn_open_boxes = ttk.Button(box_left, text=t("tw_boxes_btn"), command=self._open_deathboxes_action)
         btn_open_boxes.pack(fill="x", pady=2)
 
         # Right Panel: TDM, Rewards Box & Encyclopedia Books
-        box_right = ttk.LabelFrame(self.tab_tower, text="Tokyo Death Metro, Buzón y Compendios", padding=12)
+        box_right = ttk.LabelFrame(self.tab_tower, text=t("tw_right_title"), padding=12)
         box_right.grid(row=0, column=1, sticky="nsew", padx=6, pady=6)
         
         # 5. TDM Rank & Points
-        ttk.Label(box_right, text="🏆 Rango y Puntuación TDM (Tokyo Death Metro)", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_right, text=t("tw_tdm_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
         tdm_f = ttk.Frame(box_right)
         tdm_f.pack(fill="x", pady=2)
-        ttk.Label(tdm_f, text="Rango:").pack(side="left", padx=2)
+        ttk.Label(tdm_f, text=t("tw_rank_lbl")).pack(side="left", padx=2)
         self.tdm_rank_var = tk.StringVar(value="Diamante I (Diamond I - 3,500+ pts)")
         tdm_ranks = [
             "Diamante I (Diamond I - 3,500+ pts)",
@@ -2646,35 +2802,35 @@ class CompleteSaveEditorGUI(tk.Tk):
         ]
         cb_tdm = ttk.Combobox(tdm_f, textvariable=self.tdm_rank_var, values=tdm_ranks, state="readonly", width=28)
         cb_tdm.pack(side="left", padx=2)
-        btn_set_tdm = ttk.Button(tdm_f, text="🏆 Aplicar", style="Accent.TButton", command=self._set_tdm_rank_action)
+        btn_set_tdm = ttk.Button(tdm_f, text=t("tw_apply_btn"), style="Accent.TButton", command=self._set_tdm_rank_action)
         btn_set_tdm.pack(side="left", padx=2)
         
         # 6. Rewards Box Injector (soul.present)
-        ttk.Label(box_right, text="📬 Inyector a la Caja de Recompensas (Rewards Box)", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=(8, 2))
-        ttk.Label(box_right, text="Envía recursos directamente a tu buzón para acumularlos sin límite de capacidad.", font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
+        ttk.Label(box_right, text=t("tw_inbox_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=(8, 2))
+        ttk.Label(box_right, text=t("tw_inbox_sub"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
         
         p_cust = ttk.Frame(box_right)
         p_cust.pack(fill="x", pady=4)
-        ttk.Label(p_cust, text="Recurso:").grid(row=0, column=0, sticky="w", padx=2, pady=2)
+        ttk.Label(p_cust, text=t("tw_res_lbl")).grid(row=0, column=0, sticky="w", padx=2, pady=2)
         self.rb_type_var = tk.StringVar(value="Kill Coins (MONEY)")
         cb_rb_t = ttk.Combobox(p_cust, textvariable=self.rb_type_var, values=["Kill Coins (MONEY)", "Litio SPLithium (SPL)", "Metales de Muerte (DM)"], state="readonly", width=22)
         cb_rb_t.grid(row=0, column=1, padx=2, pady=2)
         
-        ttk.Label(p_cust, text="Cantidad:").grid(row=1, column=0, sticky="w", padx=2, pady=2)
+        ttk.Label(p_cust, text=t("tw_qty_lbl")).grid(row=1, column=0, sticky="w", padx=2, pady=2)
         self.rb_qty_var = tk.StringVar(value="1000000")
         ttk.Entry(p_cust, textvariable=self.rb_qty_var, width=12, justify="center").grid(row=1, column=1, padx=2, pady=2, sticky="w")
-        ttk.Button(p_cust, text="📬 Enviar Regalo al Buzón", style="Accent.TButton", command=self._send_custom_reward_box).grid(row=1, column=2, padx=4, pady=2)
+        ttk.Button(p_cust, text=t("tw_inbox_btn"), style="Accent.TButton", command=self._send_custom_reward_box).grid(row=1, column=2, padx=4, pady=2)
 
         # 7. Compendiums & Hub Customization
         ttk.Separator(box_right, orient="horizontal").pack(fill="x", pady=8)
-        ttk.Label(box_right, text="📖 Compendios y Personalización de Sala", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
-        btn_comp = ttk.Button(box_right, text="📖 Completar Compendios del Tío Death (63 Setas + 24 Bestias)", style="Accent.TButton", command=self._complete_compendiums_action)
+        ttk.Label(box_right, text=t("tw_comp_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        btn_comp = ttk.Button(box_right, text=t("tw_comp_mats_btn"), style="Accent.TButton", command=self._complete_compendiums_action)
         btn_comp.pack(fill="x", pady=2)
-        btn_hub = ttk.Button(box_right, text="🎨 Desbloquear Todas las Personalizaciones de Sala de Espera (113)", command=self._unlock_hub_action)
+        btn_hub = ttk.Button(box_right, text=t("tw_comp_room_btn"), command=self._unlock_hub_action)
         btn_hub.pack(fill="x", pady=2)
-        btn_quests = ttk.Button(box_right, text="🎖️ Completar Todas las Misiones Oficiales (232 Quests)", style="Accent.TButton", command=self._complete_all_quests_action)
+        btn_quests = ttk.Button(box_right, text=t("tw_comp_quests_btn"), style="Accent.TButton", command=self._complete_all_quests_action)
         btn_quests.pack(fill="x", pady=2)
-        btn_media = ttk.Button(box_right, text="📻 Desbloquear Colección de Revistas (36) y Radio Jukebox", command=self._unlock_magazines_and_radio_action)
+        btn_media = ttk.Button(box_right, text=t("tw_comp_mags_btn"), command=self._unlock_magazines_and_radio_action)
         btn_media.pack(fill="x", pady=2)
 
     def _complete_all_quests_action(self):
@@ -2810,13 +2966,13 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.tab_advanced.columnconfigure(1, weight=1)
         
         # Left: Backup Manager
-        box_bak = ttk.LabelFrame(self.tab_advanced, text="🛡️ Gestor de Respaldos de Seguridad (.bak)", padding=12)
+        box_bak = ttk.LabelFrame(self.tab_advanced, text=t("bak_title"), padding=12)
         box_bak.grid(row=0, column=0, sticky="nsew", padx=6, pady=6)
         
         self.backups_tree = ttk.Treeview(box_bak, columns=("date", "size"), show="tree headings", height=12)
-        self.backups_tree.heading("#0", text="Archivo de Respaldo")
-        self.backups_tree.heading("date", text="Fecha de Creación")
-        self.backups_tree.heading("size", text="Tamaño")
+        self.backups_tree.heading("#0", text=t("bak_col_file"))
+        self.backups_tree.heading("date", text=t("bak_col_date"))
+        self.backups_tree.heading("size", text=t("bak_col_size"))
         
         self.backups_tree.column("#0", width=220)
         self.backups_tree.column("date", width=140, anchor="center")
@@ -2826,22 +2982,22 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         btn_f = ttk.Frame(box_bak)
         btn_f.pack(fill="x", pady=4)
-        ttk.Button(btn_f, text="🛡️ Crear Nuevo Respaldo", style="Accent.TButton", command=self.create_manual_backup).pack(side="left", padx=2, fill="x", expand=True)
-        ttk.Button(btn_f, text="🔄 Restaurar Respaldo", command=self._restore_selected_backup).pack(side="left", padx=2, fill="x", expand=True)
+        ttk.Button(btn_f, text=t("bak_create_btn"), style="Accent.TButton", command=self.create_manual_backup).pack(side="left", padx=2, fill="x", expand=True)
+        ttk.Button(btn_f, text=t("bak_restore_btn"), command=self._restore_selected_backup).pack(side="left", padx=2, fill="x", expand=True)
         
         # Right: JSON Tools & Wiki Links
-        box_tools = ttk.LabelFrame(self.tab_advanced, text="🛠️ Herramientas Avanzadas y Enlaces Oficiales", padding=12)
+        box_tools = ttk.LabelFrame(self.tab_advanced, text=t("bak_tools_title"), padding=12)
         box_tools.grid(row=0, column=1, sticky="nsew", padx=6, pady=6)
         
-        ttk.Label(box_tools, text="Exportar / Importar Partida en JSON legible:", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_tools, text=t("bak_json_lbl"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
         json_f = ttk.Frame(box_tools)
         json_f.pack(fill="x", pady=4)
-        ttk.Button(json_f, text="📤 Exportar a JSON", command=self.export_json).pack(side="left", padx=2, fill="x", expand=True)
-        ttk.Button(json_f, text="📥 Importar desde JSON", command=self.import_json).pack(side="left", padx=2, fill="x", expand=True)
+        ttk.Button(json_f, text=t("bak_export_json"), command=self.export_json).pack(side="left", padx=2, fill="x", expand=True)
+        ttk.Button(json_f, text=t("bak_import_json"), command=self.import_json).pack(side="left", padx=2, fill="x", expand=True)
         
         ttk.Separator(box_tools, orient="horizontal").pack(fill="x", pady=10)
-        ttk.Label(box_tools, text="Enlaces y Recursos de la Comunidad:", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
-        ttk.Label(box_tools, text="• Wiki Oficial: letitdie.wiki.gg\n• Forja y R&D: Chokufunsha Complete DB\n• Calculadora de Daño y Stats", font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=2)
+        ttk.Label(box_tools, text=t("bak_links_lbl"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_tools, text=t("bak_links_txt"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=2)
 
     def refresh_backups_list(self):
         for row in self.backups_tree.get_children():
@@ -2961,16 +3117,23 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         # VIP Status
         vip_info = modifiers.get_vip_status(self.save_json)
-        if vip_info.get("active"):
-            self.vip_status_lbl.config(text=f"Estado: ACTIVO • Expira en: {vip_info.get('days_left', 0)} días ({vip_info.get('expires_at', '')})", foreground=ACCENT_GREEN)
-        else:
-            self.vip_status_lbl.config(text="Estado: INACTIVO (Haz clic abajo para activar)", foreground=ACCENT_RED)
+        if hasattr(self, "vip_status_lbl"):
+            if vip_info.get("active"):
+                self.vip_status_lbl.config(text=t("vip_active", days=vip_info.get('days_left', 0), date=vip_info.get('expires_at', '')), foreground=ACCENT_GREEN)
+            else:
+                self.vip_status_lbl.config(text=t("vip_inactive"), foreground=ACCENT_RED)
             
         # Mystery Bags
         mb_info = modifiers.get_mystery_bags_summary(self.save_json)
-        self.mystery_status_lbl.config(
-            text=f"🌈 Arcoíris: {mb_info.get('RAINBOW', 0)} | ⚪ Platino: {mb_info.get('PLATINUM', 0)} | 🟡 Oro: {mb_info.get('GOLD', 0)} | 🔘 Plata: {mb_info.get('SILVER', 0)} | 🟤 Cobre: {mb_info.get('COPPER', 0)}"
-        )
+        if hasattr(self, "mystery_status_lbl"):
+            if i18n.get_language() == "en":
+                self.mystery_status_lbl.config(
+                    text=f"🌈 Rainbow: {mb_info.get('RAINBOW', 0)} | ⚪ Platinum: {mb_info.get('PLATINUM', 0)} | 🟡 Gold: {mb_info.get('GOLD', 0)} | 🔘 Silver: {mb_info.get('SILVER', 0)} | 🟤 Copper: {mb_info.get('COPPER', 0)}"
+                )
+            else:
+                self.mystery_status_lbl.config(
+                    text=f"🌈 Arcoíris: {mb_info.get('RAINBOW', 0)} | ⚪ Platino: {mb_info.get('PLATINUM', 0)} | 🟡 Oro: {mb_info.get('GOLD', 0)} | 🔘 Plata: {mb_info.get('SILVER', 0)} | 🟤 Cobre: {mb_info.get('COPPER', 0)}"
+                )
         
         # 2. Update Fighters List
         for row in self.fighters_tree.get_children():
@@ -2984,12 +3147,13 @@ class CompleteSaveEditorGUI(tk.Tk):
             lvl = f.get("level", 1)
             grade = f.get("grade", 1)
             hp = f.get("hp", 1000)
-            state = "Vivo" if hp > 0 else "Muerto"
+            state = t("f_state_alive") if hp > 0 else t("f_state_dead")
+            lvl_str = f"Lv. {lvl} (G{grade})" if i18n.get_language() == "en" else f"Nv. {lvl} (G{grade})"
             
             cls_code = f.get("class", "BAL")
             cls_icon_filename = FIGHTER_CLASSES.get(cls_code, ("", "all-rounder.png"))[1]
             thumb = self.get_photo(cls_icon_filename, (36, 36), preserve_aspect=True) or self.get_photo("all-rounder", (36, 36), preserve_aspect=True)
-            node_id = self.fighters_tree.insert("", "end", text=f" {name} ({cls_name})", image=thumb or "", values=(idx+1, f"Nv. {lvl} (G{grade})", state))
+            node_id = self.fighters_tree.insert("", "end", text=f" {name} ({cls_name})", image=thumb or "", values=(idx+1, lvl_str, state))
             self.tree_images[node_id] = thumb
             if idx == 0:
                 first_f = node_id
@@ -3001,8 +3165,13 @@ class CompleteSaveEditorGUI(tk.Tk):
         # Active Fighter Info on top HUD
         if fighters:
             f0 = fighters[0]
-            self.player_name_lbl.config(text=f"Luchador: {f0.get('name', 'Principal')} • {f0.get('class_name', 'All-Rounder')} (Tier {f0.get('grade', 1)} ★)")
-            self.player_meta_lbl.config(text=f"UID: {self.save_json.get('soul', {}).get('uid', '---')} | Rango Base: {base_up.get('rank', 100)} | 🏆 TDM: Diamante | Bolsa: {f0.get('bag', 20)} slots")
+            f_prefix = t("hud_fighter")
+            r_prefix = t("hud_rank")
+            tdm_txt = t("hud_tdm")
+            b_prefix = t("hud_bag")
+            s_suffix = t("hud_slots")
+            self.player_name_lbl.config(text=f"{f_prefix} {f0.get('name', 'Principal')} • {f0.get('class_name', 'All-Rounder')} (Tier {f0.get('grade', 1)} ★)")
+            self.player_meta_lbl.config(text=f"UID: {self.save_json.get('soul', {}).get('uid', '---')} | {r_prefix} {base_up.get('rank', 100)} | {tdm_txt} | {b_prefix} {f0.get('bag', 20)} {s_suffix}")
             
         # 3. Filter other lists
         self.filter_materials_list()
@@ -3016,7 +3185,7 @@ class CompleteSaveEditorGUI(tk.Tk):
             st_info = modifiers.analyze_storage_stock(self.save_json)
             cap = st_info.get("capacity", 2000)
             used = st_info.get("total_items", 0)
-            self.mat_cap_indicator_lbl.config(text=f"Almacén: {used:,} / {cap:,} casillas ocupadas ({cap - used:,} libres)")
+            self.mat_cap_indicator_lbl.config(text=t("mat_locker_status", used=used, cap=cap, free=cap - used))
 
     def create_manual_backup(self):
         if not self.save_path or not os.path.exists(self.save_path):
@@ -3743,7 +3912,9 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.img_refs.clear()
         
         s_obj = self.armor_sets[self.set_index]
-        self.faction_lbl.config(text=f"Facción: {s_obj['faction']}")
+        is_en = (i18n.get_language() == "en")
+        s_name = s_obj['name_en'] if is_en else (s_obj.get('name_es') or s_obj['name_en'])
+        self.faction_lbl.config(text=f"Faction: {s_obj['faction']}" if is_en else f"Facción: {s_obj['faction']}")
         
         # Highlight active tier button
         for tnum, btn in self.tier_buttons:
@@ -3754,9 +3925,9 @@ class ArmorSetViewerDialog(tk.Toplevel):
                 
         # Find tier object
         t_obj = None
-        for t in s_obj.get("tiers", []):
-            if t["tier_num"] == self.current_tier_num:
-                t_obj = t
+        for tier_item in s_obj.get("tiers", []):
+            if tier_item["tier_num"] == self.current_tier_num:
+                t_obj = tier_item
                 break
         if not t_obj and s_obj.get("tiers"):
             t_obj = s_obj["tiers"][-1]
@@ -3774,11 +3945,12 @@ class ArmorSetViewerDialog(tk.Toplevel):
                 self.model_lbl.image = model_photo
                 self.img_refs.append(model_photo)
             else:
-                self.model_lbl.config(image="", text="[Render Oficial en Proceso]")
+                self.model_lbl.config(image="", text="[Official Render In Progress]" if is_en else "[Render Oficial en Proceso]")
         else:
-            self.model_lbl.config(image="", text="[Render Oficial en Proceso]")
+            self.model_lbl.config(image="", text="[Official Render In Progress]" if is_en else "[Render Oficial en Proceso]")
             
-        self.model_title_lbl.config(text=f"{s_obj['name_en']} ({t_obj['tier_name']})")
+        t_name = t_obj.get('tier_name_en', t_obj['tier_name']) if is_en else t_obj['tier_name']
+        self.model_title_lbl.config(text=f"{s_name} ({t_name})")
         
         # 2. Update piece cards
         counts = modifiers.get_equipment_inventory_counts(self.save_json) if self.save_json else ({}, {})
@@ -3798,42 +3970,56 @@ class ArmorSetViewerDialog(tk.Toplevel):
             card_ui["current_pid"] = p["id"]
             
             # Title
-            name_str = f"{p['name_es']} ({p['name']})" if p.get('name_es') and p['name_es'] != p['name'] else p['name']
+            if is_en:
+                name_str = f"{p['name']} ({p.get('name_es')})" if p.get('name_es') and p.get('name_es') != p['name'] else p['name']
+            else:
+                name_str = f"{p['name_es']} ({p['name']})" if p.get('name_es') and p['name_es'] != p['name'] else p['name']
             card_ui["title_lbl"].config(text=f"{name_str}  [{p['id']}]")
             
             if slot_key == "weapon":
                 atk_base = p.get("atk", 0)
                 atk_plus4 = p.get("atk_plus4", int(atk_base * 1.5))
                 dur = p.get("durability", 1400)
-                card_ui["def_dur_lbl"].config(text=f"⚔️ Ataque Base: {atk_base} (A +4: ~{atk_plus4})  |  Durabilidad: {dur}", foreground=ACCENT_GOLD)
-                card_ui["res_lbl"].config(text="🔥 Arma característica oficial emparejada con este conjunto de armadura.")
-                card_ui["btn_unlock"].config(text="⭐ Desbloquear Arma +4")
+                card_ui["def_dur_lbl"].config(text=t("dialog_atk_base", atk=atk_base, atk4=atk_plus4, dur=dur), foreground=ACCENT_GOLD)
+                card_ui["res_lbl"].config(text=t("dialog_weapon_paired"))
+                card_ui["btn_unlock"].config(text="⭐ Unlock Weapon +4" if is_en else "⭐ Desbloquear Arma +4")
             else:
                 # Def / Dur
                 def_base = p.get("def", 0)
                 def_plus4 = p.get("def_plus4", 0)
                 dur = p.get("durability", 0)
-                card_ui["def_dur_lbl"].config(text=f"🛡️ Defensa Base: {def_base} (A +4: {def_plus4})  |  Durabilidad: {dur}", foreground=ACCENT_CYAN)
+                card_ui["def_dur_lbl"].config(text=t("dialog_def_base", def_b=def_base, def4=def_plus4, dur=dur), foreground=ACCENT_CYAN)
                 
                 # Resistances
                 res = p.get("resistances", {})
-                res_txt = (
-                    f"🗡️ Corte: {res.get('slash',0):+d}%   🔨 Golpe: {res.get('blunt',0):+d}%   🏹 Perf: {res.get('pierce',0):+d}%\n"
-                    f"🔥 Fuego: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Veneno: {res.get('poison',0):+d}%"
-                )
+                if is_en:
+                    res_txt = (
+                        f"🗡️ Slash: {res.get('slash',0):+d}%   🔨 Blunt: {res.get('blunt',0):+d}%   🏹 Pierce: {res.get('pierce',0):+d}%\n"
+                        f"🔥 Fire: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Poison: {res.get('poison',0):+d}%"
+                    )
+                else:
+                    res_txt = (
+                        f"🗡️ Corte: {res.get('slash',0):+d}%   🔨 Golpe: {res.get('blunt',0):+d}%   🏹 Perf: {res.get('pierce',0):+d}%\n"
+                        f"🔥 Fuego: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Veneno: {res.get('poison',0):+d}%"
+                    )
                 card_ui["res_lbl"].config(text=res_txt)
-                card_ui["btn_unlock"].config(text="⭐ Desbloquear +4")
+                card_ui["btn_unlock"].config(text="⭐ Unlock +4" if is_en else "⭐ Desbloquear +4")
             
             # Status
             f_lvl = forge_levels.get(p["id"], 0)
             st_cnt = storage_map.get(p["id"], 0)
             bg_cnt = bag_map.get(p["id"], 0)
             
-            f_txt = f"⭐ Tienda: Desbloqueado (+{f_lvl})" if f_lvl >= 4 else f"🔨 Tienda: Nivel +{f_lvl}" if f_lvl > 0 else "❌ Tienda: Bloqueado"
+            if is_en:
+                f_txt = f"⭐ Shop: Unlocked (+{f_lvl})" if f_lvl >= 4 else f"🔨 Shop: Level +{f_lvl}" if f_lvl > 0 else "❌ Shop: Locked"
+                st_txt = f"📦 Storage: {st_cnt} pcs." if st_cnt > 0 else "📦 Storage: 0 pcs."
+                bg_txt = f"🎒 Bag: {bg_cnt} pcs." if bg_cnt > 0 else ""
+            else:
+                f_txt = f"⭐ Tienda: Desbloqueado (+{f_lvl})" if f_lvl >= 4 else f"🔨 Tienda: Nivel +{f_lvl}" if f_lvl > 0 else "❌ Tienda: Bloqueado"
+                st_txt = f"📦 Almacén: {st_cnt} u." if st_cnt > 0 else "📦 Almacén: 0 u."
+                bg_txt = f"🎒 Mochila: {bg_cnt} u." if bg_cnt > 0 else ""
             f_color = ACCENT_GOLD if f_lvl >= 4 else ACCENT_BLUE if f_lvl > 0 else FG_MUTED
             
-            st_txt = f"📦 Almacén: {st_cnt} u." if st_cnt > 0 else "📦 Almacén: 0 u."
-            bg_txt = f"🎒 Mochila: {bg_cnt} u." if bg_cnt > 0 else ""
             full_stat = f"{f_txt}  •  {st_txt}" + (f"  •  {bg_txt}" if bg_txt else "")
             card_ui["status_lbl"].config(text=full_stat, foreground=f_color)
             

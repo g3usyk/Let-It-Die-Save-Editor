@@ -30,3 +30,9 @@ desktop.ini
 .system_generated/
 scratch/
 config.json
+
+# PyInstaller & Build artifacts
+dist/
+build/
+*.spec
+
