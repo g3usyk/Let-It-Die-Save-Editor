@@ -7,8 +7,7 @@ from collections import Counter
 from game_data import CLASS_CODE_ALIASES
 
 ALL_DECALS_FILE = os.path.join(os.path.dirname(__file__), "all_decals_encyclopedia.json")
-ALL_DECALS_LEGACY_FILE = os.path.join(os.path.dirname(__file__), "all_decals.json")
-ALL_EQUIPMENT_FILE = os.path.join(os.path.dirname(__file__), "all_equipment.json")
+ALL_EQUIPMENT_FILE = os.path.join(os.path.dirname(__file__), "all_equipment_encyclopedia.json")
 
 def load_all_known_decals():
     if os.path.exists(ALL_DECALS_FILE):
@@ -20,16 +19,32 @@ def load_all_known_decals():
                 return data
         except Exception:
             pass
-    if os.path.exists(ALL_DECALS_LEGACY_FILE):
-        with open(ALL_DECALS_LEGACY_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
     return []
 
 def load_all_equipment():
+    res = {"weapons": [], "heads": [], "tops": [], "btms": [], "all": []}
     if os.path.exists(ALL_EQUIPMENT_FILE):
-        with open(ALL_EQUIPMENT_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"weapons": [], "heads": [], "tops": [], "btms": [], "all": []}
+        try:
+            with open(ALL_EQUIPMENT_FILE, "r", encoding="utf-8") as f:
+                items = json.load(f)
+                for it in items:
+                    it_id = it.get("id")
+                    if not it_id:
+                        continue
+                    res["all"].append(it_id)
+                    raw_type = it.get("raw_type", "")
+                    if raw_type == "PTTP_HEAD" or "_HEAD_" in it_id:
+                        res["heads"].append(it_id)
+                    elif raw_type == "PTTP_BODY" or "_TOPS_" in it_id:
+                        res["tops"].append(it_id)
+                    elif raw_type in ("PTTP_PANTS", "PTTP_LEGS") or "_BTM_" in it_id:
+                        res["btms"].append(it_id)
+                    else:
+                        res["weapons"].append(it_id)
+                return res
+        except Exception:
+            pass
+    return res
 
 def get_save_summary(save):
     uid = str(save.get("user", {}).get("uid", "Unknown"))

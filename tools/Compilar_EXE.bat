@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 >nul
+cd /d "%~dp0\.."
 title Compilador de LET IT DIE Save Editor (.EXE)
 echo ========================================================
 echo       COMPILANDO LET IT DIE SAVE EDITOR A .EXE

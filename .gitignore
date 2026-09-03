@@ -36,3 +36,7 @@ dist/
 build/
 *.spec
 
+# Game database binaries
+*.db
+*.db.*
+
