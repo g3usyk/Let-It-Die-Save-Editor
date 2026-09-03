@@ -24,6 +24,7 @@ def build():
         ("icon_map.json", "."),
         ("version.json", "."),
         ("tower_map_data.json", "."),
+        ("all_shrooms_beasts_db.json", "."),
     ]
 
     cmd = [
@@ -44,6 +45,9 @@ def build():
         if os.path.exists(src_path):
             cmd.extend(["--add-data", f"{src_path};{dst}"])
 
+    cmd.extend(["--collect-all", "core"])
+    cmd.extend(["--collect-all", "ui"])
+
     hidden_imports = [
         "sv_ttk",
         "PIL",
@@ -55,10 +59,30 @@ def build():
         "struct",
         "shutil",
         "datetime",
-        "re"
+        "re",
+        "uuid",
+        "copy",
+        "core",
+        "core.blueprints",
+        "core.currencies",
+        "core.decals",
+        "core.fighters",
+        "core.storage",
+        "ui",
+        "ui.theme",
+        "ui.dialogs",
+        "ui.dialogs.create_fighter",
+        "ui.dialogs.smart_analyzer",
+        "ui.dialogs.inventory_viewer",
+        "ui.dialogs.armor_set_viewer",
+        "i18n",
+        "game_data",
+        "save_io",
+        "modifiers"
     ]
     for hi in hidden_imports:
         cmd.extend(["--hidden-import", hi])
+
 
     cmd.append(os.path.join(BASE_DIR, "editor_gui.py"))
 

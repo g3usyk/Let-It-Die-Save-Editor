@@ -1,15 +1,15 @@
 {
-  "version": "2.5.0",
+  "version": "2.6.0",
   "name": "Let It Die - Complete Save Editor & Encyclopedia",
   "release_date": "2026-09-03",
   "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
   "changelog": [
-    "Desbloqueo Total de la Torre y Mapa: Revelación de los 980 cuartos y 1,119 escaleras sin niebla de guerra",
-    "Eliminación total de candados en el mapa (purga de bit de bloqueo 64 y 193 flags de llaves, verjas, botones y jefes)",
-    "Habilitación de los 61 ascensores oficiales y apertura del portal a Pisos 41-50 (Hazama) y Tengoku (51+)",
-    "Motor de Evolución y Destope de Equipamiento: Límites seguros (+4 para tiers base; +19 y +24 para Tier 4 final)",
-    "Instalaciones de Sala de Espera hasta Nivel 100 y sincronización automática de Puntos de Rango (130 rangos)",
-    "Auto-elevación UAC (Permisos de Administrador) para edición de partidas sin bloqueos de acceso",
-    "Internacionalización y traducción completa en inglés y español en todos los diálogos y avisos"
+    "Gestion Completa de Luchadores en el Congelador: Creacion de nuevos personajes, clonacion profunda y eliminacion segura",
+    "Clonacion Profunda de Equipamiento e Inventario: Duplicacion identica de armas, armaduras con durabilidad, calcomanias y bolsa de muerte",
+    "Sincronizacion de Casillas del Congelador (soul.chr.slots) y orden directo 1:1 con el congelador del juego",
+    "Selector de Modelo y Aspecto Fisico: Seleccion directa entre los 16 modelos oficiales 3D (8 masculinos y 8 femeninos)",
+    "Modularizacion de Arquitectura: Division en modulos desacoplados (core/fighters, core/blueprints, core/currencies, core/decals, core/storage, ui/dialogs)",
+    "Suite de Pruebas Automatizadas: 33 pruebas unitarias completas para garantizar la integridad y estabilidad del guardado"
   ]
 }
+

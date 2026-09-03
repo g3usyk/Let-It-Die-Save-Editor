@@ -1,0 +1,698 @@
+{
+  "MSR_001": {
+    "id": "MSR_001",
+    "type": "MUSHROOM",
+    "name_en": "Heartshroom",
+    "name_es": "Seta corazón",
+    "cooked_name_en": "Grilled Heart Shroom",
+    "cooked_name_es": "Seta corazón asada"
+  },
+  "MSR_002": {
+    "id": "MSR_002",
+    "type": "MUSHROOM",
+    "name_en": "Ricebowl Shroom",
+    "name_es": "Seta de cuenco de arroz",
+    "cooked_name_en": "Grilled Ricebowl Shroom",
+    "cooked_name_es": "Seta cuenco de arroz asada"
+  },
+  "MSR_006": {
+    "id": "MSR_006",
+    "type": "MUSHROOM",
+    "name_en": "Punchshroom",
+    "name_es": "Seta puñetazo",
+    "cooked_name_en": "Grilled Punchshroom",
+    "cooked_name_es": "Seta puñetazo asada"
+  },
+  "MSR_007": {
+    "id": "MSR_007",
+    "type": "MUSHROOM",
+    "name_en": "Toughshroom",
+    "name_es": "Seta de resistencia",
+    "cooked_name_en": "Grilled Toughshroom",
+    "cooked_name_es": "Seta de resistencia asada"
+  },
+  "MSR_009": {
+    "id": "MSR_009",
+    "type": "MUSHROOM",
+    "name_en": "Lavashroom",
+    "name_es": "Seta de lava",
+    "cooked_name_en": "Grilled Lavashroom",
+    "cooked_name_es": "Seta de lava asada"
+  },
+  "MSR_010": {
+    "id": "MSR_010",
+    "type": "MUSHROOM",
+    "name_en": "Fluffy Fungus",
+    "name_es": "Seta esponjosa",
+    "cooked_name_en": "Grilled Fluffy Fungus",
+    "cooked_name_es": "Seta esponjosa asada"
+  },
+  "MSR_012": {
+    "id": "MSR_012",
+    "type": "MUSHROOM",
+    "name_en": "Doomshroom",
+    "name_es": "Seta mortífera",
+    "cooked_name_en": "Grilled Doomshroom",
+    "cooked_name_es": "Seta mortífera asada"
+  },
+  "MSR_013": {
+    "id": "MSR_013",
+    "type": "MUSHROOM",
+    "name_en": "Yogashroom",
+    "name_es": "Seta de yoga",
+    "cooked_name_en": "Grilled Yogashroom",
+    "cooked_name_es": "Seta de yoga asada"
+  },
+  "MSR_014": {
+    "id": "MSR_014",
+    "type": "MUSHROOM",
+    "name_en": "Brainshroom",
+    "name_es": "Seta cerebral",
+    "cooked_name_en": "Grilled Brainshroom",
+    "cooked_name_es": "Seta cerebral asada"
+  },
+  "MSR_015": {
+    "id": "MSR_015",
+    "type": "MUSHROOM",
+    "name_en": "Transparungus",
+    "name_es": "Seta transparente",
+    "cooked_name_en": "Grilled Transparungus",
+    "cooked_name_es": "Seta transparente asada"
+  },
+  "MSR_016": {
+    "id": "MSR_016",
+    "type": "MUSHROOM",
+    "name_en": "Staminungus",
+    "name_es": "Seta de aguante",
+    "cooked_name_en": "Grilled Staminungus",
+    "cooked_name_es": "Seta de aguante asada"
+  },
+  "MSR_017": {
+    "id": "MSR_017",
+    "type": "MUSHROOM",
+    "name_en": "Decoyshroom",
+    "name_es": "Seta señuelo",
+    "cooked_name_en": "Grilled Decoyshroom",
+    "cooked_name_es": "Seta señuelo asada"
+  },
+  "MSR_020": {
+    "id": "MSR_020",
+    "type": "MUSHROOM",
+    "name_en": "Slowmungus",
+    "name_es": "Seta ralentizadora",
+    "cooked_name_en": "Grilled Slowmungus",
+    "cooked_name_es": "Seta ralentizadora asada"
+  },
+  "MSR_021": {
+    "id": "MSR_021",
+    "type": "MUSHROOM",
+    "name_en": "Shockshroom",
+    "name_es": "Seta descarga",
+    "cooked_name_en": "Grilled Shockshroom",
+    "cooked_name_es": "Seta descarga asada"
+  },
+  "MSR_022": {
+    "id": "MSR_022",
+    "type": "MUSHROOM",
+    "name_en": "Fun Fungus",
+    "name_es": "Seta de la diversión",
+    "cooked_name_en": "Grilled Fun Fungus",
+    "cooked_name_es": "Seta de la diversión asada"
+  },
+  "MSR_023": {
+    "id": "MSR_023",
+    "type": "MUSHROOM",
+    "name_en": "Boomshroom",
+    "name_es": "Seta trueno",
+    "cooked_name_en": "Grilled Boomshroom",
+    "cooked_name_es": "Seta trueno asada"
+  },
+  "MSR_024": {
+    "id": "MSR_024",
+    "type": "MUSHROOM",
+    "name_en": "Crushroom",
+    "name_es": "Seta destrucción",
+    "cooked_name_en": "Grilled Crushroom",
+    "cooked_name_es": "Seta destrucción asada"
+  },
+  "MSR_025": {
+    "id": "MSR_025",
+    "type": "MUSHROOM",
+    "name_en": "Guardshroom",
+    "name_es": "Seta defensa",
+    "cooked_name_en": "Grilled Guardshroom",
+    "cooked_name_es": "Seta defensa asada"
+  },
+  "MSR_029": {
+    "id": "MSR_029",
+    "type": "MUSHROOM",
+    "name_en": "Gambleshroom",
+    "name_es": "Seta de apuestas",
+    "cooked_name_en": "Grilled Gambleshroom",
+    "cooked_name_es": "Seta de apuestas asada"
+  },
+  "MSR_031": {
+    "id": "MSR_031",
+    "type": "MUSHROOM",
+    "name_en": "Frongus",
+    "name_es": "Seta batracio estrépito",
+    "cooked_name_en": "Grilled Frongus",
+    "cooked_name_es": "Seta batracio estré. asada"
+  },
+  "MSR_032": {
+    "id": "MSR_032",
+    "type": "MUSHROOM",
+    "name_en": "Croakstool",
+    "name_es": "Seta batracio letal",
+    "cooked_name_en": "Croakstool (Grilled)",
+    "cooked_name_es": "Seta batracio letal (Asada)"
+  },
+  "MSR_033": {
+    "id": "MSR_033",
+    "type": "MUSHROOM",
+    "name_en": "Mouseshroom",
+    "name_es": "Seta roedora",
+    "cooked_name_en": "Grilled Mouseshroom",
+    "cooked_name_es": "Seta roedora asada"
+  },
+  "MSR_034": {
+    "id": "MSR_034",
+    "type": "MUSHROOM",
+    "name_en": "Golden Mouseshroom",
+    "name_es": "Seta roedora dorada",
+    "cooked_name_en": "Golden Mouseshroom (Grilled)",
+    "cooked_name_es": "Seta roedora dorada (Asada)"
+  },
+  "MSR_035": {
+    "id": "MSR_035",
+    "type": "MUSHROOM",
+    "name_en": "Stingshroom",
+    "name_es": "Seta aguijón",
+    "cooked_name_en": "Grilled Stingshroom",
+    "cooked_name_es": "Seta aguijón asada"
+  },
+  "MSR_036": {
+    "id": "MSR_036",
+    "type": "MUSHROOM",
+    "name_en": "Golden Stingshroom",
+    "name_es": "Seta aguijón dorada",
+    "cooked_name_en": "Golden Stingshroom (Grilled)",
+    "cooked_name_es": "Seta aguijón dorada (Asada)"
+  },
+  "MSR_037": {
+    "id": "MSR_037",
+    "type": "MUSHROOM",
+    "name_en": "Fishy Fungus",
+    "name_es": "Seta sospechosa",
+    "cooked_name_en": "Grilled Fishy Fungus",
+    "cooked_name_es": "Seta sospechosa asada"
+  },
+  "MSR_038": {
+    "id": "MSR_038",
+    "type": "MUSHROOM",
+    "name_en": "Golden Fishy Fungus",
+    "name_es": "Seta sospechosa dorada",
+    "cooked_name_en": "Golden Fishy Fungus (Grilled)",
+    "cooked_name_es": "Seta sospechosa dorada (Asada)"
+  },
+  "MSR_039": {
+    "id": "MSR_039",
+    "type": "MUSHROOM",
+    "name_en": "Snailshroom",
+    "name_es": "Seta caracol",
+    "cooked_name_en": "Grilled Snailshroom",
+    "cooked_name_es": "Seta caracol asada"
+  },
+  "MSR_040": {
+    "id": "MSR_040",
+    "type": "MUSHROOM",
+    "name_en": "Golden Snailshroom",
+    "name_es": "Seta caracol dorada",
+    "cooked_name_en": "Golden Snailshroom (Grilled)",
+    "cooked_name_es": "Seta caracol dorada (Asada)"
+  },
+  "MSR_041": {
+    "id": "MSR_041",
+    "type": "MUSHROOM",
+    "name_en": "Dragonshroom",
+    "name_es": "Seta dragón",
+    "cooked_name_en": "Grilled Dragonshroom",
+    "cooked_name_es": "Seta dragón asada"
+  },
+  "MSR_042": {
+    "id": "MSR_042",
+    "type": "MUSHROOM",
+    "name_en": "Golden Dragonshroom",
+    "name_es": "Seta dragón dorada",
+    "cooked_name_en": "Golden Dragonshroom (Grilled)",
+    "cooked_name_es": "Seta dragón dorada (Asada)"
+  },
+  "MSR_043": {
+    "id": "MSR_043",
+    "type": "MUSHROOM",
+    "name_en": "Lifeshroom",
+    "name_es": "Seta de vida",
+    "cooked_name_en": "Grilled Lifeshroom",
+    "cooked_name_es": "Seta de vida asada"
+  },
+  "MSR_044": {
+    "id": "MSR_044",
+    "type": "MUSHROOM",
+    "name_en": "Golden Lifeshroom",
+    "name_es": "Seta de vida dorada",
+    "cooked_name_en": "Golden Lifeshroom (Grilled)",
+    "cooked_name_es": "Seta de vida dorada (Asada)"
+  },
+  "MSR_045": {
+    "id": "MSR_045",
+    "type": "MUSHROOM",
+    "name_en": "Vampire Fungus",
+    "name_es": "Seta vampiro",
+    "cooked_name_en": "Grilled Vampire Fungus",
+    "cooked_name_es": "Seta vampiro asada"
+  },
+  "MSR_046": {
+    "id": "MSR_046",
+    "type": "MUSHROOM",
+    "name_en": "Golden Vampire Fungus",
+    "name_es": "Seta vampiro dorada",
+    "cooked_name_en": "Golden Vampire Fungus (Grilled)",
+    "cooked_name_es": "Seta vampiro dorada (Asada)"
+  },
+  "MSR_047": {
+    "id": "MSR_047",
+    "type": "MUSHROOM",
+    "name_en": "Evershroom",
+    "name_es": "Seta eterna",
+    "cooked_name_en": "Grilled Evershroom",
+    "cooked_name_es": "Seta eterna asada"
+  },
+  "MSR_048": {
+    "id": "MSR_048",
+    "type": "MUSHROOM",
+    "name_en": "Golden Evershroom",
+    "name_es": "Seta eterna dorada",
+    "cooked_name_en": "Golden Evershroom (Grilled)",
+    "cooked_name_es": "Seta eterna dorada (Asada)"
+  },
+  "MSR_049": {
+    "id": "MSR_049",
+    "type": "MUSHROOM",
+    "name_en": "Oakshroom",
+    "name_es": "Seta de roble",
+    "cooked_name_en": "Grilled Oakshroom",
+    "cooked_name_es": "Seta de roble asada"
+  },
+  "MSR_050": {
+    "id": "MSR_050",
+    "type": "MUSHROOM",
+    "name_en": "Golden Oakshroom",
+    "name_es": "Seta de roble dorada",
+    "cooked_name_en": "Golden Oakshroom (Grilled)",
+    "cooked_name_es": "Seta de roble dorada (Asada)"
+  },
+  "MSR_051": {
+    "id": "MSR_051",
+    "type": "MUSHROOM",
+    "name_en": "Bronze Skillshroom",
+    "name_es": "Seta habilidad bronce",
+    "cooked_name_en": "Bronze Skillshroom (Grilled)",
+    "cooked_name_es": "Seta habilidad bronce (Asada)"
+  },
+  "MSR_052": {
+    "id": "MSR_052",
+    "type": "MUSHROOM",
+    "name_en": "Silver Skillshroom",
+    "name_es": "Seta habilidad plata",
+    "cooked_name_en": "Silver Skillshroom (Grilled)",
+    "cooked_name_es": "Seta habilidad plata (Asada)"
+  },
+  "MSR_053": {
+    "id": "MSR_053",
+    "type": "MUSHROOM",
+    "name_en": "Golden Skillshroom",
+    "name_es": "Seta habilidad oro",
+    "cooked_name_en": "Golden Skillshroom (Grilled)",
+    "cooked_name_es": "Seta habilidad oro (Asada)"
+  },
+  "MSR_200": {
+    "id": "MSR_200",
+    "type": "MUSHROOM",
+    "name_en": "Bronze Eggshroom",
+    "name_es": "Seta huevo de bronce",
+    "cooked_name_en": "Bronze Eggshroom",
+    "cooked_name_es": "Seta huevo de bronce"
+  },
+  "MSR_201": {
+    "id": "MSR_201",
+    "type": "MUSHROOM",
+    "name_en": "Silver Eggshroom",
+    "name_es": "Seta huevo de plata",
+    "cooked_name_en": "Silver Eggshroom",
+    "cooked_name_es": "Seta huevo de plata"
+  },
+  "MSR_202": {
+    "id": "MSR_202",
+    "type": "MUSHROOM",
+    "name_en": "Golden Eggshroom",
+    "name_es": "Seta huevo de oro",
+    "cooked_name_en": "Golden Eggshroom",
+    "cooked_name_es": "Seta huevo de oro"
+  },
+  "MSR_300": {
+    "id": "MSR_300",
+    "type": "MUSHROOM",
+    "name_en": "Red Stingshroom",
+    "name_es": "Seta aguijón roja",
+    "cooked_name_en": "Grilled Red Stingshroom",
+    "cooked_name_es": "Seta aguijón roja asada"
+  },
+  "MSR_301": {
+    "id": "MSR_301",
+    "type": "MUSHROOM",
+    "name_en": "Helmetshroom",
+    "name_es": "Seta yelmo",
+    "cooked_name_en": "Grilled Helmetshroom",
+    "cooked_name_es": "Seta yelmo asada"
+  },
+  "MSR_302": {
+    "id": "MSR_302",
+    "type": "MUSHROOM",
+    "name_en": "Umbrella Rib Fungus",
+    "name_es": "Seta de paraguas",
+    "cooked_name_en": "Grilled Umbrella Rib Fungus",
+    "cooked_name_es": "Seta de paraguas asada"
+  },
+  "MSR_303": {
+    "id": "MSR_303",
+    "type": "MUSHROOM",
+    "name_en": "False Brainshroom",
+    "name_es": "Seta cerebral falsa",
+    "cooked_name_en": "Grilled False Brainshroom",
+    "cooked_name_es": "Seta cerebral falsa asada"
+  },
+  "MSR_304": {
+    "id": "MSR_304",
+    "type": "MUSHROOM",
+    "name_en": "Cateye Shroom",
+    "name_es": "Seta de ojo felino",
+    "cooked_name_en": "Grilled Cateye Shroom",
+    "cooked_name_es": "Seta de ojo felino asada"
+  },
+  "MSR_305": {
+    "id": "MSR_305",
+    "type": "MUSHROOM",
+    "name_en": "Boleoshroom",
+    "name_es": "Boleoseta",
+    "cooked_name_en": "Grilled Boleoshroom",
+    "cooked_name_es": "Boleoseta asada"
+  },
+  "MSR_306": {
+    "id": "MSR_306",
+    "type": "MUSHROOM",
+    "name_en": "Bronze Parasol Shroom",
+    "name_es": "Seta de sombrilla de bronce",
+    "cooked_name_en": "Bronze Parasol Shroom (Grilled)",
+    "cooked_name_es": "Seta de sombrilla de bronce (Asada)"
+  },
+  "MSR_307": {
+    "id": "MSR_307",
+    "type": "MUSHROOM",
+    "name_en": "Silver Parasol Shroom",
+    "name_es": "Seta de sombrilla de plata",
+    "cooked_name_en": "Silver Parasol Shroom (Grilled)",
+    "cooked_name_es": "Seta de sombrilla de plata (Asada)"
+  },
+  "MSR_308": {
+    "id": "MSR_308",
+    "type": "MUSHROOM",
+    "name_en": "Golden Parasol Shroom",
+    "name_es": "Seta de sombrilla de oro",
+    "cooked_name_en": "Golden Parasol Shroom (Grilled)",
+    "cooked_name_es": "Seta de sombrilla de oro (Asada)"
+  },
+  "MSR_309": {
+    "id": "MSR_309",
+    "type": "MUSHROOM",
+    "name_en": "Bronze Pumpkinshroom",
+    "name_es": "Seta calabaza de bronce",
+    "cooked_name_en": "Bronze Pumpkinshroom",
+    "cooked_name_es": "Seta calabaza de bronce"
+  },
+  "MSR_310": {
+    "id": "MSR_310",
+    "type": "MUSHROOM",
+    "name_en": "Silver Pumpkinshroom",
+    "name_es": "Seta calabaza de plata",
+    "cooked_name_en": "Silver Pumpkinshroom",
+    "cooked_name_es": "Seta calabaza de plata"
+  },
+  "MSR_311": {
+    "id": "MSR_311",
+    "type": "MUSHROOM",
+    "name_en": "Gold Pumpkinshroom",
+    "name_es": "Seta calabaza de oro",
+    "cooked_name_en": "Gold Pumpkinshroom",
+    "cooked_name_es": "Seta calabaza de oro"
+  },
+  "MSR_312": {
+    "id": "MSR_312",
+    "type": "MUSHROOM",
+    "name_en": "Bronze Snowcap",
+    "name_es": "Seta nevada bronce",
+    "cooked_name_en": "Bronze Snowcap",
+    "cooked_name_es": "Seta nevada bronce"
+  },
+  "MSR_313": {
+    "id": "MSR_313",
+    "type": "MUSHROOM",
+    "name_en": "Silver Snowcap",
+    "name_es": "Seta nevada plata",
+    "cooked_name_en": "Silver Snowcap",
+    "cooked_name_es": "Seta nevada plata"
+  },
+  "MSR_314": {
+    "id": "MSR_314",
+    "type": "MUSHROOM",
+    "name_en": "Golden Snowcap",
+    "name_es": "Seta nevada oro",
+    "cooked_name_en": "Golden Snowcap",
+    "cooked_name_es": "Seta nevada oro"
+  },
+  "MSR_400": {
+    "id": "MSR_400",
+    "type": "MUSHROOM",
+    "name_en": "Splattershroom",
+    "name_es": "Sanguiseta",
+    "cooked_name_en": "Splattershroom",
+    "cooked_name_es": "Sanguiseta"
+  },
+  "MSR_401": {
+    "id": "MSR_401",
+    "type": "MUSHROOM",
+    "name_en": "Big Splattershroom",
+    "name_es": "Sanguiseta grande",
+    "cooked_name_en": "Big Splattershroom",
+    "cooked_name_es": "Sanguiseta grande"
+  },
+  "MSR_402": {
+    "id": "MSR_402",
+    "type": "MUSHROOM",
+    "name_en": "Mega Splattershroom",
+    "name_es": "Megasanguiseta",
+    "cooked_name_en": "Mega Splattershroom",
+    "cooked_name_es": "Megasanguiseta"
+  },
+  "BST_BASS": {
+    "id": "BST_BASS",
+    "type": "BEAST",
+    "name_en": "Fish",
+    "name_es": "Pescado",
+    "cooked_name_en": "Grilled Fish",
+    "cooked_name_es": "Pescado asado"
+  },
+  "BST_BASS02": {
+    "id": "BST_BASS02",
+    "type": "BEAST",
+    "name_en": "Goggly Boleo",
+    "name_es": "Boleo micóptico",
+    "cooked_name_en": "Grilled Goggly Boleo",
+    "cooked_name_es": "Boleo micóptico asado"
+  },
+  "BST_CASSOWARY": {
+    "id": "BST_CASSOWARY",
+    "type": "BEAST",
+    "name_en": "Bird",
+    "name_es": "Ave",
+    "cooked_name_en": "Grilled Bird",
+    "cooked_name_es": "Ave asada"
+  },
+  "BST_CRAB": {
+    "id": "BST_CRAB",
+    "type": "BEAST",
+    "name_en": "Crab",
+    "name_es": "Cangrejo",
+    "cooked_name_en": "Grilled Crab",
+    "cooked_name_es": "Cangrejo asado"
+  },
+  "BST_FROG": {
+    "id": "BST_FROG",
+    "type": "BEAST",
+    "name_en": "Frog",
+    "name_es": "Rana",
+    "cooked_name_en": "Grilled Frog",
+    "cooked_name_es": "Rana asada"
+  },
+  "BST_GBASS": {
+    "id": "BST_GBASS",
+    "type": "BEAST",
+    "name_en": "Golden Fish",
+    "name_es": "Pescado dorado",
+    "cooked_name_en": "Golden Fish (Grilled)",
+    "cooked_name_es": "Pescado dorado (Asado)"
+  },
+  "BST_GCASSOWARY": {
+    "id": "BST_GCASSOWARY",
+    "type": "BEAST",
+    "name_en": "Golden Bird",
+    "name_es": "Ave dorado",
+    "cooked_name_en": "Golden Bird (Grilled)",
+    "cooked_name_es": "Ave dorado (Asado)"
+  },
+  "BST_GCRAB": {
+    "id": "BST_GCRAB",
+    "type": "BEAST",
+    "name_en": "Golden Crab",
+    "name_es": "Cangrejo dorado",
+    "cooked_name_en": "Golden Crab (Grilled)",
+    "cooked_name_es": "Cangrejo dorado (Asado)"
+  },
+  "BST_GFROG": {
+    "id": "BST_GFROG",
+    "type": "BEAST",
+    "name_en": "Golden Frog",
+    "name_es": "Rana dorada",
+    "cooked_name_en": "Golden Frog (Grilled)",
+    "cooked_name_es": "Rana dorada (Asado)"
+  },
+  "BST_GHONEYCOMB": {
+    "id": "BST_GHONEYCOMB",
+    "type": "BEAST",
+    "name_en": "Golden Honeycomb",
+    "name_es": "Panal dorado",
+    "cooked_name_en": "Golden Honeycomb (Grilled)",
+    "cooked_name_es": "Panal dorado (Asado)"
+  },
+  "BST_GLIZARD": {
+    "id": "BST_GLIZARD",
+    "type": "BEAST",
+    "name_en": "Golden Lizard",
+    "name_es": "Lagarto dorado",
+    "cooked_name_en": "Golden Lizard (Grilled)",
+    "cooked_name_es": "Lagarto dorado (Asado)"
+  },
+  "BST_GPILLBUG": {
+    "id": "BST_GPILLBUG",
+    "type": "BEAST",
+    "name_en": "Golden Pillbug",
+    "name_es": "Cochinilla dorada",
+    "cooked_name_en": "Golden Pillbug (Grilled)",
+    "cooked_name_es": "Cochinilla dorada (Asado)"
+  },
+  "BST_GRAT": {
+    "id": "BST_GRAT",
+    "type": "BEAST",
+    "name_en": "Golden Rat",
+    "name_es": "Rata dorada",
+    "cooked_name_en": "Golden Rat (Grilled)",
+    "cooked_name_es": "Rata dorada (Asado)"
+  },
+  "BST_GSCORPION": {
+    "id": "BST_GSCORPION",
+    "type": "BEAST",
+    "name_en": "Golden Scorpion",
+    "name_es": "Escorpión dorado",
+    "cooked_name_en": "Golden Scorpion (Grilled)",
+    "cooked_name_es": "Escorpión dorado (Asado)"
+  },
+  "BST_GSNAIL": {
+    "id": "BST_GSNAIL",
+    "type": "BEAST",
+    "name_en": "Golden Snail",
+    "name_es": "Caracol dorado",
+    "cooked_name_en": "Golden Snail (Grilled)",
+    "cooked_name_es": "Caracol dorado (Asado)"
+  },
+  "BST_GTURTLE": {
+    "id": "BST_GTURTLE",
+    "type": "BEAST",
+    "name_en": "Golden Turtle",
+    "name_es": "Tortuga dorada",
+    "cooked_name_en": "Golden Turtle (Grilled)",
+    "cooked_name_es": "Tortuga dorada (Asado)"
+  },
+  "BST_HONEYCOMB": {
+    "id": "BST_HONEYCOMB",
+    "type": "BEAST",
+    "name_en": "Honeycomb",
+    "name_es": "Panal",
+    "cooked_name_en": "Grilled Honeycomb",
+    "cooked_name_es": "Panal asado"
+  },
+  "BST_LIZARD": {
+    "id": "BST_LIZARD",
+    "type": "BEAST",
+    "name_en": "Lizard",
+    "name_es": "Lagarto",
+    "cooked_name_en": "Grilled Lizard",
+    "cooked_name_es": "Lagarto asado"
+  },
+  "BST_PILLBUG": {
+    "id": "BST_PILLBUG",
+    "type": "BEAST",
+    "name_en": "Pillbug",
+    "name_es": "Cochinilla",
+    "cooked_name_en": "Grilled Pillbug",
+    "cooked_name_es": "Cochinilla asada"
+  },
+  "BST_RAT": {
+    "id": "BST_RAT",
+    "type": "BEAST",
+    "name_en": "Rat",
+    "name_es": "Rata",
+    "cooked_name_en": "Grilled Rat",
+    "cooked_name_es": "Rata asada"
+  },
+  "BST_SCORPION": {
+    "id": "BST_SCORPION",
+    "type": "BEAST",
+    "name_en": "Scorpion",
+    "name_es": "Escorpión",
+    "cooked_name_en": "Grilled Scorpion",
+    "cooked_name_es": "Escorpión asado"
+  },
+  "BST_SCORPION02": {
+    "id": "BST_SCORPION02",
+    "type": "BEAST",
+    "name_en": "Red Scorpion",
+    "name_es": "Escorpión rojo",
+    "cooked_name_en": "Grilled Red Scorpion",
+    "cooked_name_es": "Escorpión rojo asado"
+  },
+  "BST_SNAIL": {
+    "id": "BST_SNAIL",
+    "type": "BEAST",
+    "name_en": "Snail",
+    "name_es": "Caracol",
+    "cooked_name_en": "Grilled Snail",
+    "cooked_name_es": "Caracol asado"
+  },
+  "BST_TURTLE": {
+    "id": "BST_TURTLE",
+    "type": "BEAST",
+    "name_en": "Turtle",
+    "name_es": "Tortuga",
+    "cooked_name_en": "Grilled Turtle",
+    "cooked_name_es": "Tortuga asada"
+  }
+}

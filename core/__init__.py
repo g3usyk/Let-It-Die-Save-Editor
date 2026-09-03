@@ -1,23 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-LET IT DIE Save Modifiers Facade.
-
-This module exposes the complete backward-compatible API for all save modifications.
-Internal implementations are organized into domain services in the `core` package:
-- core.helpers: Save metadata, player UID, database paths, cache.
-- core.currencies: Kill Coins, SPLithium, Death Metals, Bloodnium, Recycle Points, VIP pass.
-- core.fighters: Fighter stats, healing, revival, deathbag management.
-- core.mastery: Weapon mastery levels.
-- core.decals: Decal inventory, unlock all decals, meta presets.
-- core.storage: Coin locker slots, materials, mushrooms, beasts, mystery bags.
-- core.blueprints: Blueprints unlock, sanitization, equipment research, durability.
-- core.tower: Floor progression, elevators, stamps, quests, magazines, music.
-"""
+"""LET IT DIE Save Editor Core Domain Services."""
 
 from core.helpers import (
-    ALL_DECALS_FILE,
-    ALL_EQUIPMENT_FILE,
-    TOWER_MAP_DATA_FILE,
     get_equipment_meta,
     get_tower_map_data,
     get_player_uid,
@@ -144,4 +128,108 @@ from core.tower import (
     reset_tower_interruptions,
 )
 
-from core import __all__
+__all__ = [
+    '_assign_to_coin_locker',
+    'activate_vip_express_pass',
+    'add_all_materials_to_storage',
+    'add_all_mystery_bags',
+    'add_beasts_to_storage',
+    'add_equipment_to_storage',
+    'add_material_to_storage',
+    'add_materials_to_storage',
+    'add_mushrooms_to_storage',
+    'add_mystery_bags',
+    'add_or_update_decals',
+    'add_rainbow_bags',
+    'add_top_meta_decals',
+    'analyze_active_recipes_materials',
+    'analyze_storage_stock',
+    'apply_decal_preset_to_inventory',
+    'complete_all_quests',
+    'complete_encyclopedia_books',
+    'equip_decal_preset_on_fighter',
+    'expand_coin_locker_capacity',
+    'expand_death_bag',
+    'expand_deathbag_capacity',
+    'expand_storage_capacity',
+    'get_account_overview',
+    'get_all_fighters_info',
+    'get_bag_equipment_counts',
+    'get_blueprints_unlock_map',
+    'get_deathbag_masters_status',
+    'get_equipment_ancestors',
+    'get_equipment_inventory_counts',
+    'get_equipment_meta',
+    'get_masters_db_path',
+    'get_mystery_bags_summary',
+    'get_part_research_status',
+    'get_player_currencies',
+    'get_player_uid',
+    'get_rank_points_for_rank',
+    'get_save_summary',
+    'get_storage_equipment_counts',
+    'get_tower_map_data',
+    'get_tower_playlog',
+    'get_vip_status',
+    'get_waiting_room_info',
+    'inject_endgame_set',
+    'instant_open_deathboxes',
+    'load_all_equipment',
+    'load_all_known_decals',
+    'max_all_currencies',
+    'max_all_weapon_mastery',
+    'max_fighter_level_and_stats',
+    'max_login_streak',
+    'max_weapon_masteries',
+    'repair_all_storage_equipment',
+    'repair_and_sanitize_blueprints',
+    'repair_unlocked_blueprints_states',
+    'reset_tower_interruptions',
+    'reset_wandering_shop_timer',
+    'restore_deathbag_capacity',
+    'revive_all_fighters',
+    'send_present_to_reward_box',
+    'send_blueprint_to_rnd',
+    'set_all_stamps_perfect',
+    'set_bloodnium',
+    'set_currencies',
+    'set_death_metals',
+    'set_free_continues',
+    'set_infinite_durability_all_equipment',
+    'set_kill_coins',
+    'set_massive_ammo_all_weapons',
+    'set_player_rank',
+    'set_recycle_points',
+    'set_single_weapon_mastery',
+    'set_splithium',
+    'set_tdm_rank',
+    'set_tower_max_floor',
+    'set_vip_pass',
+    'set_weapon_mastery',
+    'smart_supply_missing_materials',
+    'smart_top_up_materials',
+    'swap_fighter_positions',
+    'move_fighter_up',
+    'move_fighter_down',
+    'sync_fighter_slots',
+    'clone_fighter',
+    'create_new_fighter',
+    'delete_fighter',
+    'sync_mystery_bags_to_deathbox',
+
+    'sync_storage_slots',
+
+    'unlock_all_blueprints',
+    'unlock_all_decals',
+    'unlock_all_elevators',
+    'unlock_all_hub_customizations',
+    'unlock_all_magazines',
+    'unlock_all_radio_music',
+    'unlock_all_tower_elevators',
+    'unlock_blueprints',
+    'unlock_single_blueprint',
+    'update_fighter',
+    'upgrade_all_equipment_max_level',
+    'upgrade_fighter_tier8',
+    'upgrade_waiting_room',
+]

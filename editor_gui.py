@@ -36,22 +36,22 @@ MATERIALS_DB_PATH = os.path.join(BASE_DIR, "all_materials_db.json")
 EQUIPMENT_DB_PATH = os.path.join(BASE_DIR, "all_equipment_encyclopedia.json")
 DECALS_DB_PATH = os.path.join(BASE_DIR, "all_decals_encyclopedia.json")
 ARMOR_SETS_PATH = os.path.join(BASE_DIR, "armor_sets_encyclopedia.json")
+SHROOMS_BEASTS_DB_PATH = os.path.join(BASE_DIR, "all_shrooms_beasts_db.json")
 
 # Premium Cyberpunk Dark Theme Color Palette
-BG_DARK = "#0d0f17"        # Ultra deep dark space background
-BG_PANEL = "#151824"       # Clean dark slate panel
-BG_CARD = "#1c2030"        # Elevated card surface
-BG_CARD_LIGHT = "#252b40"  # Highlighted card surface
-BG_CARD_HOVER = "#2f3650"  # Interactive hover
-FG_MAIN = "#f0f2f5"        # Crisp white text
-FG_MUTED = "#9aa0b4"       # Subtle soft secondary text
-ACCENT_GOLD = "#f5b041"    # Royal gold accent
-ACCENT_CYAN = "#00e5ff"    # Bright cyber cyan
-ACCENT_BLUE = "#3498db"    # Clean sky blue
-ACCENT_GREEN = "#2ecc71"   # Success emerald
-ACCENT_RED = "#e74c3c"     # Danger crimson
-ACCENT_PURPLE = "#bb86fc"  # Cyberpunk neon purple
-ACCENT_PINK = "#ff4081"    # Death Metal vibrant magenta
+from ui.theme import (
+    BG_DARK, BG_PANEL, BG_CARD, BG_CARD_LIGHT, BG_CARD_HOVER,
+    FG_MAIN, FG_MUTED, ACCENT_GOLD, ACCENT_CYAN, ACCENT_BLUE,
+    ACCENT_GREEN, ACCENT_RED, ACCENT_PURPLE, ACCENT_PINK
+)
+from ui.components import ScrollableFrame
+from ui.dialogs import (
+    SmartInventoryAnalyzerDialog,
+    InventoryViewerDialog,
+    ArmorSetViewerDialog,
+    CreateFighterDialog
+)
+
 
 from game_data import SPECIAL_MUSHROOMS, SPECIAL_BEASTS, WEAPON_CATEGORIES, FIGHTER_CLASSES
 WEAPON_MASTERY_ICONS = {wt: img for wt, nm, img in WEAPON_CATEGORIES}
@@ -192,69 +192,6 @@ def get_expert_weapon_name(ptid):
     else:
         return EXPERT_WEAPON_NAMES_ES.get(ptid, EXPERT_WEAPON_NAMES_EN.get(ptid, ptid))
 
-class ScrollableFrame(ttk.Frame):
-    """
-    Reusable scrollable frame container with automatic canvas resizing,
-    styled scrollbar, and non-conflicting mousewheel navigation on hover.
-    """
-    def __init__(self, parent, bg=BG_DARK, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        self.canvas = tk.Canvas(self, bg=bg, highlightthickness=0, bd=0)
-        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-        self.content = ttk.Frame(self.canvas)
-        
-        self.canvas_window = self.canvas.create_window((0, 0), window=self.content, anchor="nw")
-        
-        self.content.bind("<Configure>", self._on_content_configure)
-        self.canvas.bind("<Configure>", self._on_canvas_configure)
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        
-        self.scrollbar.pack(side="right", fill="y")
-        self.canvas.pack(side="left", fill="both", expand=True)
-        
-        self.bind("<Enter>", self._bind_wheel)
-        self.bind("<Leave>", self._unbind_wheel)
-        self.canvas.bind("<Enter>", self._bind_wheel)
-        self.canvas.bind("<Leave>", self._unbind_wheel)
-        self.content.bind("<Enter>", self._bind_wheel)
-        self.content.bind("<Leave>", self._unbind_wheel)
-
-    def _on_content_configure(self, event):
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-
-    def _on_canvas_configure(self, event):
-        self.canvas.itemconfig(self.canvas_window, width=event.width)
-
-    def _on_mousewheel(self, event):
-        if self.content.winfo_reqheight() > self.canvas.winfo_height():
-            if getattr(event, "num", None) == 4:
-                self.canvas.yview_scroll(-1, "units")
-            elif getattr(event, "num", None) == 5:
-                self.canvas.yview_scroll(1, "units")
-            elif getattr(event, "delta", 0):
-                self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-    def _bind_wheel(self, event=None):
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
-        self.canvas.bind_all("<Button-4>", self._on_mousewheel)
-        self.canvas.bind_all("<Button-5>", self._on_mousewheel)
-
-    def _unbind_wheel(self, event=None):
-        try:
-            x, y = self.winfo_pointerxy()
-            widget = self.winfo_containing(x, y)
-            if widget is not None:
-                curr = widget
-                while curr is not None:
-                    if curr == self:
-                        return
-                    curr = getattr(curr, "master", None)
-        except Exception:
-            pass
-        self.canvas.unbind_all("<MouseWheel>")
-        self.canvas.unbind_all("<Button-4>")
-        self.canvas.unbind_all("<Button-5>")
-
 class CompleteSaveEditorGUI(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -282,6 +219,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.equipment_db = []
         self.decals_db = []
         self.decals_map = {}
+        self.shrooms_beasts_db = {}
         self._load_all_databases()
         
         self.save_path = get_default_save_path()
@@ -446,6 +384,9 @@ class CompleteSaveEditorGUI(tk.Tk):
                         if wp and "id" in wp:
                             self.armor_set_by_item_id[wp["id"]] = (s, t, wp)
                             self.armor_set_by_item_id[f"{wp['id']}_G"] = (s, t, wp)
+        if os.path.exists(SHROOMS_BEASTS_DB_PATH):
+            with open(SHROOMS_BEASTS_DB_PATH, "r", encoding="utf-8") as f:
+                self.shrooms_beasts_db = json.load(f)
 
     def get_photo(self, rel_path, size=(28, 28), preserve_aspect=False):
         if not rel_path:
@@ -734,9 +675,10 @@ class CompleteSaveEditorGUI(tk.Tk):
         vip_quick = ttk.Frame(box_vip)
         vip_quick.pack(fill="x", pady=4)
         ttk.Button(vip_quick, text=t("vip_30d"), command=lambda: self._set_vip_entry_and_act(30)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_60d"), command=lambda: self._set_vip_entry_and_act(60)).pack(side="left", fill="x", expand=True, padx=2)
         ttk.Button(vip_quick, text=t("vip_90d"), command=lambda: self._set_vip_entry_and_act(90)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text=t("vip_1y"), command=lambda: self._set_vip_entry_and_act(365)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text=t("vip_10y"), command=lambda: self._set_vip_entry_and_act(3650)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_stock_passes"), command=lambda: self._set_vip_entry_and_act(30, passes=99)).pack(side="left", fill="x", expand=True, padx=2)
+
 
         # Card 4 (Bottom-Right): Account Perks & Death Bag Expansion
         box_perks = ttk.LabelFrame(self.tab_currencies, text=t("account_perks_title"), padding=12)
@@ -832,25 +774,27 @@ class CompleteSaveEditorGUI(tk.Tk):
             "¡Racha de inicio de sesión establecida a 365 días consecutivos!"
         )
 
-    def _set_vip_entry_and_act(self, days):
+    def _set_vip_entry_and_act(self, days, passes=99):
         self.vip_days_var.set(str(days))
-        self._activate_custom_vip()
+        self._activate_custom_vip(passes=passes)
 
-    def _activate_custom_vip(self):
+    def _activate_custom_vip(self, passes=99):
         if not self.save_json:
             return
         try:
-            days = int(self.vip_days_var.get())
+            days = min(90, max(1, int(self.vip_days_var.get())))
         except ValueError:
             days = 30
-        end_ts = modifiers.activate_vip_express_pass(self.save_json, days=days)
+        self.vip_days_var.set(str(days))
+        modifiers.set_vip_pass(self.save_json, days=days, passes=passes, oneday_passes=99)
         self._auto_save()
         self.refresh_all_views()
         self._notify(
             "VIP Activated", "VIP Activado",
-            f"Royal Express Pass activated for {days} days!\n\nFree VIP Elevator, +10 Death Bag slots, and guaranteed TDM insurance.",
-            f"¡Pase Royal Express activado con éxito por {days} días!\n\nAscensor VIP Gratuito, +10 slots de bolsa y seguro de TDM garantizado."
+            f"Royal Express Pass activated for {days} days (+{passes} Express Passes in stock)!\n\n✨ Safe elevator loading guaranteed.",
+            f"¡Pase Royal Express activado por {days} días (+{passes} Pases Expreso en reserva)!\n\n✨ Carga segura en ascensores garantizada."
         )
+
             # ================= TAB 2: FIGHTERS FREEZER =================
     def _build_fighters_tab(self):
         paned = ttk.PanedWindow(self.tab_fighters, orient="horizontal")
@@ -859,8 +803,21 @@ class CompleteSaveEditorGUI(tk.Tk):
         left_box = ttk.LabelFrame(paned, text=t("f_freezer_title"), padding=10)
         paned.add(left_box, weight=2)
         
+        # Fighter Freezer Slot Reordering Buttons Toolbar (Top of left_box, ALWAYS VISIBLE!)
+        reorder_f = ttk.Frame(left_box)
+        reorder_f.pack(fill="x", pady=(0, 2))
+        ttk.Button(reorder_f, text=t("f_move_up"), style="Accent.TButton", command=self._move_fighter_up_action).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(reorder_f, text=t("f_move_down"), style="Accent.TButton", command=self._move_fighter_down_action).pack(side="left", fill="x", expand=True, padx=2)
+        
+        # Fighter Creation & Management Toolbar
+        manage_f = ttk.Frame(left_box)
+        manage_f.pack(fill="x", pady=(0, 6))
+        ttk.Button(manage_f, text=t("f_create_btn"), style="Success.TButton", command=self._create_new_fighter_dialog).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(manage_f, text=t("f_clone_btn"), command=self._clone_fighter_action).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(manage_f, text=t("f_delete_btn"), command=self._delete_fighter_action).pack(side="left", fill="x", expand=True, padx=2)
+        
         tree_container = ttk.Frame(left_box)
-        tree_container.pack(fill="both", expand=True, pady=4)
+        tree_container.pack(fill="both", expand=True, pady=2)
         
         f_scroll = ttk.Scrollbar(tree_container, orient="vertical")
         self.fighters_tree = ttk.Treeview(tree_container, columns=("num", "lvl", "state"), show="tree headings", height=14, yscrollcommand=f_scroll.set)
@@ -903,6 +860,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.f_sub_lbl.pack(anchor="w")
         
         # Identity and Configuration Grid
+
         id_frame = ttk.LabelFrame(right_box, text=t("f_id_config"), padding=8)
         id_frame.pack(fill="x", pady=4)
         
@@ -940,9 +898,21 @@ class CompleteSaveEditorGUI(tk.Tk):
         cb_fbag = ttk.Combobox(id_frame, textvariable=self.f_bag_select_var, values=["0", "1", "2", "3"], state="readonly", width=6)
         cb_fbag.grid(row=2, column=3, padx=4, pady=3, sticky="w")
         
-        # Row 3: Real In-Game Capacity indicator
+        # Row 3: Character Model / Appearance
+        ttk.Label(id_frame, text=t("f_lbl_model")).grid(row=3, column=0, sticky="w", padx=4, pady=3)
+        self.f_model_select_var = tk.StringVar(value="Female 1 (BODY_FEMALE_001)")
+        self.f_model_opts = [
+            f"Female {i} (BODY_FEMALE_{i:03d})" for i in range(1, 9)
+        ] + [
+            f"Male {i} (BODY_MALE_{i:03d})" for i in range(1, 9)
+        ]
+        cb_model = ttk.Combobox(id_frame, textvariable=self.f_model_select_var, values=self.f_model_opts, state="readonly", width=26)
+        cb_model.grid(row=3, column=1, columnspan=3, padx=4, pady=3, sticky="w")
+        
+        # Row 4: Real In-Game Capacity indicator
         self.f_real_bag_lbl = ttk.Label(id_frame, text="🎒 Capacidad Real: Calculando...", foreground=ACCENT_GOLD, font=("Segoe UI", 9, "bold"))
-        self.f_real_bag_lbl.grid(row=3, column=0, columnspan=4, sticky="w", padx=4, pady=3)
+        self.f_real_bag_lbl.grid(row=4, column=0, columnspan=4, sticky="w", padx=4, pady=3)
+
         
         # Stats Form Grid (3 columns for perfect balance)
         stats_frame = ttk.LabelFrame(right_box, text=t("f_base_stats_box"), padding=8)
@@ -1034,24 +1004,25 @@ class CompleteSaveEditorGUI(tk.Tk):
         if not sel:
             return
         node = sel[0]
-        vals = self.fighters_tree.item(node, "values")
-        num_str = vals[0]
-        idx = int(num_str) - 1
-        self.current_fighter_idx = idx
+        tree_idx = getattr(self, "_tree_node_to_tree_idx", {}).get(node, 0)
+        save_idx = getattr(self, "_tree_node_to_save_idx", {}).get(node, 0)
+        self.current_fighter_tree_idx = tree_idx
+        self.current_fighter_idx = save_idx
         
         if not self.save_json:
             return
             
         fighters = modifiers.get_all_fighters_info(self.save_json)
-        if idx < len(fighters):
-            f = fighters[idx]
-            name = f.get("name", f"Luchador #{idx+1}")
+        if save_idx < len(fighters):
+            f = fighters[save_idx]
+            name = f.get("name", f"Luchador #{tree_idx+1}")
             cls_name = f.get("class_name", "All-Rounder")
             cls_code = f.get("class", "BAL")
             grade = f.get("grade", 1)
             lvl = f.get("level", 1)
             hp_cur = f.get("hp", 1000)
             bag = f.get("bag", 20)
+
             
             self.f_title_lbl.config(text=name)
             self.f_sub_lbl.config(text=f"Clase: {cls_name} ({cls_code}) | Grado: Tier {grade} ★ | Nivel: {lvl}")
@@ -1068,6 +1039,13 @@ class CompleteSaveEditorGUI(tk.Tk):
             self.f_hp_current_var.set(str(hp_cur))
             mingo_bag = min(3, max(0, int(f.get("bag", 0))))
             self.f_bag_select_var.set(str(mingo_bag))
+            
+            # Select current character model
+            body_val = f.get("body", "BODY_FEMALE_001")
+            for opt in getattr(self, "f_model_opts", []):
+                if body_val in opt:
+                    self.f_model_select_var.set(opt)
+                    break
             
             # Calculate real in-game bag capacity
             db_st = modifiers.get_deathbag_masters_status()
@@ -1107,12 +1085,156 @@ class CompleteSaveEditorGUI(tk.Tk):
                 else:
                     self.f_decal_slots_lbls[s_idx].config(text=f" Espacio {s_idx+1}: [Vacío]", image="", foreground=FG_MUTED)
 
+    def _move_fighter_up_action(self):
+        if not self.save_json:
+            return
+        idx = getattr(self, "current_fighter_idx", 0)
+        if idx <= 0:
+            return
+        if modifiers.move_fighter_up(self.save_json, idx):
+            self._auto_save()
+            new_idx = idx - 1
+            self.current_fighter_idx = new_idx
+            self.current_fighter_tree_idx = new_idx
+            self.refresh_all_views()
+
+    def _move_fighter_down_action(self):
+        if not self.save_json:
+            return
+        idx = getattr(self, "current_fighter_idx", 0)
+        children = self.fighters_tree.get_children()
+        if idx >= len(children) - 1:
+            return
+        if modifiers.move_fighter_down(self.save_json, idx):
+            self._auto_save()
+            new_idx = idx + 1
+            self.current_fighter_idx = new_idx
+            self.current_fighter_tree_idx = new_idx
+            self.refresh_all_views()
+
+
+    def _select_fighter_tree_index(self, target_idx):
+        children = self.fighters_tree.get_children()
+        if 0 <= target_idx < len(children):
+            self.fighters_tree.selection_set(children[target_idx])
+            self.fighters_tree.see(children[target_idx])
+            self._on_fighter_select(None)
+
+    def _create_new_fighter_dialog(self):
+        if not self.save_json:
+            return
+        uid = modifiers.get_player_uid(self.save_json)
+        fighters = self.save_json.get("bodyuser", {}).get(uid, [])
+        if len(fighters) >= 10:
+            messagebox.showwarning(
+                "Congelador Lleno" if i18n.get_language() == "es" else "Freezer Full",
+                t("f_freezer_full_msg")
+            )
+            return
+        CreateFighterDialog(self, self.save_json, on_created_cb=self._on_fighter_created_or_modified)
+
+    def _on_fighter_created_or_modified(self):
+        self._auto_save()
+        uid = modifiers.get_player_uid(self.save_json)
+        total_f = len(self.save_json.get("bodyuser", {}).get(uid, []))
+        self.current_fighter_idx = max(0, total_f - 1)
+        self.current_fighter_tree_idx = max(0, total_f - 1)
+        self.refresh_all_views()
+
+
+    def _clone_fighter_action(self):
+        if not self.save_json:
+            return
+        uid = modifiers.get_player_uid(self.save_json)
+        fighters = self.save_json.get("bodyuser", {}).get(uid, [])
+        if len(fighters) >= 10:
+            messagebox.showwarning(
+                "Congelador Lleno" if i18n.get_language() == "es" else "Freezer Full",
+                t("f_freezer_full_msg")
+            )
+            return
+        save_idx = getattr(self, "current_fighter_idx", 0)
+        chr_chrs = self.save_json.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
+        orig_name = chr_chrs[save_idx].get("name", "Luchador") if save_idx < len(chr_chrs) else "Luchador"
+        
+        is_en = (i18n.get_language() == "en")
+        title = "Clone Fighter" if is_en else "Clonar Luchador"
+        prompt = t("f_clone_prompt")
+        default_name = f"{orig_name} (Clone)" if is_en else f"{orig_name} (Copia)"
+        new_name = simpledialog.askstring(title, prompt, initialvalue=default_name)
+        if not new_name:
+            return
+            
+        ok, res = modifiers.clone_fighter(self.save_json, save_idx, new_name=new_name.strip())
+        if not ok:
+            messagebox.showerror("Error", str(res))
+            return
+            
+        self._auto_save()
+        total_f = len(self.save_json.get("bodyuser", {}).get(uid, []))
+        self.current_fighter_idx = max(0, total_f - 1)
+        self.current_fighter_tree_idx = max(0, total_f - 1)
+        self.refresh_all_views()
+        self._notify(
+            "Fighter Cloned", "Luchador Clonado",
+            f"Fighter '{orig_name}' successfully cloned as '{new_name}' with identical armors, weapons, deathbag items, stats and decals!\nSaved automatically.",
+            f"¡Luchador '{orig_name}' clonado exitosamente como '{new_name}' con sus armaduras, armas, bolsa, estadísticas y calcomanías idénticas!\nGuardado automáticamente."
+        )
+
+
+    def _delete_fighter_action(self):
+        if not self.save_json:
+            return
+        uid = modifiers.get_player_uid(self.save_json)
+        fighters = self.save_json.get("bodyuser", {}).get(uid, [])
+        if len(fighters) <= 1:
+            messagebox.showwarning(
+                "Aviso",
+                t("f_delete_only_one_err")
+            )
+            return
+            
+        save_idx = getattr(self, "current_fighter_idx", 0)
+        tree_idx = getattr(self, "current_fighter_tree_idx", 0)
+        chr_chrs = self.save_json.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
+        f_name = chr_chrs[save_idx].get("name", "Luchador") if save_idx < len(chr_chrs) else "Luchador"
+        
+        if save_idx < len(chr_chrs) and chr_chrs[save_idx].get("state") == "USE":
+            messagebox.showwarning(
+                "Aviso",
+                t("f_delete_in_use_err")
+            )
+            return
+            
+        confirm = messagebox.askyesno(
+            t("f_delete_btn"),
+            t("f_delete_confirm", name=f_name)
+        )
+        if not confirm:
+            return
+            
+        ok, res = modifiers.delete_fighter(self.save_json, save_idx)
+        if not ok:
+            messagebox.showerror("Error", str(res))
+            return
+            
+        self._auto_save()
+        self.current_fighter_tree_idx = max(0, tree_idx - 1)
+        self.refresh_all_views()
+        self._notify(
+            "Fighter Deleted", "Luchador Eliminado",
+            f"Fighter '{f_name}' permanently removed from Freezer.\nSaved automatically.",
+            f"¡Luchador '{f_name}' eliminado permanentemente del congelador.\nGuardado automáticamente."
+        )
+
     def _save_fighter_changes(self):
+
         if not self.save_json:
             return
         idx = getattr(self, "current_fighter_idx", 0)
         name = self.f_name_entry_var.get()
         cls_str = self.f_class_select_var.get().split()[0]
+        model_val = self.f_model_select_var.get() if hasattr(self, "f_model_select_var") else None
         try:
             grade = int(self.f_grade_select_var.get())
             lvl = int(self.f_lvl_select_var.get())
@@ -1125,14 +1247,15 @@ class CompleteSaveEditorGUI(tk.Tk):
             pvit = int(self.f_stats_vars["vit"].get())
             pluk = int(self.f_stats_vars["luk"].get())
         except ValueError:
-            messagebox.showerror("Error", "Por favor ingresa números válidos en los campos numéricos.")
+            messagebox.showerror(t("error"), t("err_num_fields"))
             return
             
         modifiers.update_fighter(
             self.save_json, idx,
             name=name, clazz=cls_str, grade=grade, lvl=lvl, hp=hp_val,
             str_stat=pstr, dex=pdex, vit=pvit, stm=pstm, luk=pluk, bag=bag_val,
-            param_hp=php, param_stm=pstm, param_str=pstr, param_dex=pdex, param_vit=pvit, param_luk=pluk
+            param_hp=php, param_stm=pstm, param_str=pstr, param_dex=pdex, param_vit=pvit, param_luk=pluk,
+            body_model=model_val
         )
         self._auto_save()
         self.refresh_all_views()
@@ -1141,6 +1264,7 @@ class CompleteSaveEditorGUI(tk.Tk):
             f"Custom changes applied to {name} (Fighter #{idx+1})!\nSaved automatically.",
             f"¡Se han aplicado los cambios personalizados a {name} (Luchador #{idx+1})!\nGuardado automáticamente."
         )
+
 
     def revive_current_fighter(self):
         if not self.save_json:
@@ -1202,13 +1326,10 @@ class CompleteSaveEditorGUI(tk.Tk):
         name, count = modifiers.equip_decal_preset_on_fighter(self.save_json, cid, preset_key=key)
         self._auto_save()
         self.refresh_all_views()
-        self.status_var.set(f"Preset '{name}' equipado en {f_info.get('name', 'Luchador')} ({count} calcomanías).")
+        self.status_var.set(f"Preset '{name}' ({count}).")
         messagebox.showinfo(
-            "Preset Equipado con Éxito",
-            f"¡Se han equipado directamente {count} calcomanías del preset:\n\n"
-            f"⭐ {name}\n\n"
-            f"en los espacios de combate de {f_info.get('name', 'Luchador')}!\n"
-            f"Guardado automáticamente."
+            t("mb_preset_equipped_title"),
+            t("mb_preset_equipped_msg", count=count, name=name, fighter=f_info.get('name', 'Luchador'))
         )
 
     def _refresh_deathbag_db_status(self):
@@ -1340,7 +1461,7 @@ class CompleteSaveEditorGUI(tk.Tk):
                 "Esteroides / Rostest (Luchadores)",
                 "🍄 Setas y Criaturas"
             ]
-        cb_cat = ttk.Combobox(ctrl_frame, textvariable=self.mat_cat_var, values=cats, state="readonly", width=18)
+        cb_cat = ttk.Combobox(ctrl_frame, textvariable=self.mat_cat_var, values=cats, state="readonly", width=24)
         cb_cat.pack(side="left", padx=2)
         cb_cat.bind("<<ComboboxSelected>>", lambda e: self.filter_materials_list())
 
@@ -1637,12 +1758,74 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.mat_floor_filter.set(mode)
         self.filter_materials_list()
 
+    @staticmethod
+    def _match_material_category(cat_filter, item_cat):
+        if not cat_filter or cat_filter in ("Todos", "All"):
+            return True
+        fl = cat_filter.lower()
+        cl = item_cat.lower()
+        
+        if "steroid" in fl or "esteroide" in fl or "rostest" in fl:
+            return ("esteroide" in cl or "steroid" in cl or "rostest" in cl)
+        if "aluminum" in fl or "aluminio" in fl:
+            return "alumin" in cl
+        if "copper" in fl or "cobre" in fl:
+            return ("cobre" in cl or "copper" in cl)
+        if "iron" in fl or "hierro" in fl or "steel" in fl or "acero" in fl:
+            return ("hierro" in cl or "iron" in cl)
+        if "oil" in fl or "petr" in fl or "aceite" in fl:
+            return ("petr" in cl or "oil" in cl or "aceite" in cl)
+        if "wood" in fl or "mader" in fl:
+            return ("mader" in cl or "wood" in cl)
+        if "cloth" in fl or "textil" in fl or "fiber" in fl or "fibra" in fl:
+            return ("textil" in cl or "cloth" in cl or "fibra" in cl)
+        if "d.o.d" in fl or "dod" in fl:
+            return ("d.o.d" in cl or "dod" in cl)
+        if "war" in fl:
+            return "war" in cl
+        if "candle" in fl:
+            return "candle" in cl
+        if "m.i.l.k" in fl or "milk" in fl:
+            return ("m.i.l.k" in cl or "milk" in cl)
+        if "boss" in fl or "jefe" in fl:
+            return ("boss" in cl or "jefe" in cl)
+        if "jackal" in fl or "tengoku" in cl:
+            return ("jackal" in cl or "tengoku" in cl)
+            
+        c_key = cat_filter.lower().split()[0].replace("(", "").replace(")", "")
+        return c_key in cl
+
+    @staticmethod
+    def _localize_material_category(cat_str):
+        cl = cat_str.lower()
+        if "esteroide" in cl or "rostest" in cl:
+            return "Steroids / Rostest (Fighters)"
+        if "alumin" in cl:
+            return "Aluminum"
+        if "cobre" in cl or "copper" in cl:
+            return "Copper"
+        if "hierro" in cl or "iron" in cl:
+            return "Iron & Steel"
+        if "petr" in cl or "oil" in cl:
+            return "Oil"
+        if "mader" in cl or "wood" in cl:
+            return "Wood"
+        if "textil" in cl or "cloth" in cl:
+            return "Cloth & Fibers"
+        if "boss" in cl or "jefe" in cl:
+            return "Boss Metals"
+        if "jackal" in cl or "tengoku" in cl:
+            return "Jackals & Tengoku Materials"
+        return cat_str
+
     def filter_materials_list(self):
         for row in self.mat_tree.get_children():
             self.mat_tree.delete(row)
             
         query = self.mat_search_var.get().lower().strip() if hasattr(self, "mat_search_var") else ""
+        query_tokens = query.split() if query else []
         cat_filter = self.mat_cat_var.get() if hasattr(self, "mat_cat_var") else "Todos"
+
         stock_filter = self.mat_stock_filter_var.get() if hasattr(self, "mat_stock_filter_var") else "Todo"
         rarity_filter = self.mat_rarity_filter_var.get() if hasattr(self, "mat_rarity_filter_var") else "Todas"
         floor_filter = self.mat_floor_filter.get() if hasattr(self, "mat_floor_filter") else "TODOS"
@@ -1656,9 +1839,10 @@ class CompleteSaveEditorGUI(tk.Tk):
                 stock_map = {}
                 
         first_row = None
+        is_en = (i18n.get_language() == "en")
         
         # 1. R&D Materials from masters.db
-        if cat_filter != "🍄 Setas y Criaturas":
+        if "🍄" not in cat_filter:
             for m in self.materials_db:
                 name_es = m.get("name_es", m.get("name", ""))
                 name_en = m.get("name_en", "")
@@ -1669,10 +1853,8 @@ class CompleteSaveEditorGUI(tk.Tk):
                 cnt = stock_map.get(itemid, 0)
                 
                 # Category filter
-                if cat_filter not in ("Todos", "All"):
-                    c_key = cat_filter.lower().split()[0].replace("(", "").replace(")", "")
-                    if c_key not in cat.lower():
-                        continue
+                if not self._match_material_category(cat_filter, cat):
+                    continue
                     
                 # Stock filter
                 if ("En Stock" in stock_filter or "In Stock" in stock_filter) and cnt <= 0:
@@ -1710,18 +1892,22 @@ class CompleteSaveEditorGUI(tk.Tk):
                     if not match_floor:
                         continue
 
-                # Query search
-                if query and (query not in name_es.lower() and query not in name_en.lower() and query not in cat.lower() and query not in itemid.lower()):
-                    continue
+                # Query search with smart multi-word matching & Tier aliases (e.g. "mdf t2 wood", "t2 wood", "tier 2")
+                if query_tokens:
+                    searchable = f"{name_es} {name_en} {cat} {self._localize_material_category(cat)} {itemid} t{r} tier {r} tier{r} {r}★ {r}star {name_en.replace('.', '')} {name_es.replace('.', '')}".lower()
+                    if not all(token in searchable for token in query_tokens):
+                        continue
+
                     
-                is_en = (i18n.get_language() == "en")
                 stock_str = f"{cnt} pcs." if is_en and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
                 tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
                     
                 if is_en:
                     display_title = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
+                    cat_display = self._localize_material_category(cat)
                 else:
                     display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
+                    cat_display = cat
                 icon_k = self._get_mat_photo_key(itemid, name_en or name_es)
                 thumb = self.get_photo(icon_k, size=(36, 36), preserve_aspect=True)
                 node_id = self.mat_tree.insert(
@@ -1729,7 +1915,7 @@ class CompleteSaveEditorGUI(tk.Tk):
                     "end",
                     text=f" {display_title}",
                     image=thumb or "",
-                    values=(stock_str, stars, cat, itemid),
+                    values=(stock_str, stars, cat_display, itemid),
                     tags=(tag,)
                 )
                 self.tree_images[node_id] = thumb
@@ -1746,8 +1932,10 @@ class CompleteSaveEditorGUI(tk.Tk):
                     continue
                 elif ("Agotado" in stock_filter or "Out of Stock" in stock_filter) and cnt > 0:
                     continue
-                if query and query not in mname.lower() and query not in mid.lower():
-                    continue
+                if query_tokens:
+                    searchable = f"{mname} {mid} mushroom seta shroom".lower()
+                    if not all(token in searchable for token in query_tokens):
+                        continue
                 stock_str = f"{cnt} pcs." if i18n.get_language() == "en" and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
                 tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
                 thumb = self.get_photo(icon_f, size=(36, 36), preserve_aspect=True) or self.get_photo("01_heartshroom_1", size=(36, 36), preserve_aspect=True)
@@ -1765,23 +1953,27 @@ class CompleteSaveEditorGUI(tk.Tk):
                     
             for bid, bname, icon_b in SPECIAL_BEASTS:
                 cnt = stock_map.get(bid, 0)
-                if stock_filter == "📦 En Stock (> 0)" and cnt <= 0:
+                if ("En Stock" in stock_filter or "In Stock" in stock_filter) and cnt <= 0:
                     continue
-                elif stock_filter == "⚠️ Stock Bajo (< 10)" and (cnt <= 0 or cnt >= 10):
+                elif ("Stock Bajo" in stock_filter or "Low Stock" in stock_filter) and (cnt <= 0 or cnt >= 10):
                     continue
-                elif stock_filter == "❌ Agotado (0)" and cnt > 0:
+                elif ("Agotado" in stock_filter or "Out of Stock" in stock_filter) and cnt > 0:
                     continue
-                if query and query not in bname.lower() and query not in bid.lower():
-                    continue
-                stock_str = f"{cnt} u." if cnt > 0 else "-"
+                if query_tokens:
+                    searchable = f"{bname} {bid} beast criatura".lower()
+                    if not all(token in searchable for token in query_tokens):
+                        continue
+
+                stock_str = f"{cnt} pcs." if i18n.get_language() == "en" and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
                 tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
                 thumb = self.get_photo(icon_b, size=(36, 36), preserve_aspect=True) or self.get_photo("snails", size=(36, 36), preserve_aspect=True)
+                beast_cat = "Golden Beasts" if i18n.get_language() == "en" else "Criaturas Doradas"
                 node_id = self.mat_tree.insert(
                     "",
                     "end",
                     text=f" {bname}",
                     image=thumb or "",
-                    values=(stock_str, "★★★★", "Criaturas Doradas", bid),
+                    values=(stock_str, "★★★★", beast_cat, bid),
                     tags=(tag,)
                 )
                 self.tree_images[node_id] = thumb
@@ -2041,8 +2233,8 @@ class CompleteSaveEditorGUI(tk.Tk):
         modifiers.add_top_meta_decals(self.save_json, count=5)
         self.filter_decals_list()
         self._auto_save()
-        self.status_var.set("Pack de calcomanías Top Tier Meta añadido (x5).")
-        messagebox.showinfo("Pack Meta Añadido", "¡Se han añadido x5 copias de las mejores Calcomanías Meta del juego!\nGuardado automáticamente.")
+        self.status_var.set(t("mb_meta_decals_title"))
+        messagebox.showinfo(t("mb_meta_decals_title"), t("mb_meta_decals_msg"))
 
     def unlock_all_decals_preset(self):
         if not self.save_json:
@@ -2054,8 +2246,8 @@ class CompleteSaveEditorGUI(tk.Tk):
         modifiers.unlock_all_decals(self.save_json, count=qty, premium=True)
         self.filter_decals_list()
         self._auto_save()
-        self.status_var.set(f"¡Todas las calcomanías desbloqueadas (x{qty} normal y x{qty} premium)!")
-        messagebox.showinfo("Calcomanías Desbloqueadas", f"¡Se han añadido x{qty} copias de TODAS las 626 calcomanías oficiales del juego a tu inventario!\nGuardado automáticamente.")
+        self.status_var.set(f"{t('mb_all_decals_title')} (x{qty})")
+        messagebox.showinfo(t("mb_all_decals_title"), t("mb_all_decals_msg", qty=qty))
 
     def _set_decal_event_filter(self, mode):
         self.decal_event_filter.set(mode)
@@ -2458,11 +2650,18 @@ class CompleteSaveEditorGUI(tk.Tk):
         act_r1 = ttk.Frame(indiv_box)
         act_r1.pack(fill="x", pady=2)
         ttk.Label(act_r1, text=t("bp_lvl_lbl")).pack(side="left", padx=2)
-        self.bp_single_lvl_var = tk.StringVar(value="+19")
-        cb_slvl = ttk.Combobox(act_r1, textvariable=self.bp_single_lvl_var, values=["+19", "+24", "+4", "+3", "+2", "+1", "+0"], width=5, state="readonly")
+        self.bp_single_lvl_var = tk.StringVar(value="+4")
+        cb_slvl = ttk.Combobox(act_r1, textvariable=self.bp_single_lvl_var, values=["+4", "+3", "+2", "+1", "+0 (Plano)", "+19", "+24"], width=9, state="readonly")
         cb_slvl.pack(side="left", padx=2)
         self.cb_single_lvl = cb_slvl
-        ttk.Button(act_r1, text=t("bp_unlock_shop_btn"), style="Accent.TButton", command=self._unlock_single_bp_shop).pack(side="left", padx=4, fill="x", expand=True)
+        self.btn_unlock_shop = ttk.Button(act_r1, text=t("bp_unlock_shop_btn"), style="Accent.TButton", command=self._unlock_single_bp_shop)
+        self.btn_unlock_shop.pack(side="left", padx=2, fill="x", expand=True)
+        
+        act_r1b = ttk.Frame(indiv_box)
+        act_r1b.pack(fill="x", pady=2)
+        self.btn_send_rnd = ttk.Button(act_r1b, text=t("bp_send_rnd_btn"), command=self._send_single_bp_to_rnd)
+        self.btn_send_rnd.pack(fill="x", expand=True)
+
         
         act_r2 = ttk.Frame(indiv_box)
         act_r2.pack(fill="x", pady=2)
@@ -2567,8 +2766,8 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         if hasattr(self, "cb_single_lvl") and hasattr(self, "bp_evolve_lbl"):
             if can_uncap:
-                self.cb_single_lvl.config(values=["+19 (Uncapped)", "+24 (Max)", "+4", "+3", "+2", "+1", "+0"])
-                self.bp_single_lvl_var.set("+19 (Uncapped)")
+                self.cb_single_lvl.config(values=["+19 (Uncapped)", "+24 (Max)", "+4", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+19 (Destope)", "+24 (Máx)", "+4", "+3", "+2", "+1", "+0 (Plano)"])
+                self.bp_single_lvl_var.set("+19 (Uncapped)" if is_en else "+19 (Destope)")
                 self.bp_evolve_lbl.config(
                     text="⭐ Final Tier: Can be Uncapped to +19 / +24!" if is_en else "⭐ Tier Final: ¡Permite Destope (Uncapped) a +19 / +24!",
                     foreground=ACCENT_GOLD
@@ -2576,8 +2775,9 @@ class CompleteSaveEditorGUI(tk.Tk):
                 if hasattr(self, "btn_evolve_tier"):
                     self.btn_evolve_tier.pack_forget()
             else:
-                self.cb_single_lvl.config(values=["+4 (Evolves)", "+3", "+2", "+1", "+0"] if is_en else ["+4 (Evoluciona)", "+3", "+2", "+1", "+0"])
+                self.cb_single_lvl.config(values=["+4 (Evolves)", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+4 (Evoluciona)", "+3", "+2", "+1", "+0 (Plano)"])
                 self.bp_single_lvl_var.set("+4 (Evolves)" if is_en else "+4 (Evoluciona)")
+
                 nxt_name = (item_meta.get("next_name_en") if is_en else item_meta.get("next_name_es")) or nextptid
                 self.bp_evolve_lbl.config(
                     text=f"🔄 Evolves at +4 to: {nxt_name}" if is_en else f"🔄 Evoluciona a Nvl +4 a: {nxt_name}",
@@ -2615,21 +2815,21 @@ class CompleteSaveEditorGUI(tk.Tk):
 
     def _open_armor_set_viewer(self):
         if not self.armor_sets:
-            messagebox.showwarning("Aviso", "No se encontró la enciclopedia de sets de armadura.")
+            messagebox.showwarning(t("notice"), t("mb_armor_sets_missing"))
             return
         ArmorSetViewerDialog(self, self.save_json, self.armor_sets)
 
     def _open_smart_analyzer(self):
         if not self.save_json:
-            messagebox.showwarning("Aviso", "Carga una partida primero.")
+            messagebox.showwarning(t("notice"), t("mb_load_save_first"))
             return
         SmartInventoryAnalyzerDialog(self, self.save_json, on_modified_cb=self.refresh_all_views)
 
     def _open_storage_manager(self):
         if not self.save_json:
-            messagebox.showwarning("Aviso", "Carga una partida primero.")
+            messagebox.showwarning(t("notice"), t("mb_load_save_first"))
             return
-        StorageManagerDialog(self, self.save_json, on_modified_cb=self.refresh_all_views)
+        InventoryViewerDialog(self, self.save_json, self.equipment_db, self.materials_db, getattr(self, "shrooms_beasts_db", None))
 
     def _check_app_updates(self):
         updater.check_updates_background(self, silent=False)
@@ -2728,9 +2928,9 @@ class CompleteSaveEditorGUI(tk.Tk):
             nxt_meta = next((item for item in self.equipment_db if item["id"] == next_unlocked), None)
             nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else next_unlocked
             self._notify(
-                "Blueprint & Next Tier Unlocked!", "¡Plano y Siguiente Tier Desbloqueados!",
-                f"{cur_name} registered at Level +{lvl} in Chokufunsha!\n\n✨ Reached Level +4: Unlocked next tier blueprint:\n⭐ {nxt_name} [{next_unlocked}]",
-                f"¡{cur_name} registrado al Nivel +{lvl} en Chokufunsha!\n\n✨ Alcanzó Nivel +4: ¡Se ha desbloqueado el siguiente tier en la tienda:\n⭐ {nxt_name} [{next_unlocked}]!"
+                "Blueprint & Next Tier in R&D!", "¡Plano y Siguiente Tier en I+D!",
+                f"{cur_name} registered at Level +{lvl} in Chokufunsha!\n\n✨ Reached Level +4: Unlocked next tier in R&D (Development):\n🔨 {nxt_name} [{next_unlocked}]",
+                f"¡{cur_name} registrado al Nivel +{lvl} en Chokufunsha!\n\n✨ Alcanzó Nivel +4: ¡Se ha desbloqueado el siguiente tier en I+D (Desarrollo):\n🔨 {nxt_name} [{next_unlocked}]!"
             )
         else:
             self._notify(
@@ -2739,7 +2939,51 @@ class CompleteSaveEditorGUI(tk.Tk):
                 f"¡Plano {cur_name} registrado al Nivel +{lvl} en Chokufunsha!\nGuardado automáticamente."
             )
 
+    def _send_single_bp_to_rnd(self):
+        if not self.current_bp_selection or not self.save_json:
+            return
+        ptid = self.current_bp_selection
+        val = str(self.bp_single_lvl_var.get())
+        if "+0" in val or "Plano" in val or "Blueprint" in val:
+            target_lvl = 0
+        elif "+4" in val:
+            target_lvl = 4
+        elif "+3" in val:
+            target_lvl = 3
+        elif "+2" in val:
+            target_lvl = 2
+        elif "+1" in val:
+            target_lvl = 1
+        elif "+19" in val:
+            target_lvl = 19
+        elif "+24" in val:
+            target_lvl = 24
+        else:
+            target_lvl = 0
+            
+        modifiers.send_blueprint_to_rnd(self.save_json, ptid, target_level=target_lvl)
+        self._auto_save()
+        self.filter_blueprints_list()
+        
+        is_en = (i18n.get_language() == "en")
+        item_meta = next((item for item in self.equipment_db if item["id"] == ptid), None)
+        cur_name = (item_meta.get("name_en") if is_en else item_meta.get("name_es")) if item_meta else ptid
+        
+        if target_lvl == 0:
+            self._notify(
+                "Blueprint Sent to R&D!", "¡Plano Enviado a I+D!",
+                f"{cur_name} [{ptid}] is now available in Chokufunsha R&D to develop with materials!\nSaved automatically.",
+                f"¡{cur_name} [{ptid}] está ahora disponible en el I+D de Chokufunsha para desarrollarlo con materiales!\nGuardado automáticamente."
+            )
+        else:
+            self._notify(
+                "Item Set in R&D!", "¡Objeto Configurado en I+D!",
+                f"{cur_name} [{ptid}] registered at Level +{target_lvl-1}.\n\n🔨 Ready in Chokufunsha R&D to research Level +{target_lvl}!\nSaved automatically.",
+                f"¡{cur_name} [{ptid}] registrado al Nivel +{target_lvl-1}.\n\n🔨 ¡Listo en el I+D de Chokufunsha para investigar el Nivel +{target_lvl}!\nGuardado automáticamente."
+            )
+
     def _evolve_selected_bp_to_next_tier(self):
+
         if not self.current_bp_selection or not self.save_json:
             return
         ptid = self.current_bp_selection
@@ -2760,10 +3004,11 @@ class CompleteSaveEditorGUI(tk.Tk):
         nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else nextptid
         
         self._notify(
-            "Tier Evolved!", "¡Tier Evolucionado!",
-            f"Equipped R&D evolved from {cur_name} (+4)!\n\nSuccessfully unlocked next tier blueprint in Chokufunsha Shop:\n⭐ {nxt_name} [{nextptid}]",
-            f"¡R&D evolucionado desde {cur_name} (+4)!\n\n¡Se ha desbloqueado con éxito el plano del siguiente tier en Chokufunsha:\n⭐ {nxt_name} [{nextptid}]!"
+            "Tier in R&D Ready!", "¡Tier Listo en I+D!",
+            f"Equipped R&D evolved from {cur_name} (+4)!\n\nSuccessfully unlocked next tier in Chokufunsha R&D:\n🔨 {nxt_name} [{nextptid}]",
+            f"¡R&D evolucionado desde {cur_name} (+4)!\n\n¡Se ha desbloqueado con éxito el siguiente tier en I+D (Desarrollo) de Chokufunsha:\n🔨 {nxt_name} [{nextptid}]!"
         )
+
 
     def _deliver_single_bp_to_storage(self):
         if not self.current_bp_selection or not self.save_json:
@@ -2810,7 +3055,7 @@ class CompleteSaveEditorGUI(tk.Tk):
 
     def _deposit_crafting_kit_for_selected_bp(self):
         if not self.current_bp_selection or not self.save_json:
-            messagebox.showwarning("Aviso", "Selecciona una pieza o plano primero.")
+            messagebox.showwarning(t("notice"), t("mb_select_bp_first"))
             return
         ptid = self.current_bp_selection
         
@@ -2856,8 +3101,8 @@ class CompleteSaveEditorGUI(tk.Tk):
             
         self._auto_save()
         self.filter_materials_list()
-        self.status_var.set(f"¡Kit de forja (+10 u. de metales y materiales Tier {tier_num}) depositado para {name_lbl}!")
-        messagebox.showinfo("Kit de Forja Depositado", f"¡Se han añadido 10 unidades de metales oficiales y materiales Tier {tier_num} a tu Almacén para forjar:\n{name_lbl}!\nGuardado automáticamente.")
+        self.status_var.set(t("mb_craft_kit_status", tier=tier_num, name=name_lbl))
+        messagebox.showinfo(t("mb_craft_kit_title"), t("mb_craft_kit_msg", tier=tier_num, name=name_lbl))
 
     def unlock_all_blueprints_preset(self):
         if not self.save_json:
@@ -3001,11 +3246,13 @@ class CompleteSaveEditorGUI(tk.Tk):
                 if is_en:
                     if forge_code == "STORE_PLUS4": forge_status = "⭐ In Shop (+4)"
                     elif forge_code == "STORE": forge_status = f"🛒 In Shop (+{forge_info.get('level', 1)})"
-                    elif forge_code == "REMODEL": forge_status = "🔨 In R&D"
-                    elif forge_code == "MAP": forge_status = "📜 Blueprint Ready"
+                    elif forge_code == "FINISHED_LVL": forge_status = f"🔨 In R&D (+{forge_info.get('lvl', 1)-1} → +{forge_info.get('lvl', 1)})"
+                    elif forge_code == "REMODEL": forge_status = "🔨 In R&D (Evolution +0)"
+                    elif forge_code == "MAP": forge_status = "📜 In R&D (Blueprint +0)"
                     else: forge_status = forge_info.get("label", forge_code)
                 else:
                     forge_status = forge_info["label"]
+
             else:
                 forge_status = "❌ Locked" if is_en else "❌ Bloqueado"
                 forge_code = "LOCKED"
@@ -3018,9 +3265,10 @@ class CompleteSaveEditorGUI(tk.Tk):
                 continue
             elif ("Desbloqueados" in poss_filter or "Unlocked" in poss_filter) and forge_code != "STORE_PLUS4":
                 continue
-            elif ("I+D" in poss_filter or "R&D" in poss_filter) and forge_code not in ("REMODEL", "MAP"):
+            elif ("I+D" in poss_filter or "R&D" in poss_filter) and forge_code not in ("REMODEL", "MAP", "FINISHED_LVL"):
                 continue
             elif ("Bloqueados" in poss_filter or "Locked" in poss_filter) and forge_code != "LOCKED":
+
                 continue
 
             # 4b. Filter by Damage Type (Weapons only)
@@ -3535,7 +3783,7 @@ class CompleteSaveEditorGUI(tk.Tk):
     def _restore_selected_backup(self):
         sel = self.backups_tree.selection()
         if not sel:
-            messagebox.showwarning("Aviso", "Selecciona un respaldo para restaurar.")
+            messagebox.showwarning(t("notice"), t("mb_select_backup_restore"))
             return
         node = sel[0]
         bak_name = self.backups_tree.item(node, "text").strip()
@@ -3547,22 +3795,22 @@ class CompleteSaveEditorGUI(tk.Tk):
             bak_path = os.path.join(save_io.PROJECT_BACKUPS_DIR, bak_name)
             
         if not os.path.exists(bak_path):
-            messagebox.showerror("Error", f"No se encontró el archivo de respaldo:\n{bak_name}")
+            messagebox.showerror(t("error"), t("mb_backup_not_found", name=bak_name))
             return
         
-        if messagebox.askyesno("Confirmar Restauración", f"¿Estás seguro de restaurar el respaldo:\n{bak_name}?\n\nSobrescribirá tu archivo .sav actual."):
+        if messagebox.askyesno(t("mb_confirm_restore_title"), t("mb_confirm_restore_msg", name=bak_name)):
             try:
                 save_io.restore_backup(bak_path, self.save_path)
                 self.load_save(self.save_path)
-                messagebox.showinfo("Respaldo Restaurado", "¡Partida restaurada con éxito desde el respaldo seleccionado!")
+                messagebox.showinfo(t("mb_restore_success_title"), t("mb_restore_success_msg"))
             except Exception as e:
-                messagebox.showerror("Error", f"Error al restaurar respaldo:\n{e}")
+                messagebox.showerror(t("error"), t("mb_restore_error", err=e))
 
     # ================= GENERAL APP LOGIC =================
     def browse_save(self):
         f = filedialog.askopenfilename(
-            title="Seleccionar archivo de guardado de LET IT DIE",
-            filetypes=[("Archivos de Partida LET IT DIE", "*.sav"), ("Todos los archivos", "*.*")],
+            title="Seleccionar archivo de guardado de LET IT DIE" if i18n.get_language() == "es" else "Select LET IT DIE save file",
+            filetypes=[("LET IT DIE Save", "*.sav"), ("All files", "*.*")],
             initialdir=os.path.dirname(self.save_path) if self.save_path else None
         )
         if f:
@@ -3573,7 +3821,7 @@ class CompleteSaveEditorGUI(tk.Tk):
 
     def load_save(self, path):
         if not os.path.exists(path):
-            messagebox.showerror("Error", f"No se encontró el archivo:\n{path}")
+            messagebox.showerror(t("error"), t("mb_file_not_found", path=path))
             return
         try:
             data, ver = decompress_save(path)
@@ -3581,9 +3829,9 @@ class CompleteSaveEditorGUI(tk.Tk):
             self.version = ver
             self.save_path = path
             self.refresh_all_views()
-            self.status_var.set(f"Partida cargada con éxito: {os.path.basename(path)}")
+            self.status_var.set(f"Save loaded: {os.path.basename(path)}" if i18n.get_language() == "en" else f"Partida cargada con éxito: {os.path.basename(path)}")
         except Exception as e:
-            messagebox.showerror("Error de Carga", f"Error al descompromir la partida:\n{e}")
+            messagebox.showerror(t("error"), t("mb_decompress_error", err=e))
 
     def refresh_all_views(self):
         if not self.save_json:
@@ -3658,14 +3906,19 @@ class CompleteSaveEditorGUI(tk.Tk):
         if hasattr(self, "pl_time_lbl"):
             self.pl_time_lbl.config(text=f"⏱️ Horas Torre: {pl.get('playtime_hours', 0.0)} hrs")
         
-        # 2. Update Fighters List
+        # 2. Update Fighters List (1:1 with in-game Fighter Freezer)
         for row in self.fighters_tree.get_children():
             self.fighters_tree.delete(row)
             
-        fighters = modifiers.get_all_fighters_info(self.save_json)
+        all_fighters = modifiers.get_all_fighters_info(self.save_json)
+        total_f = len(all_fighters)
+        self._tree_node_to_save_idx = {}
+        self._tree_node_to_tree_idx = {}
         first_f = None
-        for idx, f in enumerate(fighters):
-            name = f.get("name", f"Luchador #{idx+1}")
+        for idx in range(total_f):
+            f = all_fighters[idx]
+            slot_num = idx + 1
+            name = f.get("name", f"Luchador #{slot_num}")
             cls_name = f.get("class_name", "All-Rounder")
             lvl = f.get("level", 1)
             grade = f.get("grade", 1)
@@ -3676,21 +3929,29 @@ class CompleteSaveEditorGUI(tk.Tk):
             cls_code = f.get("class", "BAL")
             cls_icon_filename = FIGHTER_CLASSES.get(cls_code, ("", "all-rounder.png"))[1]
             thumb = self.get_photo(cls_icon_filename, (36, 36), preserve_aspect=True) or self.get_photo("all-rounder", (36, 36), preserve_aspect=True)
-            node_id = self.fighters_tree.insert("", "end", text=f" {name} ({cls_name})", image=thumb or "", values=(idx+1, lvl_str, state))
+            node_id = self.fighters_tree.insert("", "end", text=f" {name} ({cls_name})", image=thumb or "", values=(slot_num, lvl_str, state))
             self.tree_images[node_id] = thumb
+            self._tree_node_to_save_idx[node_id] = idx
+            self._tree_node_to_tree_idx[node_id] = idx
             if idx == 0:
                 first_f = node_id
                 
-        if first_f:
-            self.fighters_tree.selection_set(first_f)
+        cur_t_idx = getattr(self, "current_fighter_tree_idx", 0)
+        children = self.fighters_tree.get_children()
+        if children:
+            target_node = children[cur_t_idx] if 0 <= cur_t_idx < len(children) else children[0]
+            self.fighters_tree.selection_set(target_node)
+            self.fighters_tree.see(target_node)
             self._on_fighter_select(None)
             
         # Active Fighter Info on top HUD
-        if fighters:
-            f0 = fighters[0]
+        if all_fighters:
+            f0 = next((f for f in all_fighters if f.get("state") == "USE"), all_fighters[0])
             f_prefix = t("hud_fighter")
             r_prefix = t("hud_rank")
+
             tdm_txt = t("hud_tdm")
+
             b_prefix = t("hud_bag")
             s_suffix = t("hud_slots")
             self.player_name_lbl.config(text=f"{f_prefix} {f0.get('name', 'Principal')} • {f0.get('class_name', 'All-Rounder')} (Tier {f0.get('grade', 1)} ★)")
@@ -3712,12 +3973,12 @@ class CompleteSaveEditorGUI(tk.Tk):
 
     def create_manual_backup(self):
         if not self.save_path or not os.path.exists(self.save_path):
-            messagebox.showwarning("Aviso", "No hay ninguna partida cargada para respaldar.")
+            messagebox.showwarning(t("notice"), t("mb_no_save_backup"))
             return
         bak_file = save_io.create_backup(self.save_path)
         self.refresh_backups_list()
-        self.status_var.set(f"Respaldo creado: {os.path.basename(bak_file)}")
-        messagebox.showinfo("Respaldo Creado", f"¡Copia de seguridad creada con éxito!\n\n{bak_file}")
+        self.status_var.set(f"{t('mb_backup_created_title')}: {os.path.basename(bak_file)}")
+        messagebox.showinfo(t("mb_backup_created_title"), t("mb_backup_created_msg", file=bak_file))
 
     def save_current(self):
         if not self.save_json or not self.save_path:
@@ -3763,1077 +4024,35 @@ class CompleteSaveEditorGUI(tk.Tk):
                     self.destroy()
                     sys.exit(0)
                 except Exception as ex:
-                    messagebox.showerror("Error", str(ex))
+                    messagebox.showerror(t("error"), str(ex))
         except Exception as e:
             self._notify("Error Saving", "Error al Guardar", f"Could not save game file:\n{e}", f"No se pudo guardar la partida:\n{e}", kind="error")
 
     def export_json(self):
         if not self.save_json:
-            messagebox.showwarning("Aviso", "Carga una partida primero.")
+            messagebox.showwarning(t("notice"), t("mb_load_save_first"))
             return
         out_p = os.path.join(BASE_DIR, "save_decompressed.json")
         with open(out_p, "w", encoding="utf-8") as f:
             json.dump(self.save_json, f, indent=2, ensure_ascii=False)
-        self.status_var.set(f"Partida exportada a JSON: {out_p}")
-        messagebox.showinfo("Exportado", f"Partida exportada a JSON con éxito:\n{out_p}")
+        self.status_var.set(t("mb_export_json_success", path=out_p))
+        messagebox.showinfo(t("notice"), t("mb_export_json_success", path=out_p))
 
     def import_json(self):
         in_p = os.path.join(BASE_DIR, "save_decompressed.json")
         if not os.path.exists(in_p):
-            messagebox.showerror("Error", f"No se encontró {in_p}")
+            messagebox.showerror(t("error"), t("mb_file_not_found", path=in_p))
             return
         try:
             with open(in_p, "r", encoding="utf-8") as f:
                 self.save_json = json.load(f)
             self.refresh_all_views()
             self._auto_save()
-            self.status_var.set("Partida importada desde save_decompressed.json")
-            messagebox.showinfo("Importado", "¡Partida importada desde JSON y guardada automáticamente!")
+            self.status_var.set(t("mb_import_json_success"))
+            messagebox.showinfo(t("notice"), t("mb_import_json_success"))
         except Exception as e:
-            messagebox.showerror("Error de Importación", f"Error al leer JSON:\n{e}")
+            messagebox.showerror(t("error"), t("mb_import_json_error", err=e))
 
-
-class SmartInventoryAnalyzerDialog(tk.Toplevel):
-    def __init__(self, parent, save_json, on_modified_cb=None):
-        super().__init__(parent)
-        self.title(t("dialog_smart_analyzer_title"))
-        self.geometry("880x640")
-        self.minsize(740, 520)
-        self.configure(bg=BG_DARK)
-        self.transient(parent)
-        self.grab_set()
-        
-        self.parent = parent
-        self.save_json = save_json
-        self.on_modified_cb = on_modified_cb
-        
-        self._build_ui()
-        self.refresh_analysis()
-        
-    def _build_ui(self):
-        # Header banner
-        header_frame = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
-        header_frame.pack(fill="x")
-        
-        title_lbl = tk.Label(
-            header_frame,
-            text=t("dialog_smart_analyzer_title"),
-            font=("Segoe UI", 13, "bold"),
-            bg=BG_PANEL,
-            fg=ACCENT_GOLD
-        )
-        title_lbl.pack(anchor="w")
-        
-        sub_lbl = tk.Label(
-            header_frame,
-            text=t("dialog_smart_analyzer_sub"),
-            font=("Segoe UI", 9),
-            bg=BG_PANEL,
-            fg=FG_MUTED
-        )
-        sub_lbl.pack(anchor="w", pady=(2, 6))
-        
-        # Storage Capacity indicator
-        self.cap_lbl = tk.Label(
-            header_frame,
-            text="Almacén (Coin Locker): Calculando...",
-            font=("Segoe UI", 9, "bold"),
-            bg=BG_PANEL,
-            fg=FG_MAIN
-        )
-        self.cap_lbl.pack(anchor="w")
-        
-        self.cap_bar = ttk.Progressbar(header_frame, orient="horizontal", mode="determinate", length=400)
-        self.cap_bar.pack(fill="x", pady=(3, 0))
-        
-        # Metrics summary row
-        metrics_frame = tk.Frame(self, bg=BG_DARK, padx=14, pady=8)
-        metrics_frame.pack(fill="x")
-        
-        self.m_recipes_lbl = self._create_metric_card(metrics_frame, "🔨 Recetas Activas", "---", ACCENT_BLUE)
-        self.m_needed_lbl = self._create_metric_card(metrics_frame, "📋 Materiales Requeridos", "---", FG_MAIN)
-        self.m_deficit_lbl = self._create_metric_card(metrics_frame, "⚠️ Materiales con Déficit", "---", ACCENT_RED)
-        self.m_units_lbl = self._create_metric_card(metrics_frame, "📦 Unidades Faltantes", "---", ACCENT_GOLD)
-        
-        # Table of Materials
-        table_frame = tk.Frame(self, bg=BG_DARK, padx=14, pady=4)
-        table_frame.pack(fill="both", expand=True)
-        
-        cols = ("id", "needed", "stock", "deficit", "status")
-        self.tree = ttk.Treeview(table_frame, columns=cols, show="tree headings", height=12)
-        
-        self.tree.heading("#0", text="Material de Forja (Nombre Oficial)")
-        self.tree.heading("id", text="ID Ítem")
-        self.tree.heading("needed", text="Requerido por Recetas")
-        self.tree.heading("stock", text="En Almacén")
-        self.tree.heading("deficit", text="Faltante Neto")
-        self.tree.heading("status", text="Estado")
-        
-        self.tree.column("#0", width=280)
-        self.tree.column("id", width=140)
-        self.tree.column("needed", width=120, anchor="center")
-        self.tree.column("stock", width=90, anchor="center")
-        self.tree.column("deficit", width=90, anchor="center")
-        self.tree.column("status", width=90, anchor="center")
-        
-        # Scrollbars
-        ysb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
-        self.tree.configure(yscrollcommand=ysb.set)
-        self.tree.pack(side="left", fill="both", expand=True)
-        ysb.pack(side="right", fill="y")
-        
-        # Row tags styling
-        self.tree.tag_configure("tag_deficit", foreground=ACCENT_RED)
-        self.tree.tag_configure("tag_ok", foreground=ACCENT_GREEN)
-        
-        # Bottom Actions Bar
-        action_bar = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
-        action_bar.pack(fill="x")
-        
-        btn_supply_needed = ttk.Button(
-            action_bar,
-            text="⚡ Suministrar Solo Faltantes para I+D (Sin Excesos)",
-            style="Accent.TButton",
-            command=self._on_supply_missing
-        )
-        btn_supply_needed.pack(side="left", padx=4)
-        
-        btn_top_up = ttk.Button(
-            action_bar,
-            text="⚖️ Top-Up Inteligente (Rellenar hasta X)",
-            command=self._on_smart_top_up
-        )
-        btn_top_up.pack(side="left", padx=4)
-        
-        btn_refresh = ttk.Button(
-            action_bar,
-            text="🔄 Actualizar",
-            command=self.refresh_analysis
-        )
-        btn_refresh.pack(side="left", padx=4)
-        
-        btn_expand_storage = ttk.Button(
-            action_bar,
-            text="🚀 Ampliar Almacén",
-            command=self._on_expand_storage
-        )
-        btn_expand_storage.pack(side="left", padx=4)
-        
-        btn_close = ttk.Button(
-            action_bar,
-            text="Cerrar",
-            command=self.destroy
-        )
-        btn_close.pack(side="right", padx=4)
-        
-    def _create_metric_card(self, parent, title, initial_val, color):
-        card = tk.Frame(parent, bg=BG_CARD, padx=10, pady=6, highlightbackground=BG_PANEL, highlightthickness=1)
-        card.pack(side="left", fill="x", expand=True, padx=4)
-        
-        t_lbl = tk.Label(card, text=title, font=("Segoe UI", 8), bg=BG_CARD, fg=FG_MUTED)
-        t_lbl.pack(anchor="w")
-        
-        v_lbl = tk.Label(card, text=initial_val, font=("Segoe UI", 13, "bold"), bg=BG_CARD, fg=color)
-        v_lbl.pack(anchor="w")
-        return v_lbl
-        
-    def refresh_analysis(self):
-        for r in self.tree.get_children():
-            self.tree.delete(r)
-            
-        res = modifiers.analyze_active_recipes_materials(self.save_json)
-        
-        # Storage bar
-        used = res["storage_used"]
-        tot = res["storage_total"]
-        free = res["storage_free"]
-        pct = (used / tot * 100) if tot > 0 else 0
-        self.cap_lbl.config(text=f"Almacén (Coin Locker): {used:,} / {tot:,} casillas ocupadas ({free:,} libres - {pct:.1f}% lleno)")
-        self.cap_bar["maximum"] = tot
-        self.cap_bar["value"] = used
-        
-        # Metrics
-        deficit_items = [m for m in res["materials"] if m["deficit"] > 0]
-        total_deficit_units = sum(m["deficit"] for m in deficit_items)
-        
-        self.m_recipes_lbl.config(text=str(res["total_active_recipes"]))
-        self.m_needed_lbl.config(text=f"{res['total_materials_needed']} tipos")
-        self.m_deficit_lbl.config(text=f"{len(deficit_items)} tipos")
-        self.m_units_lbl.config(text=f"{total_deficit_units} u.")
-        
-        # Populate table
-        for m in res["materials"]:
-            tag = "tag_deficit" if m["deficit"] > 0 else "tag_ok"
-            status_text = f"⚠️ FALTA (-{m['deficit']})" if m["deficit"] > 0 else "✅ OK"
-            self.tree.insert(
-                "",
-                "end",
-                text=m["name"],
-                values=(m["itemid"], m["needed"], m["stock"], m["deficit"], status_text),
-                tags=(tag,)
-            )
-            
-    def _on_supply_missing(self):
-        analysis = modifiers.analyze_active_recipes_materials(self.save_json)
-        deficit_items = [m for m in analysis["materials"] if m["deficit"] > 0]
-        if not deficit_items:
-            messagebox.showinfo("Stock Completo", "¡Ya tienes el 100% de los materiales requeridos para todas tus recetas de I+D en el almacén!\nNo es necesario añadir nada más.")
-            return
-            
-        tot_units = sum(m["deficit"] for m in deficit_items)
-        if analysis["storage_free"] < tot_units:
-            if not messagebox.askyesno("Espacio Limitado", f"El almacén tiene {analysis['storage_free']} casillas libres y se requieren {tot_units} unidades.\n¿Deseas suministrar hasta donde alcance el espacio?"):
-                return
-                
-        added_types, added_units = modifiers.smart_supply_missing_materials(self.save_json)
-        self.refresh_analysis()
-        if self.on_modified_cb:
-            self.on_modified_cb(f"Suministrados {added_units} materiales faltantes ({added_types} tipos) para recetas de I+D.")
-        messagebox.showinfo(
-            "Forja Abastecida",
-            f"¡Abastecimiento Inteligente Completado!\n\n"
-            f"• Se inyectaron: {added_units} unidades de {added_types} materiales faltantes.\n"
-            f"• Materiales con stock suficiente: 0 unidades añadidas (sin excesos).\n\n"
-            f"¡Tus recetas de I+D en Chokufunsha ahora tienen todo lo necesario para fabricarse!"
-        )
-        
-    def _on_smart_top_up(self):
-        target = simpledialog.askinteger(
-            "Top-Up Inteligente de Almacén",
-            "Indica la cantidad objetivo a la que deseas nivelar cada material:\n(Si ya tienes esa cantidad o más, añadirá 0 para no saturar)",
-            initialvalue=15,
-            minvalue=1,
-            maxvalue=99,
-            parent=self
-        )
-        if not target:
-            return
-            
-        added_types, added_units = modifiers.smart_top_up_materials(self.save_json, target_qty=target)
-        self.refresh_analysis()
-        if self.on_modified_cb:
-            self.on_modified_cb(f"Top-Up Inteligente: Nivelados {added_types} materiales a {target} unidades (+{added_units} unidades).")
-        messagebox.showinfo(
-            "Top-Up Completado",
-            f"¡Stock Nivelado con Éxito!\n\n"
-            f"• Meta por material: {target} unidades.\n"
-            f"• Materiales ajustados: {added_types} tipos.\n"
-            f"• Unidades añadidas: {added_units} unidades.\n\n"
-            f"Los materiales que ya tenían {target} o más unidades permanecieron intactos."
-        )
-
-    def _on_expand_storage(self):
-        current_cap = len(self.save_json.get("soul", {}).get("cl", []))
-        target = simpledialog.askinteger(
-            "🚀 Ampliar Capacidad del Almacén",
-            f"Capacidad actual: {current_cap:,} casillas.\n\n"
-            "Introduce la nueva capacidad deseada para el almacén:\n"
-            "Ejemplos recomendados: 6000, 8000, 10000",
-            initialvalue=max(current_cap, 6000),
-            minvalue=current_cap,
-            maxvalue=20000,
-            parent=self
-        )
-        if not target or target <= current_cap:
-            return
-            
-        old_c, new_c = modifiers.expand_storage_capacity(self.save_json, target_capacity=target)
-        self.refresh_analysis()
-        if self.on_modified_cb:
-            self.on_modified_cb(f"Almacén ampliado de {old_c:,} a {new_c:,} casillas.")
-        messagebox.showinfo(
-            "Capacidad Ampliada",
-            f"¡Almacén ampliado con éxito!\n\n"
-            f"• Capacidad anterior: {old_c:,} casillas\n"
-            f"• Nueva capacidad: {new_c:,} casillas\n\n"
-            f"¡Recuerda hacer clic en 'GUARDAR PARTIDA' en el editor para aplicar los cambios!"
-        )
-
-class InventoryViewerDialog(tk.Toplevel):
-    """Dialog that displays the complete physical inventory of the player's Coin Locker and Fighter Deathbag."""
-    def __init__(self, parent, save_json, equipment_db, materials_db):
-        super().__init__(parent)
-        self.title(t("dialog_inventory_title"))
-        self.geometry("960x650")
-        self.configure(bg=BG_DARK)
-        self.transient(parent)
-        self.grab_set()
-        
-        self.save_json = save_json
-        self.equipment_db = {e["id"]: e for e in equipment_db}
-        self.materials_db = {m["itemid"]: m for m in materials_db}
-        self.parent_app = parent
-        self.tree_images = {}
-        
-        self._build_ui()
-        self.refresh_inventory()
-        
-    def _build_ui(self):
-        # Header frame
-        header = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
-        header.pack(fill="x")
-        
-        ttk.Label(header, text="📦 INVENTARIO ACTUAL EN TU PARTIDA", font=("Segoe UI", 13, "bold"), foreground=ACCENT_GOLD).pack(anchor="w")
-        self.cap_lbl = ttk.Label(header, text="Almacén (Coin Locker): Calculando...", font=("Segoe UI", 10))
-        self.cap_lbl.pack(anchor="w", pady=(3, 4))
-        
-        self.cap_bar = ttk.Progressbar(header, orient="horizontal", mode="determinate", length=400)
-        self.cap_bar.pack(fill="x")
-        
-        # Filter and Search row
-        filter_frame = tk.Frame(self, bg=BG_DARK, padx=14, pady=8)
-        filter_frame.pack(fill="x")
-        
-        ttk.Label(filter_frame, text="🔍 Buscar:").pack(side="left", padx=2)
-        self.search_var = tk.StringVar()
-        self.search_var.trace_add("write", lambda *args: self.refresh_inventory())
-        ttk.Entry(filter_frame, textvariable=self.search_var, width=16).pack(side="left", padx=2)
-        
-        ttk.Label(filter_frame, text="Categoría:").pack(side="left", padx=(10, 2))
-        self.cat_filter_var = tk.StringVar(value="Todos")
-        cb_cat = ttk.Combobox(
-            filter_frame,
-            textvariable=self.cat_filter_var,
-            values=["Todos", "🔨 Materiales", "⚔️ Armas y Armaduras", "🍄 Setas y Criaturas", "🎒 Mochila / Equipado"],
-            state="readonly",
-            width=22
-        )
-        cb_cat.pack(side="left", padx=2)
-        cb_cat.bind("<<ComboboxSelected>>", lambda e: self.refresh_inventory())
-        
-        ttk.Button(filter_frame, text="🔄 Actualizar", command=self.refresh_inventory).pack(side="right", padx=3)
-        
-        # Treeview
-        table_frame = tk.Frame(self, bg=BG_DARK, padx=14, pady=4)
-        table_frame.pack(fill="both", expand=True)
-        
-        cols = ("qty", "loc", "cat", "id")
-        self.tree = ttk.Treeview(table_frame, columns=cols, show="tree headings", height=16)
-        self.tree.heading("#0", text="Icono / Nombre Oficial en Español e Inglés")
-        self.tree.heading("qty", text="Cantidad")
-        self.tree.heading("loc", text="Ubicación")
-        self.tree.heading("cat", text="Categoría Oficial")
-        self.tree.heading("id", text="ID Ítem")
-        
-        self.tree.column("#0", width=380)
-        self.tree.column("qty", width=90, anchor="center")
-        self.tree.column("loc", width=120, anchor="center")
-        self.tree.column("cat", width=150)
-        self.tree.column("id", width=140)
-        
-        self.tree.tag_configure("tag_material", foreground=ACCENT_GOLD)
-        self.tree.tag_configure("tag_gear", foreground=ACCENT_BLUE)
-        self.tree.tag_configure("tag_bag", foreground=ACCENT_GREEN)
-        
-        ysb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
-        self.tree.configure(yscrollcommand=ysb.set)
-        self.tree.pack(side="left", fill="both", expand=True)
-        ysb.pack(side="right", fill="y")
-        
-        # Bottom Bar
-        bottom_bar = tk.Frame(self, bg=BG_PANEL, padx=14, pady=8)
-        bottom_bar.pack(fill="x")
-        
-        self.status_lbl = ttk.Label(bottom_bar, text="---", font=("Segoe UI", 9))
-        self.status_lbl.pack(side="left")
-        
-        ttk.Button(bottom_bar, text="Cerrar", command=self.destroy).pack(side="right", padx=2)
-
-    def refresh_inventory(self):
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-            
-        if not self.save_json:
-            return
-            
-        cl = self.save_json.get("soul", {}).get("cl", [])
-        total_slots = len(cl)
-        used_slots = len([c for c in cl if c.get("type") != -1 and c.get("eid")])
-        free_slots = max(0, total_slots - used_slots)
-        pct = (used_slots / total_slots * 100) if total_slots > 0 else 0
-        
-        self.cap_lbl.config(
-            text=f"Almacén (Coin Locker): {used_slots:,} / {total_slots:,} casillas ocupadas ({free_slots:,} libres - {pct:.1f}% lleno)"
-        )
-        self.cap_bar["value"] = pct
-        
-        query = self.search_var.get().lower().strip()
-        cat_filter = self.cat_filter_var.get()
-        
-        # 1. Gather materials and consumable counts from save["item"]["items"]
-        items = self.save_json.get("item", {}).get("items", [])
-        mat_counts = Counter()
-        for it in items:
-            mat_counts[it.get("itemid", "")] += 1
-            
-        # 2. Gather equipment counts from save["part"]["pts"]
-        storage_gear, bag_gear = modifiers.get_equipment_inventory_counts(self.save_json)
-        
-        total_entries = 0
-        total_units = 0
-        
-        # Insert Materials / Consumables
-        if cat_filter in ("Todos", "🔨 Materiales", "🍄 Setas y Criaturas"):
-            for itemid, qty in mat_counts.items():
-                if not itemid or qty <= 0:
-                    continue
-                info = self.materials_db.get(itemid, {})
-                name_es = info.get("name_es", info.get("name", itemid))
-                name_en = info.get("name_en", "")
-                cat = info.get("category", "Materiales")
-                
-                is_shroom = "MSR_" in itemid or "MUSH" in itemid or "Setas" in cat
-                if cat_filter == "🔨 Materiales" and is_shroom:
-                    continue
-                elif cat_filter == "🍄 Setas y Criaturas" and not is_shroom:
-                    continue
-                    
-                if query and (query not in name_es.lower() and query not in name_en.lower() and query not in itemid.lower() and query not in cat.lower()):
-                    continue
-                    
-                if i18n.get_language() == "en":
-                    display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
-                else:
-                    display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
-                icon_k = self.parent_app._get_mat_photo_key(itemid, name_en or name_es)
-                thumb = self.parent_app.get_photo(icon_k, size=(24, 24))
-                
-                node = self.tree.insert(
-                    "",
-                    "end",
-                    text=f" {display_name}",
-                    image=thumb or "",
-                    values=(f"{qty} u.", "📦 Almacén", cat, itemid),
-                    tags=("tag_material",)
-                )
-                self.tree_images[node] = thumb
-                total_entries += 1
-                total_units += qty
-                
-        # Insert Storage Equipment
-        if cat_filter in ("Todos", "⚔️ Armas y Armaduras"):
-            for ptid, qty in storage_gear.items():
-                if not ptid or qty <= 0:
-                    continue
-                info = self.equipment_db.get(ptid, {})
-                name_es = info.get("name_es", ptid)
-                name_en = info.get("name_en", "")
-                cat = info.get("type", "Equipo")
-                
-                if query and (query not in name_es.lower() and query not in name_en.lower() and query not in ptid.lower() and query not in cat.lower()):
-                    continue
-                    
-                display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
-                art_rel = self.parent_app._find_equipment_art(ptid)
-                thumb = self.parent_app.get_photo(art_rel, size=(24, 24))
-                
-                node = self.tree.insert(
-                    "",
-                    "end",
-                    text=f" {display_name}",
-                    image=thumb or "",
-                    values=(f"{qty} u.", "📦 Almacén", cat, ptid),
-                    tags=("tag_gear",)
-                )
-                self.tree_images[node] = thumb
-                total_entries += 1
-                total_units += qty
-                
-        # Insert Bag Equipment
-        if cat_filter in ("Todos", "🎒 Mochila / Equipado"):
-            for ptid, qty in bag_gear.items():
-                if not ptid or qty <= 0:
-                    continue
-                info = self.equipment_db.get(ptid, {})
-                name_es = info.get("name_es", ptid)
-                name_en = info.get("name_en", "")
-                cat = info.get("type", "Equipo")
-                
-                if query and (query not in name_es.lower() and query not in name_en.lower() and query not in ptid.lower() and query not in cat.lower()):
-                    continue
-                    
-                if i18n.get_language() == "en":
-                    display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
-                else:
-                    display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
-                art_rel = self.parent_app._find_equipment_art(ptid)
-                thumb = self.parent_app.get_photo(art_rel, size=(24, 24))
-                
-                node = self.tree.insert(
-                    "",
-                    "end",
-                    text=f" {display_name}",
-                    image=thumb or "",
-                    values=(f"{qty} u.", "🎒 Mochila", cat, ptid),
-                    tags=("tag_bag",)
-                )
-                self.tree_images[node] = thumb
-                total_entries += 1
-                total_units += qty
-                
-        self.status_lbl.config(
-            text=f"Mostrando {total_entries} tipos de objetos distintos ({total_units:,} unidades físicas en total)."
-        )
-
-class ArmorSetViewerDialog(tk.Toplevel):
-    """Interactive visual dialog to inspect complete armor sets by tier like on letitdie.wiki.gg"""
-    def __init__(self, parent, save_json, armor_sets, initial_set_id=None, initial_tier=1):
-        super().__init__(parent)
-        self.parent_app = parent
-        self.save_json = save_json
-        self.armor_sets = armor_sets
-        self.title(t("dialog_armor_viewer_title"))
-        self.geometry("1140x840")
-        self.minsize(1020, 720)
-        self.configure(bg=BG_DARK)
-        self.transient(parent)
-        self.grab_set()
-        
-        self.set_index = 0
-        if initial_set_id:
-            for idx, s in enumerate(self.armor_sets):
-                if s["id"] == initial_set_id:
-                    self.set_index = idx
-                    break
-                    
-        self.current_tier_num = max(1, min(initial_tier, 4))
-        self.img_refs = []
-        
-        self._build_ui()
-        self.display_current_set()
-        
-    def _build_ui(self):
-        is_en = (i18n.get_language() == "en")
-        # 1. Header Toolbar
-        header = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
-        header.pack(fill="x")
-        
-        row1 = ttk.Frame(header)
-        row1.pack(fill="x")
-        
-        ttk.Label(row1, text=t("dialog_armor_set_label"), font=("Segoe UI", 11, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=(0, 8))
-        
-        set_names = [f"{s['name_en']} • {s['faction']}" if is_en else f"{s.get('name_es', s['name_en'])} ({s['name_en']}) • {s['faction']}" for s in self.armor_sets]
-        self.cb_set_var = tk.StringVar(value=set_names[self.set_index] if self.armor_sets else "")
-        cb_sets = ttk.Combobox(row1, textvariable=self.cb_set_var, values=set_names, state="readonly", width=52)
-        cb_sets.pack(side="left", padx=4)
-        cb_sets.bind("<<ComboboxSelected>>", self._on_set_changed)
-        
-        self.faction_lbl = ttk.Label(row1, text="", font=("Segoe UI", 10, "bold"))
-        self.faction_lbl.pack(side="left", padx=10)
-        
-        # 2. Tier Selection Tabs
-        tier_bar = tk.Frame(self, bg=BG_CARD, padx=10, pady=8)
-        tier_bar.pack(fill="x", pady=(2, 4))
-        
-        ttk.Label(tier_bar, text=t("dialog_evolution_label"), font=("Segoe UI", 10, "bold"), foreground=FG_MAIN).pack(side="left", padx=(4, 10))
-        
-        self.tier_buttons = []
-        for tnum in [1, 2, 3, 4]:
-            tbtn = ttk.Button(
-                tier_bar,
-                text=f"Tier {tnum}",
-                command=lambda tn=tnum: self.switch_tier(tn)
-            )
-            tbtn.pack(side="left", padx=4)
-            self.tier_buttons.append((tnum, tbtn))
-            
-        # 3. Main Split Content Area
-        content_box = ttk.Frame(self)
-        content_box.pack(fill="both", expand=True, padx=10, pady=6)
-        
-        # Left Side: Character Armor Model Showcase
-        left_box = ttk.LabelFrame(content_box, text=t("dialog_preview_title"), padding=10)
-        left_box.pack(side="left", fill="both", expand=False, padx=(0, 6))
-        left_box.config(width=340)
-        
-        self.model_lbl = ttk.Label(left_box, anchor="center")
-        self.model_lbl.pack(fill="both", expand=True)
-        
-        self.model_title_lbl = ttk.Label(left_box, text="", font=("Segoe UI", 11, "bold"), foreground=ACCENT_GOLD, wraplength=320, justify="center")
-        self.model_title_lbl.pack(pady=(4, 1))
-        
-        # Right Side: Piece & Weapon Stat Cards
-        right_box = ttk.Frame(content_box)
-        right_box.pack(side="right", fill="both", expand=True)
-        
-        slot_defs = [
-            ("head", "🪖 HEAD (Helmet)" if is_en else "🪖 CASCO (Head)", "🪖"),
-            ("body", "👕 BODY (Chest Armor)" if is_en else "👕 PECHERA (Body Armor)", "👕"),
-            ("legs", "👖 LEGS (Pants)" if is_en else "👖 PANTALONES (Legs / Pants)", "👖"),
-            ("weapon", "⚔️ SIGNATURE WEAPON" if is_en else "⚔️ ARMA CARACTERÍSTICA (Signature Weapon)", "⚔️")
-        ]
-        
-        self.piece_cards = {}
-        for slot_key, slot_title, emoji in slot_defs:
-            card_lf = ttk.LabelFrame(right_box, text=slot_title, padding=6)
-            card_lf.pack(fill="x", expand=True, pady=3)
-            
-            # Sub-elements
-            inner = ttk.Frame(card_lf)
-            inner.pack(fill="x")
-            
-            icon_lbl = ttk.Label(inner)
-            icon_lbl.pack(side="left", padx=(2, 10))
-            
-            info_col = ttk.Frame(inner)
-            info_col.pack(side="left", fill="both", expand=True)
-            
-            title_lbl = ttk.Label(info_col, text="---", font=("Segoe UI", 10, "bold"), foreground=FG_MAIN)
-            title_lbl.pack(anchor="w")
-            
-            def_dur_lbl = ttk.Label(info_col, text="", font=("Segoe UI", 9, "bold"), foreground=ACCENT_CYAN)
-            def_dur_lbl.pack(anchor="w", pady=1)
-            
-            res_lbl = ttk.Label(info_col, text="", font=("Segoe UI", 8), foreground=FG_MUTED)
-            res_lbl.pack(anchor="w", pady=1)
-            
-            status_lbl = ttk.Label(info_col, text="", font=("Segoe UI", 9))
-            status_lbl.pack(anchor="w", pady=1)
-            
-            # Right side: stat card and action buttons
-            action_col = ttk.Frame(inner)
-            action_col.pack(side="right", padx=4)
-            
-            card_img_lbl = ttk.Label(action_col)
-            card_img_lbl.pack(pady=2)
-            
-            btns_row = ttk.Frame(action_col)
-            btns_row.pack(fill="x", pady=2)
-            
-            btn_unlock = ttk.Button(btns_row, text="⭐ Unlock +4" if is_en else "⭐ Desbloquear +4", style="Accent.TButton", width=16)
-            btn_unlock.pack(side="left", padx=2)
-            
-            btn_add = ttk.Button(btns_row, text="🎁 +1 to Storage" if is_en else "🎁 +1 al Almacén", width=14)
-            btn_add.pack(side="left", padx=2)
-            
-            self.piece_cards[slot_key] = {
-                "frame": card_lf,
-                "icon_lbl": icon_lbl,
-                "title_lbl": title_lbl,
-                "def_dur_lbl": def_dur_lbl,
-                "res_lbl": res_lbl,
-                "status_lbl": status_lbl,
-                "card_img_lbl": card_img_lbl,
-                "btn_unlock": btn_unlock,
-                "btn_add": btn_add,
-                "current_pid": None
-            }
-            
-        # 4. Bottom Global Actions
-        bottom_bar = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
-        bottom_bar.pack(fill="x")
-        
-        ttk.Label(bottom_bar, text="Level:" if is_en else "Nivel:", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=(4, 2))
-        self.gear_target_lvl_var = tk.StringVar(value="+19 (Uncapped)")
-        cb_glvl = ttk.Combobox(
-            bottom_bar,
-            textvariable=self.gear_target_lvl_var,
-            values=["+19 (Uncapped)", "+24 (Max Uncapped)", "+4 (Base)"],
-            state="readonly",
-            width=18
-        )
-        cb_glvl.pack(side="left", padx=(0, 10))
-        
-        btn_unlock_set = ttk.Button(
-            bottom_bar,
-            text="⭐ Unlock Set + Weapon" if is_en else "⭐ Desbloquear Set + Arma",
-            style="Accent.TButton",
-            command=self.unlock_current_tier_set
-        )
-        btn_unlock_set.pack(side="left", padx=4)
-        
-        btn_add_set = ttk.Button(
-            bottom_bar,
-            text="🎁 Add Set to Storage" if is_en else "🎁 Añadir Set al Almacén",
-            command=self.add_current_tier_set_storage
-        )
-        btn_add_set.pack(side="left", padx=4)
-        
-        btn_close = ttk.Button(bottom_bar, text="Close" if is_en else "Cerrar", command=self.destroy)
-        btn_close.pack(side="right", padx=4)
-
-    def _get_selected_gear_level(self):
-        val = self.gear_target_lvl_var.get()
-        if "+24" in val:
-            return 25, 24
-        elif "+4" in val:
-            return 5, 4
-        return 20, 19
-
-    def _on_set_changed(self, event=None):
-        sel_idx = self.cb_set_var.get()
-        for idx, s in enumerate(self.armor_sets):
-            lbl_es = f"{s.get('name_es', s['name_en'])} ({s['name_en']}) • {s['faction']}"
-            lbl_en = f"{s['name_en']} • {s['faction']}"
-            if sel_idx in (lbl_es, lbl_en):
-                self.set_index = idx
-                break
-        self.display_current_set()
-
-    def switch_tier(self, tier_num):
-        self.current_tier_num = tier_num
-        self.display_current_set()
-
-    def display_current_set(self):
-        if not self.armor_sets:
-            return
-        self.img_refs.clear()
-        
-        s_obj = self.armor_sets[self.set_index]
-        is_en = (i18n.get_language() == "en")
-        s_name = s_obj['name_en'] if is_en else (s_obj.get('name_es') or s_obj['name_en'])
-        self.faction_lbl.config(text=f"Faction: {s_obj['faction']}" if is_en else f"Facción: {s_obj['faction']}")
-        
-        # Highlight active tier button
-        for tnum, btn in self.tier_buttons:
-            if tnum == self.current_tier_num:
-                btn.configure(style="Accent.TButton")
-            else:
-                btn.configure(style="TButton")
-                
-        # Find tier object
-        t_obj = None
-        for tier_item in s_obj.get("tiers", []):
-            if tier_item["tier_num"] == self.current_tier_num:
-                t_obj = tier_item
-                break
-        if not t_obj and s_obj.get("tiers"):
-            t_obj = s_obj["tiers"][-1]
-            self.current_tier_num = t_obj["tier_num"]
-            
-        if not t_obj:
-            return
-            
-        # 1. Update character set model
-        render_path = t_obj.get("set_render")
-        if render_path:
-            model_photo = self.parent_app.get_photo(render_path, size=(300, 470))
-            if model_photo:
-                self.model_lbl.config(image=model_photo, text="")
-                self.model_lbl.image = model_photo
-                self.img_refs.append(model_photo)
-            else:
-                self.model_lbl.config(image="", text="[Official Render In Progress]" if is_en else "[Render Oficial en Proceso]")
-        else:
-            self.model_lbl.config(image="", text="[Official Render In Progress]" if is_en else "[Render Oficial en Proceso]")
-            
-        t_name = t_obj.get('tier_name_en', t_obj['tier_name']) if is_en else t_obj['tier_name']
-        self.model_title_lbl.config(text=f"{s_name} ({t_name})")
-        
-        # 2. Update piece cards
-        counts = modifiers.get_equipment_inventory_counts(self.save_json) if self.save_json else ({}, {})
-        storage_map, bag_map = counts
-        pr_list = self.save_json.get("soul", {}).get("partresearch", {}).get("user", []) if self.save_json else []
-        forge_levels = {r.get("ptid"): r.get("lvl", 0) for r in pr_list if isinstance(r, dict)}
-        
-        for slot_key in ["head", "body", "legs", "weapon"]:
-            p = t_obj.get(slot_key)
-            card_ui = self.piece_cards[slot_key]
-            
-            if not p:
-                card_ui["frame"].pack_forget()
-                continue
-                
-            card_ui["frame"].pack(fill="x", expand=True, pady=2)
-            card_ui["current_pid"] = p["id"]
-            
-            # Title
-            if is_en:
-                name_str = f"{p['name']} ({p.get('name_es')})" if p.get('name_es') and p.get('name_es') != p['name'] else p['name']
-            else:
-                name_str = f"{p['name_es']} ({p['name']})" if p.get('name_es') and p['name_es'] != p['name'] else p['name']
-            card_ui["title_lbl"].config(text=f"{name_str}  [{p['id']}]")
-            
-            if slot_key == "weapon":
-                atk_base = p.get("atk", 0)
-                atk_plus4 = p.get("atk_plus4", int(atk_base * 1.5))
-                dur = p.get("durability", 1400)
-                card_ui["def_dur_lbl"].config(text=t("dialog_atk_base", atk=atk_base, atk4=atk_plus4, dur=dur), foreground=ACCENT_GOLD)
-                card_ui["res_lbl"].config(text=t("dialog_weapon_paired"))
-                card_ui["btn_unlock"].config(text="⭐ Unlock Weapon +4" if is_en else "⭐ Desbloquear Arma +4")
-            else:
-                # Def / Dur
-                def_base = p.get("def", 0)
-                def_plus4 = p.get("def_plus4", 0)
-                dur = p.get("durability", 0)
-                card_ui["def_dur_lbl"].config(text=t("dialog_def_base", def_b=def_base, def4=def_plus4, dur=dur), foreground=ACCENT_CYAN)
-                
-                # Resistances
-                res = p.get("resistances", {})
-                if is_en:
-                    res_txt = (
-                        f"🗡️ Slash: {res.get('slash',0):+d}%   🔨 Blunt: {res.get('blunt',0):+d}%   🏹 Pierce: {res.get('pierce',0):+d}%\n"
-                        f"🔥 Fire: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Poison: {res.get('poison',0):+d}%"
-                    )
-                else:
-                    res_txt = (
-                        f"🗡️ Corte: {res.get('slash',0):+d}%   🔨 Golpe: {res.get('blunt',0):+d}%   🏹 Perf: {res.get('pierce',0):+d}%\n"
-                        f"🔥 Fuego: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Veneno: {res.get('poison',0):+d}%"
-                    )
-                card_ui["res_lbl"].config(text=res_txt)
-                card_ui["btn_unlock"].config(text="⭐ Unlock +4" if is_en else "⭐ Desbloquear +4")
-            
-            # Status
-            f_lvl = forge_levels.get(p["id"], 0)
-            st_cnt = storage_map.get(p["id"], 0)
-            bg_cnt = bag_map.get(p["id"], 0)
-            
-            if is_en:
-                f_txt = f"⭐ Shop: Unlocked (+{f_lvl})" if f_lvl >= 4 else f"🔨 Shop: Level +{f_lvl}" if f_lvl > 0 else "❌ Shop: Locked"
-                st_txt = f"📦 Storage: {st_cnt} pcs." if st_cnt > 0 else "📦 Storage: 0 pcs."
-                bg_txt = f"🎒 Bag: {bg_cnt} pcs." if bg_cnt > 0 else ""
-            else:
-                f_txt = f"⭐ Tienda: Desbloqueado (+{f_lvl})" if f_lvl >= 4 else f"🔨 Tienda: Nivel +{f_lvl}" if f_lvl > 0 else "❌ Tienda: Bloqueado"
-                st_txt = f"📦 Almacén: {st_cnt} u." if st_cnt > 0 else "📦 Almacén: 0 u."
-                bg_txt = f"🎒 Mochila: {bg_cnt} u." if bg_cnt > 0 else ""
-            f_color = ACCENT_GOLD if f_lvl >= 4 else ACCENT_BLUE if f_lvl > 0 else FG_MUTED
-            
-            full_stat = f"{f_txt}  •  {st_txt}" + (f"  •  {bg_txt}" if bg_txt else "")
-            card_ui["status_lbl"].config(text=full_stat, foreground=f_color)
-            
-            # Icon
-            icon_rel = p.get("icon")
-            icon_photo = None
-            if icon_rel:
-                icon_photo = self.parent_app.get_photo(icon_rel, size=(54, 54))
-            if not icon_photo:
-                icon_photo = self.parent_app.get_photo(self.parent_app._find_equipment_art(p["id"]), size=(54, 54))
-            if not icon_photo and hasattr(self.parent_app, "icon_map"):
-                mapped = self.parent_app.icon_map.get("gear_icons", {}).get(p["id"])
-                if mapped:
-                    icon_photo = self.parent_app.get_photo(mapped, size=(54, 54))
-            if icon_photo:
-                card_ui["icon_lbl"].config(image=icon_photo, text="")
-                card_ui["icon_lbl"].image = icon_photo
-                self.img_refs.append(icon_photo)
-            else:
-                card_ui["icon_lbl"].config(image="", text="[Icono]")
-                
-            # Card image
-            card_rel = p.get("card")
-            card_photo = None
-            if card_rel:
-                card_photo = self.parent_app.get_photo(card_rel, size=(180, 85))
-            if not card_photo and hasattr(self.parent_app, "icon_map"):
-                mapped_card = self.parent_app.icon_map.get("gear_cards", {}).get(p["id"])
-                if mapped_card:
-                    card_photo = self.parent_app.get_photo(mapped_card, size=(180, 85))
-            if card_photo:
-                card_ui["card_img_lbl"].config(image=card_photo)
-                card_ui["card_img_lbl"].image = card_photo
-                card_ui["card_img_lbl"].pack(pady=2)
-                self.img_refs.append(card_photo)
-            else:
-                card_ui["card_img_lbl"].pack_forget()
-                
-            # Wire buttons
-            card_ui["btn_unlock"].config(command=lambda pid=p["id"]: self.unlock_single_piece(pid))
-            card_ui["btn_add"].config(command=lambda pid=p["id"]: self.add_single_piece_storage(pid))
-
-    def _auto_save_and_sync(self):
-        try:
-            if hasattr(self.parent_app, "save_path") and self.parent_app.save_path:
-                save_to_file(self.save_json, self.parent_app.save_path, version=getattr(self.parent_app, "version", 1))
-                if hasattr(self.parent_app, "status_var"):
-                    self.parent_app.status_var.set("¡Partida guardada y actualizada automáticamente!")
-        except Exception as e:
-            print(f"Auto-save warning: {e}")
-
-    def unlock_single_piece(self, pid):
-        if not self.save_json or not pid:
-            return
-        pr_list = self.save_json.setdefault("soul", {}).setdefault("partresearch", {}).setdefault("user", [])
-        existing = {(r.get("ptid"), r.get("lvl")): r for r in pr_list if isinstance(r, dict)}
-        
-        # 1. Levels 1 to 4 (FINISHED / FINISHED)
-        for lvl in range(1, 5):
-            key = (pid, lvl)
-            if key not in existing:
-                pr_list.append({
-                    "ptid": pid,
-                    "lvl": lvl,
-                    "research_type": "FINISHED",
-                    "receive_type": "FINISHED",
-                    "is_announced": 1,
-                    "is_checked": 1,
-                    "before_ptid": pid if lvl > 1 else "",
-                    "before_lvl": lvl - 1 if lvl > 1 else 0
-                })
-            else:
-                existing[key]["research_type"] = "FINISHED"
-                existing[key]["receive_type"] = "FINISHED"
-                
-        # 2. Level 5 (Completed +4, available to purchase in Chokufunsha with Kill Coins)
-        key5 = (pid, 5)
-        if key5 not in existing:
-            pr_list.append({
-                "ptid": pid,
-                "lvl": 5,
-                "research_type": "FINISHED",
-                "receive_type": "CHARGE",
-                "is_announced": 1,
-                "is_checked": 3,
-                "before_ptid": pid,
-                "before_lvl": 4
-            })
-        else:
-            existing[key5]["research_type"] = "FINISHED"
-            existing[key5]["receive_type"] = "CHARGE"
-            existing[key5]["is_checked"] = 3
-            
-        # 3. Add 1 unit directly to Storage (Coin Locker) at selected tier level (+19 default, +24 optional)
-        int_lvl, plus_lvl = self._get_selected_gear_level()
-        modifiers.add_equipment_to_storage(self.save_json, pid, count=1, lvl=int_lvl, dur=50000)
-        self._auto_save_and_sync()
-        self.parent_app.filter_blueprints_list()
-        self.display_current_set()
-        
-        is_en = i18n.get_language() == "en"
-        title = "Blueprint & Item Unlocked" if is_en else "Plano y Objeto Desbloqueado"
-        msg = (
-            f"'{pid}' successfully unlocked!\n\n"
-            f"1. 🛒 Chokufunsha: Available in Shop (+4) to purchase with Kill Coins.\n"
-            f"2. 📦 Storage: 1 unit (+{plus_lvl}, 100% Durability) delivered to Coin Locker.\n"
-            f"3. 💾 Save updated automatically."
-        ) if is_en else (
-            f"¡El objeto '{pid}' ha sido completamente desbloqueado!\n\n"
-            f"1. 🛒 Chokufunsha: Disponible en tienda (+4) para comprar con Kill Coins.\n"
-            f"2. 📦 Almacén: Se ha entregado 1 unidad (+{plus_lvl}, Dur 100%) en tu Almacén.\n"
-            f"3. 💾 Partida guardada automáticamente."
-        )
-        messagebox.showinfo(title, msg)
-
-    def add_single_piece_storage(self, pid):
-        if not self.save_json or not pid:
-            return
-        int_lvl, plus_lvl = self._get_selected_gear_level()
-        modifiers.add_equipment_to_storage(self.save_json, pid, count=1, lvl=int_lvl, dur=50000)
-        self._auto_save_and_sync()
-        self.parent_app.filter_blueprints_list()
-        self.display_current_set()
-        
-        is_en = i18n.get_language() == "en"
-        title = "Item Added" if is_en else "Objeto Añadido"
-        msg = (
-            f"1 unit of '{pid}' (+{plus_lvl}, Dur 100%) added to Coin Locker!\nSaved automatically."
-        ) if is_en else (
-            f"¡Se ha añadido 1 unidad de '{pid}' (+{plus_lvl}, Dur 100%) a tu Almacén!\nGuardado automáticamente."
-        )
-        messagebox.showinfo(title, msg)
-
-    def unlock_current_tier_set(self):
-        if not self.save_json or not self.armor_sets:
-            return
-        s_obj = self.armor_sets[self.set_index]
-        t_obj = next((t for t in s_obj.get("tiers", []) if t["tier_num"] == self.current_tier_num), None)
-        if not t_obj:
-            return
-            
-        int_lvl, plus_lvl = self._get_selected_gear_level()
-        unlocked = []
-        for slot in ["head", "body", "legs", "weapon"]:
-            p = t_obj.get(slot)
-            if p and p.get("id"):
-                pid = p["id"]
-                pr_list = self.save_json.setdefault("soul", {}).setdefault("partresearch", {}).setdefault("user", [])
-                existing = {(r.get("ptid"), r.get("lvl")): r for r in pr_list if isinstance(r, dict)}
-                
-                # Levels 1 to 4
-                for lvl in range(1, 5):
-                    key = (pid, lvl)
-                    if key not in existing:
-                        pr_list.append({
-                            "ptid": pid,
-                            "lvl": lvl,
-                            "research_type": "FINISHED",
-                            "receive_type": "FINISHED",
-                            "is_announced": 1,
-                            "is_checked": 1,
-                            "before_ptid": pid if lvl > 1 else "",
-                            "before_lvl": lvl - 1 if lvl > 1 else 0
-                        })
-                    else:
-                        existing[key]["research_type"] = "FINISHED"
-                        existing[key]["receive_type"] = "FINISHED"
-                        
-                # Level 5 (CHARGE / Buyable in store)
-                key5 = (pid, 5)
-                if key5 not in existing:
-                    pr_list.append({
-                        "ptid": pid,
-                        "lvl": 5,
-                        "research_type": "FINISHED",
-                        "receive_type": "CHARGE",
-                        "is_announced": 1,
-                        "is_checked": 3,
-                        "before_ptid": pid,
-                        "before_lvl": 4
-                    })
-                else:
-                    existing[key5]["research_type"] = "FINISHED"
-                    existing[key5]["receive_type"] = "CHARGE"
-                    existing[key5]["is_checked"] = 3
-                    
-                # Add 1 physical unit to Storage at chosen tier level (+19 default, +24 optional)
-                modifiers.add_equipment_to_storage(self.save_json, pid, count=1, lvl=int_lvl, dur=50000)
-                unlocked.append(f"{p['name']} ({p.get('name_es', p['name'])})")
-                
-        self._auto_save_and_sync()
-        self.parent_app.filter_blueprints_list()
-        self.display_current_set()
-        
-        is_en = i18n.get_language() == "en"
-        title = "Complete Set + Weapon Unlocked" if is_en else "Set + Arma Completa Desbloqueados"
-        s_name = s_obj['name_en'] if is_en else s_obj.get('name_es', s_obj['name_en'])
-        t_name = t_obj.get('tier_name_en', t_obj['tier_name']) if is_en else t_obj['tier_name']
-        msg = (
-            f"{s_name} ({t_name}) and signature weapon unlocked!\n\n"
-            f"🛒 Chokufunsha: Pieces and weapon ready to purchase in Shop with KC.\n"
-            f"📦 Storage: 1 copy of each armor piece + weapon (+{plus_lvl}, 100% Durability) added to Coin Locker.\n"
-            f"💾 Save file updated automatically.\n\n"
-            + "\n".join([f"• {u}" for u in unlocked])
-        ) if is_en else (
-            f"¡El {s_name} ({t_name}) y su arma característica han sido desbloqueados!\n\n"
-            f"🛒 Tienda Chokufunsha: Las piezas y el arma están listas para comprar al Nivel +4 con Kill Coins.\n"
-            f"📦 Almacén: Se ha entregado 1 copia de cada armadura + el arma (Nivel +{plus_lvl}, 100% Durabilidad) en tu Almacén.\n"
-            f"💾 Partida guardada automáticamente.\n\n"
-            + "\n".join([f"• {u}" for u in unlocked])
-        )
-        messagebox.showinfo(title, msg)
-
-    def add_current_tier_set_storage(self):
-        if not self.save_json or not self.armor_sets:
-            return
-        s_obj = self.armor_sets[self.set_index]
-        t_obj = next((t for t in s_obj.get("tiers", []) if t["tier_num"] == self.current_tier_num), None)
-        if not t_obj:
-            return
-            
-        int_lvl, plus_lvl = self._get_selected_gear_level()
-        added = []
-        for slot in ["head", "body", "legs", "weapon"]:
-            p = t_obj.get(slot)
-            if p and p.get("id"):
-                modifiers.add_equipment_to_storage(self.save_json, p["id"], count=1, lvl=int_lvl, dur=50000)
-                added.append(f"{p['name']} ({p.get('name_es', p['name'])})")
-                
-        self._auto_save_and_sync()
-        self.parent_app.filter_blueprints_list()
-        self.display_current_set()
-        
-        is_en = i18n.get_language() == "en"
-        title = "Set + Weapon Added" if is_en else "Set + Arma Añadidos al Almacén"
-        msg = (
-            f"Added 3 armor pieces + signature weapon (+{plus_lvl}, Dur 100%) to Coin Locker!\n\n"
-            + "\n".join([f"• {a}" for a in added])
-            + "\n\nSaved automatically."
-        ) if is_en else (
-            f"¡Se han añadido al Almacén las 3 piezas del set + el arma característica (Nivel +{plus_lvl}, Dur 100%)!\n\n"
-            + "\n".join([f"• {a}" for a in added])
-            + "\n\nPartida guardada automáticamente."
-        )
-        messagebox.showinfo(title, msg)
 
 if __name__ == "__main__":
     app = CompleteSaveEditorGUI()
