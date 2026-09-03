@@ -663,21 +663,24 @@ class CompleteSaveEditorGUI(tk.Tk):
         box_vip.grid(row=1, column=0, sticky="nsew", padx=6, pady=6)
         
         self.vip_status_lbl = ttk.Label(box_vip, text=t("vip_inactive"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD)
-        self.vip_status_lbl.pack(anchor="w", pady=(0, 4))
+        self.vip_status_lbl.pack(anchor="w", pady=(0, 2))
         
+        ttk.Label(box_vip, text=t("vip_safe_note", "⚠️ Máximo 30 días activo para evitar errores en el ascensor.\nPuedes almacenar hasta 99 pases en reserva."), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=(0, 4))
+
         vip_f = ttk.Frame(box_vip)
         vip_f.pack(fill="x", pady=4)
         ttk.Label(vip_f, text=t("vip_days_lbl")).pack(side="left", padx=2)
         self.vip_days_var = tk.StringVar(value="30")
-        ttk.Entry(vip_f, textvariable=self.vip_days_var, width=8, justify="center").pack(side="left", padx=4)
+        cb_vip_days = ttk.Combobox(vip_f, textvariable=self.vip_days_var, values=["30", "15", "7", "1"], state="readonly", width=6)
+        cb_vip_days.pack(side="left", padx=4)
         ttk.Button(vip_f, text=t("activate_vip_btn"), style="Accent.TButton", command=self._activate_custom_vip).pack(side="left", padx=4)
+        ttk.Button(vip_f, text=t("deactivate_vip_btn", "❌ Cancelar"), command=self._deactivate_vip_action).pack(side="left", padx=4)
         
         vip_quick = ttk.Frame(box_vip)
         vip_quick.pack(fill="x", pady=4)
-        ttk.Button(vip_quick, text=t("vip_30d"), command=lambda: self._set_vip_entry_and_act(30)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text=t("vip_60d"), command=lambda: self._set_vip_entry_and_act(60)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text=t("vip_90d"), command=lambda: self._set_vip_entry_and_act(90)).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(vip_quick, text=t("vip_stock_passes"), command=lambda: self._set_vip_entry_and_act(30, passes=99)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_30d_btn", "🎫 30 Días (+99 Reserva)"), style="Accent.TButton", command=lambda: self._set_vip_entry_and_act(30, passes=99)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_1d_btn", "🎟️ 1 Día (+99 Reserva)"), command=lambda: self._set_vip_entry_and_act(1, passes=99)).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(vip_quick, text=t("vip_stock_passes", "📦 +99 Pases Reserva"), command=lambda: self._set_vip_entry_and_act(30, passes=99)).pack(side="left", fill="x", expand=True, padx=2)
 
 
         # Card 4 (Bottom-Right): Account Perks & Death Bag Expansion
@@ -782,7 +785,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         if not self.save_json:
             return
         try:
-            days = min(90, max(1, int(self.vip_days_var.get())))
+            days = min(30, max(1, int(self.vip_days_var.get())))
         except ValueError:
             days = 30
         self.vip_days_var.set(str(days))
@@ -791,8 +794,20 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.refresh_all_views()
         self._notify(
             "VIP Activated", "VIP Activado",
-            f"Royal Express Pass activated for {days} days (+{passes} Express Passes in stock)!\n\n✨ Safe elevator loading guaranteed.",
-            f"¡Pase Royal Express activado por {days} días (+{passes} Pases Expreso en reserva)!\n\n✨ Carga segura en ascensores garantizada."
+            f"Royal Express Pass activated for {days} days (+{passes} 30-day passes in stock)!\n\n✨ Limited to 30 days to guarantee 100% safe elevator loading.",
+            f"¡Pase Royal Express activado por {days} días (+{passes} pases de 30 días en reserva)!\n\n✨ Limitado a 30 días máximos para garantizar que el ascensor cargue sin errores."
+        )
+
+    def _deactivate_vip_action(self):
+        if not self.save_json:
+            return
+        modifiers.deactivate_vip_pass(self.save_json)
+        self._auto_save()
+        self.refresh_all_views()
+        self._notify(
+            "VIP Deactivated", "VIP Desactivado",
+            "Royal Express Pass has been deactivated.",
+            "¡Pase Royal Express desactivado correctamente!"
         )
 
             # ================= TAB 2: FIGHTERS FREEZER =================

@@ -39,6 +39,7 @@ from core.currencies import (
     set_player_rank,
     upgrade_waiting_room,
     set_vip_pass,
+    deactivate_vip_pass,
     set_tdm_rank,
     get_player_currencies,
     get_waiting_room_info,

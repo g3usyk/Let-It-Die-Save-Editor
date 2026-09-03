@@ -83,6 +83,15 @@ def set_vip_pass(save, days=30, passes=99, oneday_passes=99):
     vip["expired_time"] = now + (safe_days * 86400)
     vip["automatic_renewal"] = 0
     vip["friendship"] = 100
+    return safe_days
+
+def deactivate_vip_pass(save):
+    """Safely cancels active VIP pass."""
+    soul = save.setdefault("soul", {})
+    vip = soul.setdefault("vip", {})
+    vip["flag"] = 0
+    vip["expired_time"] = 0
+    return True
 
 
 def set_tdm_rank(save, rank_id="TDM_RANK_05_03", points=5000, rank=None):
