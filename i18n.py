@@ -924,11 +924,11 @@ TRANSLATIONS = {
     }
 }
 
-def t(key, **kwargs):
+def t(key, default=None, **kwargs):
     lang = get_language()
     val = TRANSLATIONS.get(lang, {}).get(key)
     if val is None:
-        val = TRANSLATIONS.get("en", {}).get(key, key)
+        val = TRANSLATIONS.get("en", {}).get(key, default if default is not None else key)
     if kwargs:
         try:
             return val.format(**kwargs)
