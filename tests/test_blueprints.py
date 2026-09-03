@@ -134,6 +134,30 @@ class TestBlueprints(unittest.TestCase):
         dups = [k for k, count in Counter(keys).items() if count > 1]
         self.assertEqual(len(dups), 0, f"No duplicates allowed in save: {dups}")
 
+    def test_uncapped_blueprint_and_storage_upgrade(self):
+        # Unlocking final tier (PT_ARM_WP001_005) to +19 Uncapped
+        modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=19, unlock_next_tier=False)
+        pr_map = modifiers.get_blueprints_unlock_map(self.save)
+        self.assertEqual(pr_map["PT_ARM_WP001_005"]["status"], "STORE_UNCAPPED")
+        self.assertEqual(pr_map["PT_ARM_WP001_005"]["lvl"], 20)
+        self.assertIn("+19", pr_map["PT_ARM_WP001_005"]["label"])
+        
+        # Verify CHARGE is set on level 20
+        pr_u = self.save["soul"]["partresearch"]["user"]
+        charge_entry = next((e for e in pr_u if e.get("ptid") == "PT_ARM_WP001_005" and e.get("receive_type") == "CHARGE"), None)
+        self.assertIsNotNone(charge_entry)
+        self.assertEqual(charge_entry.get("lvl"), 20)
+        
+        # Verify deliver to storage at lvl 20
+        added = modifiers.add_equipment_to_storage(self.save, "PT_ARM_WP001_005", count=1, lvl=20)
+        self.assertEqual(added, 1)
+        pts = self.save["part"]["pts"]
+        items = [i for sub in pts.values() for i in sub] if isinstance(pts, dict) else pts
+        uncapped_item = next((i for i in items if i.get("ptid") == "PT_ARM_WP001_005"), None)
+        self.assertIsNotNone(uncapped_item)
+        self.assertEqual(uncapped_item.get("lvl"), 20)
+        self.assertGreaterEqual(uncapped_item.get("dur"), 50000)
+
 if __name__ == "__main__":
     unittest.main()
 

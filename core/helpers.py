@@ -92,13 +92,22 @@ def get_equipment_meta(ptid):
     global _EQUIPMENT_META_CACHE
     if _EQUIPMENT_META_CACHE is None:
         _EQUIPMENT_META_CACHE = {}
-        if os.path.exists(ALL_EQUIPMENT_FILE):
-            try:
-                with open(ALL_EQUIPMENT_FILE, "r", encoding="utf-8") as f:
-                    for item in json.load(f):
-                        _EQUIPMENT_META_CACHE[item["id"]] = item
-            except Exception:
-                pass
+        candidate_paths = [
+            ALL_EQUIPMENT_FILE,
+            os.path.join(os.path.dirname(sys.executable), "all_equipment_encyclopedia.json"),
+            os.path.join(os.path.dirname(sys.executable), "_internal", "all_equipment_encyclopedia.json"),
+            os.path.join(getattr(sys, "_MEIPASS", ""), "all_equipment_encyclopedia.json")
+        ]
+        for p in candidate_paths:
+            if p and os.path.exists(p):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        for item in json.load(f):
+                            _EQUIPMENT_META_CACHE[item["id"]] = item
+                    if _EQUIPMENT_META_CACHE:
+                        break
+                except Exception:
+                    pass
     return _EQUIPMENT_META_CACHE.get(ptid, {})
 
 def get_tower_map_data():

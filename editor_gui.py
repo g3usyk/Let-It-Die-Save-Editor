@@ -2922,13 +2922,27 @@ class CompleteSaveEditorGUI(tk.Tk):
             return
         ptid = self.current_bp_selection
         val = str(self.bp_single_lvl_var.get())
-        if "24" in val: lvl = 24
-        elif "19" in val: lvl = 19
-        elif "4" in val: lvl = 4
-        elif "3" in val: lvl = 3
-        elif "2" in val: lvl = 2
-        elif "1" in val: lvl = 1
-        else: lvl = 19
+        if "24" in val or "19" in val:
+            lvl = 20
+            display_lvl = 19
+        elif "4" in val:
+            lvl = 5
+            display_lvl = 4
+        elif "3" in val:
+            lvl = 4
+            display_lvl = 3
+        elif "2" in val:
+            lvl = 3
+            display_lvl = 2
+        elif "1" in val:
+            lvl = 2
+            display_lvl = 1
+        elif "0" in val:
+            lvl = 1
+            display_lvl = 0
+        else:
+            lvl = 20
+            display_lvl = 19
         next_unlocked = modifiers.unlock_single_blueprint(self.save_json, ptid, level=lvl, unlock_next_tier=True)
         self._auto_save()
         self.filter_blueprints_list()
@@ -2937,19 +2951,22 @@ class CompleteSaveEditorGUI(tk.Tk):
         item_meta = next((item for item in self.equipment_db if item["id"] == ptid), None)
         cur_name = (item_meta.get("name_en") if is_en else item_meta.get("name_es")) if item_meta else ptid
         
+        lvl_str = f"+{display_lvl} (Destope)" if display_lvl >= 19 else f"+{display_lvl}"
+        lvl_str_en = f"+{display_lvl} (Uncapped)" if display_lvl >= 19 else f"+{display_lvl}"
+        
         if next_unlocked:
             nxt_meta = next((item for item in self.equipment_db if item["id"] == next_unlocked), None)
             nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else next_unlocked
             self._notify(
                 "Blueprint & Next Tier in R&D!", "¡Plano y Siguiente Tier en I+D!",
-                f"{cur_name} registered at Level +{lvl} in Chokufunsha!\n\n✨ Reached Level +4: Unlocked next tier in R&D (Development):\n🔨 {nxt_name} [{next_unlocked}]",
-                f"¡{cur_name} registrado al Nivel +{lvl} en Chokufunsha!\n\n✨ Alcanzó Nivel +4: ¡Se ha desbloqueado el siguiente tier en I+D (Desarrollo):\n🔨 {nxt_name} [{next_unlocked}]!"
+                f"{cur_name} registered at Level {lvl_str_en} in Chokufunsha!\n\n✨ Reached Level +4: Unlocked next tier in R&D (Development):\n🔨 {nxt_name} [{next_unlocked}]",
+                f"¡{cur_name} registrado al Nivel {lvl_str} en Chokufunsha!\n\n✨ Alcanzó Nivel +4: ¡Se ha desbloqueado el siguiente tier en I+D (Desarrollo):\n🔨 {nxt_name} [{next_unlocked}]!"
             )
         else:
             self._notify(
                 "Blueprint Unlocked", "Plano Desbloqueado",
-                f"Blueprint {cur_name} unlocked at Level +{lvl} in Chokufunsha Shop!\nSaved automatically.",
-                f"¡Plano {cur_name} registrado al Nivel +{lvl} en Chokufunsha!\nGuardado automáticamente."
+                f"Blueprint {cur_name} unlocked at Level {lvl_str_en} in Chokufunsha Shop!\nSaved automatically.",
+                f"¡Plano {cur_name} registrado al Nivel {lvl_str} en Chokufunsha!\nGuardado automáticamente."
             )
 
     def _send_single_bp_to_rnd(self):
@@ -2959,6 +2976,8 @@ class CompleteSaveEditorGUI(tk.Tk):
         val = str(self.bp_single_lvl_var.get())
         if "+0" in val or "Plano" in val or "Blueprint" in val:
             target_lvl = 0
+        elif "+24" in val or "+19" in val:
+            target_lvl = 19
         elif "+4" in val:
             target_lvl = 4
         elif "+3" in val:
@@ -2967,10 +2986,6 @@ class CompleteSaveEditorGUI(tk.Tk):
             target_lvl = 2
         elif "+1" in val:
             target_lvl = 1
-        elif "+19" in val:
-            target_lvl = 19
-        elif "+24" in val:
-            target_lvl = 24
         else:
             target_lvl = 0
             
@@ -2989,10 +3004,14 @@ class CompleteSaveEditorGUI(tk.Tk):
                 f"¡{cur_name} [{ptid}] está ahora disponible en el I+D de Chokufunsha para desarrollarlo con materiales!\nGuardado automáticamente."
             )
         else:
+            prev_str = f"+{target_lvl-1} (Uncapped)" if target_lvl >= 19 else f"+{target_lvl-1}"
+            next_str = f"+{target_lvl} (Uncapped)" if target_lvl >= 19 else f"+{target_lvl}"
+            prev_str_es = f"+{target_lvl-1} (Destope)" if target_lvl >= 19 else f"+{target_lvl-1}"
+            next_str_es = f"+{target_lvl} (Destope)" if target_lvl >= 19 else f"+{target_lvl}"
             self._notify(
                 "Item Set in R&D!", "¡Objeto Configurado en I+D!",
-                f"{cur_name} [{ptid}] registered at Level +{target_lvl-1}.\n\n🔨 Ready in Chokufunsha R&D to research Level +{target_lvl}!\nSaved automatically.",
-                f"¡{cur_name} [{ptid}] registrado al Nivel +{target_lvl-1}.\n\n🔨 ¡Listo en el I+D de Chokufunsha para investigar el Nivel +{target_lvl}!\nGuardado automáticamente."
+                f"{cur_name} [{ptid}] registered at Level {prev_str}.\n\n🔨 Ready in Chokufunsha R&D to research Level {next_str}!\nSaved automatically.",
+                f"¡{cur_name} [{ptid}] registrado al Nivel {prev_str_es}.\n\n🔨 ¡Listo en el I+D de Chokufunsha para investigar el Nivel {next_str_es}!\nGuardado automáticamente."
             )
 
     def _evolve_selected_bp_to_next_tier(self):
@@ -3028,10 +3047,7 @@ class CompleteSaveEditorGUI(tk.Tk):
             return
         ptid = self.current_bp_selection
         val = str(self.bp_single_lvl_var.get())
-        if "24" in val:
-            lvl = 25
-            plus = 24
-        elif "19" in val:
+        if "24" in val or "19" in val:
             lvl = 20
             plus = 19
         elif "4" in val:
@@ -3052,13 +3068,15 @@ class CompleteSaveEditorGUI(tk.Tk):
         else:
             lvl = 20
             plus = 19
-        modifiers.add_equipment_to_storage(self.save_json, ptid, count=1, lvl=lvl, dur=50000)
+        modifiers.add_equipment_to_storage(self.save_json, ptid, count=1, lvl=lvl, dur=999999 if plus >= 19 else 50000)
         self._auto_save()
         self.filter_blueprints_list()
+        plus_str = f"+{plus} (Destope)" if plus >= 19 else f"+{plus}"
+        plus_str_en = f"+{plus} (Uncapped)" if plus >= 19 else f"+{plus}"
         self._notify(
             "Item Delivered", "Objeto Entregado",
-            f"Delivered 1 unit of {ptid} (+{plus}, 100% Durability) to Coin Locker!\nSaved automatically.",
-            f"¡Se ha entregado 1 unidad de {ptid} (+{plus}, 100% Durabilidad) en tu Almacén!\nGuardado automáticamente."
+            f"Delivered 1 unit of {ptid} ({plus_str_en}, 100% Durability) to Coin Locker!\nSaved automatically.",
+            f"¡Se ha entregado 1 unidad de {ptid} ({plus_str}, 100% Durabilidad) en tu Almacén!\nGuardado automáticamente."
         )
 
     def _set_collab_filter(self, mode):

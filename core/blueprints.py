@@ -220,9 +220,13 @@ def add_equipment_to_storage(save, ptid, count=1, lvl=5, dur=50000):
     meta = get_equipment_meta(ptid)
     can_uncap = meta.get("can_uncap", True)
     lvl = int(lvl)
+    if lvl in (19, 24):
+        lvl = 20
     # Intermediate tiers that evolve into next tiers cap at Level 5 (+4)
     if not can_uncap and lvl > 5:
         lvl = 5
+    if lvl >= 20 and dur == 50000:
+        dur = 999999
     uid_str = get_player_uid(save)
     try:
         uid_int = int(uid_str)
@@ -441,8 +445,12 @@ def get_blueprints_unlock_map(save):
             
     unlock_map = {}
     for ptid, lvl in max_finished_lvl.items():
-        if lvl >= 5:
+        if lvl >= 20:
+            unlock_map[ptid] = {"status": "STORE_UNCAPPED", "lvl": lvl, "label": f"⭐ Tienda (+{lvl-1} Destope)"}
+        elif lvl == 5:
             unlock_map[ptid] = {"status": "STORE_PLUS4", "lvl": lvl, "label": "⭐ Tienda (+4)"}
+        elif lvl > 5:
+            unlock_map[ptid] = {"status": "STORE_UNCAPPED", "lvl": lvl, "label": f"⭐ Tienda (+{lvl-1} Destope)"}
         else:
             unlock_map[ptid] = {
                 "status": "FINISHED_LVL",
@@ -522,10 +530,19 @@ def send_blueprint_to_rnd(save, ptid, target_level=0, auto_unlock_ancestors=True
         # Researched up to target_level in shop, next level actively waiting in R&D
         meta = get_equipment_meta(ptid)
         can_uncap = meta.get("can_uncap", True)
-        if not can_uncap and target_level > 4:
-            target_level = 4
+        if target_level in (19, 24):
+            engine_lvl = 20
+        elif target_level == 4:
+            engine_lvl = 5
+        elif target_level > 5:
+            engine_lvl = min(target_level, 20)
+        else:
+            engine_lvl = target_level
+
+        if not can_uncap and engine_lvl > 5:
+            engine_lvl = 5
             
-        for l in range(1, target_level + 1):
+        for l in range(1, engine_lvl + 1):
             pr_list.append({
                 "ptid": ptid,
                 "lvl": l,
@@ -575,14 +592,31 @@ def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True, auto_unl
         except Exception:
             pass
     
-    # If this tier cannot uncap, its maximum research level is 4 (CHARGE at lvl 5)
-    if not can_uncap and level > 4:
-        level = 4
+    # Resolve target engine level:
+    # level=19, 20, 24, 25 -> engine level 20 (+19 Uncapped, reflvllmt=20)
+    # level=4, 5 -> engine level 5 (+4, reflvllmt=5)
+    # level=1, 2, 3 -> engine level 2, 3, 4
+    # level=0 -> engine level 1 (+0)
+    level = int(level)
+    if level in (19, 20, 24, 25):
+        target_engine_lvl = 20
+    elif level in (4, 5):
+        target_engine_lvl = 5
+    elif level in (1, 2, 3):
+        target_engine_lvl = level + 1
+    elif level > 5:
+        target_engine_lvl = min(level, 20)
+    else:
+        target_engine_lvl = 1
+
+    # If this tier cannot uncap, its maximum research level is 5 (+4)
+    if not can_uncap and target_engine_lvl > 5:
+        target_engine_lvl = 5
         
     # Remove existing entries for this ptid
     pr_list[:] = [e for e in pr_list if e.get("ptid") != ptid]
     
-    for l in range(1, level + 1):
+    for l in range(1, target_engine_lvl):
         pr_list.append({
             "ptid": ptid,
             "lvl": l,
@@ -594,36 +628,35 @@ def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True, auto_unl
             "before_lvl": (5 if l == 1 and parent else (l - 1 if l > 1 else 0))
         })
 
-    if level >= 4:
-        pr_list.append({
-            "ptid": ptid,
-            "lvl": 5,
-            "research_type": "FINISHED",
-            "receive_type": "CHARGE",
-            "is_announced": 1,
-            "is_checked": 3,
-            "before_ptid": ptid,
-            "before_lvl": 4
-        })
-        # If this tier evolves into a next tier at level 4, unlock next tier in Chokufunsha R&D (REMODEL)!
-        # BUT ONLY IF NEXT TIER IS NOT ALREADY RESEARCHED/FINISHED (prevents the duplicate Tier bug!)
-        if unlock_next_tier and nextptid:
-            existing_next = [e for e in pr_list if e.get("ptid") == nextptid]
-            is_next_already_finished = any(e.get("research_type") == "FINISHED" for e in existing_next)
-            if not is_next_already_finished:
-                # Remove any conflicting or duplicate entries for nextptid
-                pr_list[:] = [e for e in pr_list if e.get("ptid") != nextptid]
-                pr_list.append({
-                    "ptid": nextptid,
-                    "lvl": 1,
-                    "research_type": "REMODEL",
-                    "receive_type": "UNKNOWN",
-                    "is_announced": 0,
-                    "is_checked": 1,
-                    "before_ptid": ptid,
-                    "before_lvl": 5
-                })
-    return nextptid if (level >= 4 and nextptid) else None
+    # The highest researched level is marked as CHARGE so it can be bought in Chokufunsha Shop!
+    pr_list.append({
+        "ptid": ptid,
+        "lvl": target_engine_lvl,
+        "research_type": "FINISHED",
+        "receive_type": "CHARGE",
+        "is_announced": 1,
+        "is_checked": 3,
+        "before_ptid": (parent if target_engine_lvl == 1 and parent else (ptid if target_engine_lvl > 1 else "")),
+        "before_lvl": (5 if target_engine_lvl == 1 and parent else (target_engine_lvl - 1 if target_engine_lvl > 1 else 0))
+    })
+
+    # If this tier evolves into a next tier at level 5 (+4), unlock next tier in Chokufunsha R&D (REMODEL)!
+    if target_engine_lvl >= 5 and unlock_next_tier and nextptid:
+        existing_next = [e for e in pr_list if e.get("ptid") == nextptid]
+        is_next_already_finished = any(e.get("research_type") == "FINISHED" for e in existing_next)
+        if not is_next_already_finished:
+            pr_list[:] = [e for e in pr_list if e.get("ptid") != nextptid]
+            pr_list.append({
+                "ptid": nextptid,
+                "lvl": 1,
+                "research_type": "REMODEL",
+                "receive_type": "UNKNOWN",
+                "is_announced": 0,
+                "is_checked": 1,
+                "before_ptid": ptid,
+                "before_lvl": 5
+            })
+    return nextptid if (target_engine_lvl >= 5 and nextptid) else None
 
 
 
@@ -694,12 +727,12 @@ def set_massive_ammo_all_weapons(save, ammo=9999):
 
 def upgrade_all_equipment_max_level(save, target_lvl=19):
     """
-    Upgrades all equipment in storage and fighter inventories.
+    Upgrades all equipment in storage, fighter inventories, and Chokufunsha Shop.
     Final tier items (can_uncap) are upgraded to target_lvl (e.g. 20 for +19, 25 for +24).
     Intermediate tier items (Tier 1/2/3 that evolve at +4) are safely capped at Level 5 (+4).
     """
     target_lvl = int(target_lvl)
-    uncap_internal = target_lvl + 1 if target_lvl in (19, 24) else target_lvl
+    uncap_internal = 20 if target_lvl in (19, 20, 24, 25) else target_lvl
     
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
     pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
@@ -712,7 +745,10 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
                     ptid = str(p.get("ptid", ""))
                     meta = get_equipment_meta(ptid)
                     can_uncap = meta.get("can_uncap", True)
-                    p["lvl"] = uncap_internal if can_uncap else min(5, uncap_internal)
+                    target_p_lvl = uncap_internal if can_uncap else min(5, uncap_internal)
+                    p["lvl"] = target_p_lvl
+                    if target_p_lvl >= 20:
+                        p["dur"] = max(p.get("dur", 50000), 999999)
                     modified_count += 1
 
     # Also update any equipment in fighters' deathbags
@@ -725,8 +761,26 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
                         ptid = str(b_item.get("ptid", ""))
                         meta = get_equipment_meta(ptid)
                         can_uncap = meta.get("can_uncap", True)
-                        b_item["lvl"] = uncap_internal if can_uncap else min(5, uncap_internal)
+                        target_b_lvl = uncap_internal if can_uncap else min(5, uncap_internal)
+                        b_item["lvl"] = target_b_lvl
+                        if target_b_lvl >= 20:
+                            b_item["dur"] = max(b_item.get("dur", 50000), 999999)
                         modified_count += 1
+
+    # Also upgrade unlocked blueprints in Chokufunsha Shop (soul.partresearch.user) so they can be bought at +19!
+    soul = save.setdefault("soul", {})
+    pr_dict = soul.setdefault("partresearch", {})
+    pr_list = pr_dict.setdefault("user", [])
+    
+    bp_charge_ptids = set()
+    for e in pr_list:
+        if isinstance(e, dict) and e.get("receive_type") == "CHARGE":
+            bp_charge_ptids.add(e.get("ptid"))
+            
+    for ptid in bp_charge_ptids:
+        meta = get_equipment_meta(ptid)
+        if meta.get("can_uncap", True):
+            unlock_single_blueprint(save, ptid, level=uncap_internal, unlock_next_tier=False, auto_unlock_ancestors=False)
                         
     return modified_count
 
