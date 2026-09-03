@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import sys
 import shutil
@@ -23,6 +23,7 @@ def build():
         ("armor_sets_encyclopedia.json", "."),
         ("icon_map.json", "."),
         ("version.json", "."),
+        ("tower_map_data.json", "."),
     ]
 
     cmd = [
@@ -32,6 +33,7 @@ def build():
         "--onedir",
         "--clean",
         "--noconfirm",
+        "--uac-admin",
     ]
 
     if os.path.exists(ICON_ICO):

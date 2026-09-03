@@ -1,3 +1,4 @@
+import sys
 import json
 import time
 import os
@@ -9,6 +10,44 @@ from game_data import CLASS_CODE_ALIASES
 
 ALL_DECALS_FILE = os.path.join(os.path.dirname(__file__), "all_decals_encyclopedia.json")
 ALL_EQUIPMENT_FILE = os.path.join(os.path.dirname(__file__), "all_equipment_encyclopedia.json")
+TOWER_MAP_DATA_FILE = os.path.join(os.path.dirname(__file__), "tower_map_data.json")
+
+_EQUIPMENT_META_CACHE = None
+_TOWER_MAP_DATA_CACHE = None
+
+def get_equipment_meta(ptid):
+    global _EQUIPMENT_META_CACHE
+    if _EQUIPMENT_META_CACHE is None:
+        _EQUIPMENT_META_CACHE = {}
+        if os.path.exists(ALL_EQUIPMENT_FILE):
+            try:
+                with open(ALL_EQUIPMENT_FILE, "r", encoding="utf-8") as f:
+                    for item in json.load(f):
+                        _EQUIPMENT_META_CACHE[item["id"]] = item
+            except Exception:
+                pass
+    return _EQUIPMENT_META_CACHE.get(ptid, {})
+
+def get_tower_map_data():
+    global _TOWER_MAP_DATA_CACHE
+    if _TOWER_MAP_DATA_CACHE is None:
+        _TOWER_MAP_DATA_CACHE = {}
+        candidate_paths = [
+            TOWER_MAP_DATA_FILE,
+            os.path.join(os.path.dirname(sys.executable), "tower_map_data.json"),
+            os.path.join(os.path.dirname(sys.executable), "_internal", "tower_map_data.json"),
+            os.path.join(getattr(sys, "_MEIPASS", ""), "tower_map_data.json")
+        ]
+        for p in candidate_paths:
+            if p and os.path.exists(p):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        _TOWER_MAP_DATA_CACHE = json.load(f)
+                        if _TOWER_MAP_DATA_CACHE:
+                            break
+                except Exception:
+                    pass
+    return _TOWER_MAP_DATA_CACHE
 
 def get_player_uid(save):
     """
@@ -220,17 +259,41 @@ def set_recycle_points(save, amount):
     soul = save.setdefault("soul", {})
     soul["recycle_point"] = int(amount)
 
+RANK_POINTS_TABLE = {
+    1: 0, 2: 200, 3: 300, 4: 400, 5: 500, 6: 600, 7: 700, 8: 800, 9: 900, 10: 1000,
+    11: 1500, 12: 1900, 13: 2300, 14: 2700, 15: 3100, 16: 3500, 17: 3900, 18: 4300, 19: 4700, 20: 5500,
+    21: 6100, 22: 6700, 23: 7300, 24: 7900, 25: 8500, 26: 9100, 27: 9700, 28: 10300, 29: 10900, 30: 11005,
+    31: 22000, 32: 33000, 33: 44000, 34: 55000, 35: 66000, 36: 77000, 37: 88000, 38: 99000, 39: 110000, 40: 120000,
+    41: 173000, 42: 226000, 43: 279000, 44: 332000, 45: 385000, 46: 438000, 47: 491000, 48: 544000, 49: 597000, 50: 650000,
+    51: 715000, 52: 780000, 53: 845000, 54: 910000, 55: 975000, 56: 1040000, 57: 1105000, 58: 1170000, 59: 1235000, 60: 1300005,
+    61: 1400000, 62: 1500000, 63: 1600000, 64: 1700000, 65: 1800000, 66: 1900000, 67: 2000000, 68: 2100000, 69: 2200000, 70: 14000000,
+    71: 20100000, 72: 26200000, 73: 32300000, 74: 38400000, 75: 44500000, 76: 50600000, 77: 56700000, 78: 62800000, 79: 68900000, 80: 75000000,
+    81: 82500000, 82: 90000000, 83: 97500000, 84: 105000000, 85: 150000000, 86: 150000001, 87: 150000002, 88: 150000003, 89: 150000004, 90: 150000005,
+    91: 280000000, 92: 410000000, 93: 540000000, 94: 670000000, 95: 800000000, 96: 960000000, 97: 1120000000, 98: 1280000000, 99: 1440000000, 100: 1600000000,
+    101: 1600000001, 102: 1600000002, 103: 1600000003, 104: 1600000004, 105: 1600000005, 106: 2980000000, 107: 4360000000, 108: 5740000000, 109: 7120000000, 110: 8500000000,
+    111: 10200000000, 112: 11900000000, 113: 13600000000, 114: 15300000000, 115: 17000000000, 116: 17000000001, 117: 17000000002, 118: 17000000003, 119: 17000000004, 120: 17000000005,
+    121: 31600000000, 122: 36000000000, 123: 54000000000, 124: 72000000000, 125: 90000000000, 126: 108000000000, 127: 126000000000, 128: 144000000000, 129: 162000000000, 130: 180000000000
+}
+
+def get_rank_points_for_rank(rank):
+    """Returns the official required rank points for a given Player Rank (1-130)."""
+    r = max(1, min(int(rank), 130))
+    return RANK_POINTS_TABLE.get(r, 0)
+
 def set_player_rank(save, rank=None, rank_point=None):
     soul = save.setdefault("soul", {})
     if rank is not None:
-        soul["rank"] = int(rank)
+        rank_val = max(1, min(int(rank), 130))
+        soul["rank"] = rank_val
+        if rank_point is None:
+            rank_point = get_rank_points_for_rank(rank_val)
     if rank_point is not None:
         soul["rank_point"] = int(rank_point)
 
-def upgrade_waiting_room(save, bank_level=10, tank_level=10):
+def upgrade_waiting_room(save, bank_level=100, tank_level=100):
     soul = save.setdefault("soul", {})
-    soul["safe_level"] = int(bank_level)
-    soul["spirit_tank_level"] = int(tank_level)
+    soul["safe_level"] = max(1, min(int(bank_level), 100))
+    soul["spirit_tank_level"] = max(1, min(int(tank_level), 100))
 
 def max_fighter_level_and_stats(save, fighter_index=0, level=247):
     uid = get_player_uid(save)
@@ -809,6 +872,12 @@ def repair_all_storage_equipment(save):
             p["spare"] = 0
 
 def add_equipment_to_storage(save, ptid, count=1, lvl=5, dur=50000):
+    meta = get_equipment_meta(ptid)
+    can_uncap = meta.get("can_uncap", True)
+    lvl = int(lvl)
+    # Intermediate tiers that evolve into next tiers cap at Level 5 (+4)
+    if not can_uncap and lvl > 5:
+        lvl = 5
     uid_str = get_player_uid(save)
     try:
         uid_int = int(uid_str)
@@ -857,8 +926,8 @@ def add_rainbow_bags(save, count=10):
             "rarity": "RAINBOW",
             "cntgen": gen_id
         })
-    # Also deliver directly into Uncle Death's Reward Box (soul.present)
-    send_present_to_reward_box(save, p_type="LOSTBAG", num=count, kind="MYSTERYBAG_RAINBOW", val0="RAINBOW")
+    # Also deliver directly into Uncle Death's in-game Reward Box (soul.deathbox)
+    send_present_to_reward_box(save, p_type="LOSTBAG", num=count, kind="MYSTERYBAG_RAINBOW", val0="RAINBOW", rarity="RAINBOW")
     return len(r_list)
 
 def add_all_mystery_bags(save, count_each=10, count_per_type=None):
@@ -874,30 +943,100 @@ def add_all_mystery_bags(save, count_each=10, count_per_type=None):
                 "rarity": rarity,
                 "cntgen": f"MYSTERYBAG_GEN_{rarity}_{now % 1000 + i + 1}"
             })
-        send_present_to_reward_box(save, p_type="LOSTBAG", num=count_each, kind=f"MYSTERYBAG_{rarity}", val0=rarity)
+        send_present_to_reward_box(save, p_type="LOSTBAG", num=count_each, kind=f"MYSTERYBAG_{rarity}", val0=rarity, rarity=rarity)
 
 def add_mystery_bags(save, count=10):
     add_all_mystery_bags(save, count_each=count)
 
 def unlock_all_tower_elevators(save):
+    """
+    Completely unlocks all 61 official elevators, unlocks the full Tower map (all 980 rooms & 1,119 escalators),
+    opens all 122 one-way tower gates, unlocks the Waiting Room gate to Floor 41+ (Hazama) and Tengoku 51+,
+    and sets playlog max_floor to 51.
+    """
     soul = save.setdefault("soul", {})
-    openelv = soul.setdefault("openelvflr", [])
+    now = int(time.time())
     
+    # 1. Unlocks all 61 official elevators in soul["openelvflr"]
+    openelv = soul.setdefault("openelvflr", [])
     official_elevators = [
         "ELV_MAIN_HUB",
-        "ELV_MAIN_AMS_FLR_01", "ELV_MAIN_AMS_FLR_03", "ELV_MAIN_AMS_FLR_05", "ELV_MAIN_AMS_FLR_10",
+        "ELV_MAIN_AMS_FLR_01", "ELV_MAIN_AMS_FLR_03", "ELV_MAIN_AMS_FLR_05", "ELV_MAIN_AMS_FLR_07", "ELV_MAIN_AMS_FLR_10",
         "ELV_MAIN_ARC_FLR_01", "ELV_MAIN_ARC_FLR_02", "ELV_MAIN_ARC_FLR_03", "ELV_MAIN_ARC_FLR_06", "ELV_MAIN_ARC_FLR_09", "ELV_MAIN_ARC_FLR_10",
         "ELV_MAIN_MET_FLR_01", "ELV_MAIN_MET_FLR_03", "ELV_MAIN_MET_FLR_04", "ELV_MAIN_MET_FLR_05", "ELV_MAIN_MET_FLR_06", "ELV_MAIN_MET_FLR_08", "ELV_MAIN_MET_FLR_09", "ELV_MAIN_MET_FLR_10",
-        "ELV_MAIN_RFT_FLR_01", "ELV_MAIN_RFT_FLR_03",
-        "ELV_SUB01_AMS_FLR_02_A", "ELV_SUB01_AMS_FLR_07_A", "ELV_SUB01_ARC_FLR_05", "ELV_SUB01_ARC_FLR_10",
-        "ELV_SUB02_AMS_FLR_02_B", "ELV_SUB03_AMS_FLR_02_C", "ELV_SUB1_MET_FLR_02", "ELV_SUB1_MET_FLR_10"
+        "ELV_MAIN_RFT_FLR_01", "ELV_MAIN_RFT_FLR_03", "ELV_MAIN_RFT_FLR_06", "ELV_MAIN_RFT_FLR_07", "ELV_MAIN_RFT_FLR_09", "ELV_MAIN_RFT_FLR_10",
+        "ELV_MAIN_HZM_FLR_01", "ELV_MAIN_HVN_FLR_01",
+        "ELV_SUB01_AMS_FLR_02_A", "ELV_SUB01_AMS_FLR_05_A", "ELV_SUB01_AMS_FLR_07_A",
+        "ELV_SUB01_ARC_FLR_05", "ELV_SUB01_ARC_FLR_10",
+        "ELV_SUB02_AMS_FLR_02_B", "ELV_SUB02_AMS_FLR_06_B", "ELV_SUB02_AMS_FLR_09_B", "ELV_SUB02_AMS_FLR_10_B",
+        "ELV_SUB03_AMS_FLR_02_C", "ELV_SUB03_AMS_FLR_09_C",
+        "ELV_SUB04_AMS_FLR_02_C", "ELV_SUB04_AMS_FLR_07_C",
+        "ELV_SUB05_AMS_FLR_02_D", "ELV_SUB05_AMS_FLR_05_D", "ELV_SUB05_AMS_FLR_07_D", "ELV_SUB05_AMS_FLR_09_D",
+        "ELV_SUB1_MET_FLR_02", "ELV_SUB1_MET_FLR_10",
+        "ELV_SUB2_MET_FLR_03_B", "ELV_SUB2_MET_FLR_08_B",
+        "ELV_SUB_A01_RFT_FLR_04", "ELV_SUB_A01_RFT_FLR_08",
+        "ELV_SUB_B01_RFT_FLR_04", "ELV_SUB_B01_RFT_FLR_09",
+        "ELV_SUB_C01_RFT_FLR_01", "ELV_SUB_C01_RFT_FLR_08",
+        "ELV_SUB_C02_RFT_FLR_03", "ELV_SUB_C02_RFT_FLR_10",
+        "ELV_SUB_D01_RFT_FLR_03", "ELV_SUB_D01_RFT_FLR_06",
+        "ELV_SUB_D02_RFT_FLR_07", "ELV_SUB_D02_RFT_FLR_09"
     ]
-    
-    existing = {e.get("id") for e in openelv if isinstance(e, dict) and "id" in e}
+    existing_elvs = {e.get("id") for e in openelv if isinstance(e, dict) and "id" in e}
     for elv in official_elevators:
-        if elv not in existing:
+        if elv not in existing_elvs:
             openelv.append({"id": elv})
-            
+
+    # 2. Unlock all 980 Tower Rooms on Map in soul["areaflag"]
+    t_data = get_tower_map_data()
+    room_indices = t_data.get("room_indices", [])
+    areaflag = soul.setdefault("areaflag", [])
+    existing_rooms = {a.get("idx"): a for a in areaflag if isinstance(a, dict) and "idx" in a}
+    for r_idx in room_indices:
+        if r_idx not in existing_rooms:
+            areaflag.append({"idx": r_idx, "val": 33})
+        else:
+            cur_val = existing_rooms[r_idx].get("val", 33)
+            # Clear lock bit 64 (0x40) so no padlocks remain on visited rooms
+            clean_val = cur_val & ~64
+            existing_rooms[r_idx]["val"] = max(clean_val, 33)
+
+    # 3. Unlock all 1,119 Escalators on Map in soul["areaescflag"]
+    esc_indices = t_data.get("escalator_indices", [])
+    areaescflag = soul.setdefault("areaescflag", [])
+    existing_escs = {a.get("idx"): a for a in areaescflag if isinstance(a, dict) and "idx" in a}
+    for e_idx in esc_indices:
+        if e_idx not in existing_escs:
+            areaescflag.append({"idx": e_idx, "val": 7})
+        else:
+            existing_escs[e_idx]["val"] = max(existing_escs[e_idx].get("val", 0), 7)
+
+    # 4. Register Tower Exploration Progress in playlog (Floors 1 to 51)
+    playlog = save.setdefault("playlog", {})
+    base = playlog.setdefault("base", {})
+    if base.get("max_floor", 0) < 51:
+        base["max_floor"] = 51
+
+    # 5. Unlock all 122 Tower Gates & Story Progression Flags in gameflg["cl"]
+    gameflg = save.setdefault("gameflg", {})
+    cl = gameflg.setdefault("cl", [])
+    existing_flags = {f.get("var"): f for f in cl if isinstance(f, dict)}
+
+    # Gates (RELEASE_GATE)
+    for g_var in t_data.get("gate_flags", []):
+        if g_var in existing_flags:
+            existing_flags[g_var]["value"] = 1
+            existing_flags[g_var]["modified"] = now
+        else:
+            cl.append({"var": g_var, "value": 1, "modified": now})
+
+    # Progression flags (KGF_GAME_CLEAR, KGF_HZM_FIRST_TIME_ENTRANCE_GATE, etc.)
+    for p_var in t_data.get("progression_flags", []):
+        if p_var in existing_flags:
+            existing_flags[p_var]["value"] = 1
+            existing_flags[p_var]["modified"] = now
+        else:
+            cl.append({"var": p_var, "value": 1, "modified": now})
+
     return len(openelv)
 
 def set_all_stamps_perfect(save):
@@ -1014,31 +1153,157 @@ def set_free_continues(save, count=999):
     soul["free_continue_count"] = int(count)
     soul["free_continue_max_count"] = int(count)
 
-def send_present_to_reward_box(save, p_type="LOSTBAG", num=10, kind="MYSTERYBAG_RAINBOW", val0="RAINBOW"):
+def send_present_to_reward_box(save, p_type="LOSTBAG", num=10, kind="MYSTERYBAG_RAINBOW", val0="RAINBOW", rarity="RAINBOW"):
     soul = save.setdefault("soul", {})
-    presents = soul.setdefault("present", {})
-    if isinstance(presents, list):
-        soul["present"] = {}
-        presents = soul["present"]
+    deathbox = soul.get("deathbox")
+    if not isinstance(deathbox, list):
+        deathbox = []
+        soul["deathbox"] = deathbox
         
     now = int(time.time())
-    pid = str(uuid.uuid4())
+    p_type_up = str(p_type).upper().strip()
     
-    presents[pid] = {
-        "pid": pid,
-        "from": "ADMIN",
-        "type": str(p_type),
-        "num": int(num),
-        "created": now,
-        "fromval": "TDM Rewards",
-        "kind": str(kind),
-        "val0": str(val0),
-        "val1": "0",
-        "val2": "0",
-        "val3": "0",
-        "val4": "0"
-    }
-    return len(presents)
+    if "LOST" in p_type_up or "BAG" in p_type_up:
+        actual_rarity = str(val0 or rarity or "RAINBOW").upper()
+        for _ in range(max(1, int(num))):
+            deathbox.append({
+                "bid": "",
+                "rarity": actual_rarity,
+                "type": "LOSTBAG",
+                "created": now,
+                "opentime": now - 10,
+                "num": 1,
+                "val0": actual_rarity,
+                "val1": "",
+                "val2": "",
+                "val3": ""
+            })
+    elif "SPL" in p_type_up or "SPIRIT" in p_type_up:
+        deathbox.append({
+            "bid": "",
+            "rarity": "NONE",
+            "type": "SPIRIT",
+            "created": now,
+            "opentime": now - 10,
+            "num": int(num),
+            "val0": "",
+            "val1": "",
+            "val2": "",
+            "val3": ""
+        })
+    elif "DM" in p_type_up or "MEDAL" in p_type_up:
+        user = save.setdefault("user", {})
+        user["free_medal"] = min(99999, user.get("free_medal", 0) + int(num))
+        deathbox.append({
+            "bid": "",
+            "rarity": "GOLD",
+            "type": "MONEY",
+            "created": now,
+            "opentime": now - 10,
+            "num": int(num) * 5000,
+            "val0": "",
+            "val1": "",
+            "val2": "",
+            "val3": ""
+        })
+    elif "MONEY" in p_type_up or "KC" in p_type_up or "COIN" in p_type_up:
+        deathbox.append({
+            "bid": "",
+            "rarity": "NONE",
+            "type": "MONEY",
+            "created": now,
+            "opentime": now - 10,
+            "num": int(num),
+            "val0": "",
+            "val1": "",
+            "val2": "",
+            "val3": ""
+        })
+    elif "MUSHROOM" in p_type_up or "MSR" in p_type_up:
+        deathbox.append({
+            "bid": "",
+            "rarity": str(rarity or "SILVER"),
+            "type": "MUSHROOM",
+            "created": now,
+            "opentime": now - 10,
+            "num": max(1, int(num)),
+            "val0": str(val0 or "MSR_043"),
+            "val1": "",
+            "val2": "",
+            "val3": ""
+        })
+    else:
+        deathbox.append({
+            "bid": "",
+            "rarity": str(rarity or "NONE"),
+            "type": str(p_type),
+            "created": now,
+            "opentime": now - 10,
+            "num": int(num),
+            "val0": str(val0),
+            "val1": "",
+            "val2": "",
+            "val3": ""
+        })
+
+    # Keep soul.present populated for legacy systems
+    presents = soul.setdefault("present", {})
+    if isinstance(presents, dict):
+        pid = str(uuid.uuid4())
+        presents[pid] = {
+            "pid": pid,
+            "from": "ADMIN",
+            "type": str(p_type),
+            "num": int(num),
+            "created": now,
+            "fromval": "TDM Rewards",
+            "kind": str(kind),
+            "val0": str(val0),
+            "val1": "0",
+            "val2": "0",
+            "val3": "0",
+            "val4": "0"
+        }
+        
+    return len(deathbox)
+
+def sync_mystery_bags_to_deathbox(save):
+    """
+    Transfers any uncollected Mystery Bags from soul.mysterybag into soul.deathbox
+    so they immediately appear in Uncle Death's in-game Reward Box in the Waiting Room.
+    Returns number of bags transferred.
+    """
+    soul = save.setdefault("soul", {})
+    mbags = soul.get("mysterybag", {})
+    if not mbags:
+        return 0
+        
+    deathbox = soul.get("deathbox")
+    if not isinstance(deathbox, list):
+        deathbox = []
+        soul["deathbox"] = deathbox
+        
+    now = int(time.time())
+    transferred = 0
+    for rarity, items in mbags.items():
+        if isinstance(items, list) and items:
+            for _ in items:
+                deathbox.append({
+                    "bid": "",
+                    "rarity": str(rarity),
+                    "type": "LOSTBAG",
+                    "created": now,
+                    "opentime": now - 10,
+                    "num": 1,
+                    "val0": str(rarity),
+                    "val1": "",
+                    "val2": "",
+                    "val3": ""
+                })
+                transferred += 1
+            mbags[rarity] = []
+            
+    return transferred
 
 def complete_encyclopedia_books(save):
     soul = save.setdefault("soul", {})
@@ -1307,9 +1572,11 @@ def smart_top_up_materials(save, target_qty=10, materials_list=None):
 
 def expand_storage_capacity(save, target_capacity=6000, db_path=None):
     """
-    Expands the Coin Locker capacity to target_capacity:
-    1. Updates COINLOCKER_EXPAND_LIMIT_COUNT in masters.db.
-    2. Expands soul.cl in save to target_capacity slots.
+    Adjusts the Coin Locker capacity to target_capacity (both expanding and safely shrinking):
+    1. Extracts all occupied items (type != -1 or eid != "").
+    2. Guarantees target_capacity >= len(occupied) so no player items are lost.
+    3. Re-indexes occupied items and pads/trims empty slots to target_capacity.
+    4. Updates COINLOCKER_EXPAND_LIMIT_COUNT in masters.db.
     Returns (old_capacity, new_capacity).
     """
     db_path = get_masters_db_path(db_path)
@@ -1319,29 +1586,42 @@ def expand_storage_capacity(save, target_capacity=6000, db_path=None):
     old_capacity = len(cl)
     
     target_capacity = int(target_capacity)
-    if target_capacity <= old_capacity:
-        return old_capacity, old_capacity
+    
+    # 1. Identify occupied items vs empty slots
+    occupied = [item for item in cl if item.get("type", -1) != -1 or item.get("eid", "") != ""]
+    min_required = len(occupied)
+    
+    if target_capacity < min_required:
+        target_capacity = min_required
         
-    # 1. Update masters.db
-    if os.path.exists(db_path):
-        try:
-            conn = sqlite3.connect(db_path)
-            cur = conn.cursor()
-            cur.execute("UPDATE master_const_int SET value=? WHERE id='COINLOCKER_EXPAND_LIMIT_COUNT';", (target_capacity,))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"Warning: Could not update masters.db: {e}")
-            
-    # 2. Expand soul.cl
-    for i in range(old_capacity, target_capacity):
-        cl.append({
+    # 2. Rebuild soul.cl: occupied items first, then empty slots up to target_capacity
+    new_cl = []
+    for i, item in enumerate(occupied):
+        item["slot"] = i
+        new_cl.append(item)
+        
+    for i in range(len(occupied), target_capacity):
+        new_cl.append({
             "slot": i,
             "type": -1,
             "eid": ""
         })
         
-    return old_capacity, target_capacity
+    soul["cl"] = new_cl
+    new_capacity = len(new_cl)
+    
+    # 3. Update masters.db
+    if os.path.exists(db_path):
+        try:
+            conn = sqlite3.connect(db_path)
+            cur = conn.cursor()
+            cur.execute("UPDATE master_const_int SET value=? WHERE id='COINLOCKER_EXPAND_LIMIT_COUNT';", (new_capacity,))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"Warning: Could not update masters.db: {e}")
+            
+    return old_capacity, new_capacity
 
 def get_deathbag_masters_status(db_path=None):
     """
@@ -1537,8 +1817,8 @@ def get_player_currencies(save):
 def get_waiting_room_info(save):
     soul = save.get("soul", {})
     return {
-        "bank_level": soul.get("safe_level", 10),
-        "tank_level": soul.get("spirit_tank_level", 10),
+        "bank_level": soul.get("safe_level", 100),
+        "tank_level": soul.get("spirit_tank_level", 100),
         "rank": soul.get("rank", 100),
     }
 
@@ -1648,11 +1928,19 @@ def add_top_meta_decals(save, count=5):
     ]
     add_or_update_decals(save, top_meta, count=count, premium=True)
 
-def unlock_single_blueprint(save, ptid, level=4):
+def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True):
     soul = save.setdefault("soul", {})
     pr_dict = soul.setdefault("partresearch", {})
     pr_list = pr_dict.setdefault("user", [])
     
+    meta = get_equipment_meta(ptid)
+    can_uncap = meta.get("can_uncap", True)
+    nextptid = meta.get("nextptid", "")
+    
+    # If this tier cannot uncap, its maximum research level is 4 (CHARGE at lvl 5)
+    if not can_uncap and level > 4:
+        level = 4
+        
     # Remove existing entries for this ptid
     pr_list[:] = [e for e in pr_list if e.get("ptid") != ptid]
     
@@ -1678,6 +1966,21 @@ def unlock_single_blueprint(save, ptid, level=4):
             "before_ptid": ptid,
             "before_lvl": 4
         })
+        # If this tier evolves into a next tier at level 4, unlock next tier blueprint in Chokufunsha!
+        if unlock_next_tier and nextptid:
+            existing_next = [e for e in pr_list if e.get("ptid") == nextptid]
+            if not existing_next:
+                pr_list.append({
+                    "ptid": nextptid,
+                    "lvl": 1,
+                    "research_type": "FINISHED",
+                    "receive_type": "CHARGE",
+                    "is_announced": 1,
+                    "is_checked": 1,
+                    "before_ptid": ptid,
+                    "before_lvl": 4
+                })
+    return nextptid if (level >= 4 and nextptid) else None
 
 def unlock_all_blueprints(save, level=4):
     unlock_blueprints(save, category="all", max_level=level)
@@ -1824,8 +2127,13 @@ def set_massive_ammo_all_weapons(save, ammo=9999):
 
 def upgrade_all_equipment_max_level(save, target_lvl=19):
     """
-    Upgrades all equipment in storage to the specified level (e.g. 19 for Tier 4 +19 uncapped).
+    Upgrades all equipment in storage and fighter inventories.
+    Final tier items (can_uncap) are upgraded to target_lvl (e.g. 20 for +19, 25 for +24).
+    Intermediate tier items (Tier 1/2/3 that evolve at +4) are safely capped at Level 5 (+4).
     """
+    target_lvl = int(target_lvl)
+    uncap_internal = target_lvl + 1 if target_lvl in (19, 24) else target_lvl
+    
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
     pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
     
@@ -1834,8 +2142,25 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
         if isinstance(pts_list, list):
             for p in pts_list:
                 if isinstance(p, dict):
-                    p["lvl"] = max(p.get("lvl", 1), int(target_lvl))
+                    ptid = str(p.get("ptid", ""))
+                    meta = get_equipment_meta(ptid)
+                    can_uncap = meta.get("can_uncap", True)
+                    p["lvl"] = uncap_internal if can_uncap else min(5, uncap_internal)
                     modified_count += 1
+
+    # Also update any equipment in fighters' deathbags
+    deathbags = save.get("soul", {}).get("deathbag", {})
+    if isinstance(deathbags, dict):
+        for bag_items in deathbags.values():
+            if isinstance(bag_items, list):
+                for b_item in bag_items:
+                    if isinstance(b_item, dict) and "lvl" in b_item:
+                        ptid = str(b_item.get("ptid", ""))
+                        meta = get_equipment_meta(ptid)
+                        can_uncap = meta.get("can_uncap", True)
+                        b_item["lvl"] = uncap_internal if can_uncap else min(5, uncap_internal)
+                        modified_count += 1
+                        
     return modified_count
 
 # ================= META DECAL PRESETS FOR FIGHTERS =================
@@ -2089,3 +2414,68 @@ def unlock_all_radio_music(save):
         "rank5": "SN_BGM_Radio_Music_0005"
     }
     return True
+
+def get_tower_playlog(save):
+    """
+    Retrieves Tower exploration records and play statistics from save['playlog']['base'].
+    """
+    pl = save.get("playlog", {}).get("base", {})
+    sec = pl.get("total_play_time", 0)
+    hours = round(sec / 3600.0, 1)
+    return {
+        "max_floor": pl.get("max_floor", 40),
+        "playtime_hours": hours,
+        "playtime_seconds": sec,
+        "interruptions": pl.get("interruption", 0),
+        "elevators": pl.get("elevator_cnt", 0),
+        "escalators": pl.get("escalator_cnt", 0),
+        "materials_collected": pl.get("total_get_material_cnt", 0),
+        "weapons_collected": pl.get("total_get_weapon_cnt", 0),
+        "armors_collected": pl.get("total_get_armor_cnt", 0),
+        "researches": pl.get("total_research_cnt", 0),
+        "boss_kills": pl.get("circle_crusher", 0)
+    }
+
+def set_tower_max_floor(save, max_floor=51):
+    """
+    Sets the maximum floor reached in the Tower of Barbs (e.g. 40, 51 Tengoku, 100+).
+    """
+    playlog = save.setdefault("playlog", {})
+    base = playlog.setdefault("base", {})
+    base["max_floor"] = int(max_floor)
+    return int(max_floor)
+
+def reset_tower_interruptions(save):
+    """
+    Clears all tower disconnection / force shutdown penalty counters, protecting fighters.
+    """
+    playlog = save.setdefault("playlog", {})
+    base = playlog.setdefault("base", {})
+    old_cnt = base.get("interruption", 0)
+    base["interruption"] = 0
+    save["force_shutdown_counts"] = 0
+    return old_cnt
+
+def get_account_overview(save):
+    """
+    Retrieves metadata about the player account, login streaks, and timestamps.
+    """
+    user = save.get("user", {})
+    soul = save.get("soul", {})
+    return {
+        "uid": user.get("uid", soul.get("uid", "---")),
+        "steam_id": user.get("psnacid", "---"),
+        "login_count": user.get("login_count", 1),
+        "login_streak": user.get("login_keep", 1),
+        "created_ts": user.get("created", 0),
+        "modified_ts": user.get("modified", 0),
+    }
+
+def max_login_streak(save, streak=365):
+    """
+    Sets consecutive login streak counter.
+    """
+    user = save.setdefault("user", {})
+    user["login_keep"] = int(streak)
+    return int(streak)
+

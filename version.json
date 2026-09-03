@@ -1,15 +1,15 @@
 {
-  "version": "2.4.0",
+  "version": "2.5.0",
   "name": "Let It Die - Complete Save Editor & Encyclopedia",
   "release_date": "2026-09-03",
   "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
   "changelog": [
-    "Mod de Capacidad de Bolsa (masters.db): Expansión a 60-70+ slots para cualquier clase y grado con respaldo automático",
-    "Corrección de fallo al crear respaldo manual en save_io",
-    "Corrección de inversión de facciones: PT_MIL ahora asigna WAR ENSEMBLE y PT_SPO asigna M.I.L.K.",
-    "Soporte y visualización completa de los 8 espacios de calcomanías para luchadores Tier 8",
-    "Aceleración O(1) de carga de los 11,581 iconos en memoria sin congelamiento de UI",
-    "Escritura atómica segura (.tmp con reemplazo directo) contra corrupción de partidas",
-    "Detección dinámica de rutas de Steam vía Registro de Windows y libraryfolders.vdf"
+    "Desbloqueo Total de la Torre y Mapa: Revelación de los 980 cuartos y 1,119 escaleras sin niebla de guerra",
+    "Eliminación total de candados en el mapa (purga de bit de bloqueo 64 y 193 flags de llaves, verjas, botones y jefes)",
+    "Habilitación de los 61 ascensores oficiales y apertura del portal a Pisos 41-50 (Hazama) y Tengoku (51+)",
+    "Motor de Evolución y Destope de Equipamiento: Límites seguros (+4 para tiers base; +19 y +24 para Tier 4 final)",
+    "Instalaciones de Sala de Espera hasta Nivel 100 y sincronización automática de Puntos de Rango (130 rangos)",
+    "Auto-elevación UAC (Permisos de Administrador) para edición de partidas sin bloqueos de acceso",
+    "Internacionalización y traducción completa en inglés y español en todos los diálogos y avisos"
   ]
 }

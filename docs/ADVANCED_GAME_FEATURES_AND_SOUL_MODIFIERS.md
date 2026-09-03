@@ -1,4 +1,4 @@
-﻿# LET IT DIE - Internal Save Architecture & Soul Modifiers Reference
+# LET IT DIE - Internal Save Architecture & Soul Modifiers Reference
 > Technical Reference Manual for Save Modders and Tool Developers
 > Fully documented with game engine paths, JSON keys, and data structures.
 
@@ -141,71 +141,55 @@ Registering the official `ELV_MAIN_...` and `ELV_SUB...` IDs permanently enables
 
 ---
 
-## 5. TDM Mystery Bags Architecture (mysterybag)
+## 5. TDM Mystery Bags Architecture (mysterybag vs deathbox)
 
-### Save File Path
-* `save_json["soul"]["mysterybag"]` -> Dictionary indexed by tier rarity.
+### Save File Paths
+* `save_json["soul"]["mysterybag"]` -> Internal dictionary indexed by tier rarity storing generator IDs (`cntgen`).
+* `save_json["soul"]["deathbox"]` -> **The actual physical in-game delivery container** (List of Objects) displayed at Uncle Death's Reward Box in the Waiting Room.
 
-### Schema
+### Technical Discovery & Online-Only Architecture
+In the original online live-service game, both the Reward Box (`soul.present` / `soul.deathbox`) and TDM Mystery Bags (`soul.mysterybag`) were backed by live GungHo server HTTP endpoints (`BrgNetworkResponsePresents`, `Receivedeathbox`).
+
+In offline play, because no remote game server is running to answer these network queries, the physical terminal on the Waiting Room wall always reports as empty, and seasonal mystery bag rolls cannot be executed by the game engine. Consequently, **these non-functional controls were cleanly retired from the Save Editor UI** in favor of direct, verified offline modifications (injecting materials directly into the Coin Locker, decals into skill lists, and currencies directly into player balances).
+
+### Deathbox Item Schema
 ```json
 {
-  "RAINBOW": [
-    {"rarity": "RAINBOW", "cntgen": "MYSTERYBAG_GEN_RAINBOW_144"}
-  ],
-  "PLATINUM": [
-    {"rarity": "PLATINUM", "cntgen": "MYSTERYBAG_GEN_PLATINUM_58"}
-  ],
-  "GOLD": [
-    {"rarity": "GOLD", "cntgen": "MYSTERYBAG_GEN_GOLD_04"}
-  ],
-  "SILVER": [
-    {"rarity": "SILVER", "cntgen": "MYSTERYBAG_GEN_SILVER_74"}
-  ],
-  "COPPER": [
-    {"rarity": "COPPER", "cntgen": "MYSTERYBAG_GEN_COPPER_46"}
-  ]
+  "bid": "",
+  "rarity": "RAINBOW",
+  "type": "LOSTBAG",
+  "created": 1788438689,
+  "opentime": 1788438679,
+  "num": 1,
+  "val0": "RAINBOW",
+  "val1": "",
+  "val2": "",
+  "val3": ""
 }
 ```
 
-### Rewards by Rarity
-* **RAINBOW:** Death Metals (x1 to x5), 4-Star & 5-Star Decals, 44CE Forcemen Blueprints, Purple/Orange Death 'Roids.
-* **PLATINUM:** 4-Star Decals, Grade 6 to 8 Materials, Boss Metals.
-* **GOLD:** 50,000+ KC / SPL, Grade 5 to 6 Materials, 3-Star Decals.
-* **SILVER:** 20,000 KC / SPL, Grade 3 to 5 Materials.
-* **COPPER:** 5,000 KC / SPL, Mushrooms and Basic Materials.
+### Critical Field: Instant Opening (`opentime`)
+* If `opentime` is set to a future timestamp, the game places a lock timer on the package (e.g., 2 hours, 6 hours, 24 hours).
+* By setting `opentime = current_timestamp - 10` (in the past), the package is marked as **immediately unlocked**, allowing the player to open and claim it instantly without any countdown.
 
----
+### Valid In-Game Reward Types (Verified via `masters.db` `master_reward`)
+| Type Code | Meaning | `val0` Value | `num` Value |
+| :--- | :--- | :--- | :--- |
+| `"LOSTBAG"` | TDM Mystery Bag | Rarity (`"RAINBOW"`, `"PLATINUM"`, `"GOLD"`, `"SILVER"`, `"COPPER"`) | `1` per entry |
+| `"MONEY"` | Kill Coins | `""` (empty) | Exact Coin amount (e.g. `1000000`) |
+| `"SPIRIT"` | SPLithium | `""` (empty) | Exact SPL amount (e.g. `1000000`) |
+| `"MUSHROOM"` | Mushroom | Mushroom ID (e.g. `"MSR_043"` Golden Lifeshroom) | Quantity (or `0` for single) |
+| `"BEAST"` | Creature / Beast | Beast ID (e.g. `"BST_GCASSOWARY"` Golden Bird) | Quantity |
+| `"ITEM"` | R&D Material | Material ID (e.g. `"ITMT_WOOD_2"`, `"ITMT_ALUMI_8"`) | Quantity |
+| `"SKILL"` | Skill Decal | Decal ID (e.g. `"SKL_ATKUP_NODMG_P"`) | `1` |
+| `"PTTP_ARM"` | Weapon / Blueprint | Weapon ID (e.g. `"PT_ARM_WP011_001"`) | `1` |
+| `"PTTP_BODY"` | Chest Armor piece | Armor ID (e.g. `"PT_REC_TOPS_001"`) | `1` |
+| `"PTTP_HEAD"` | Helmet piece | Headgear ID (e.g. `"PT_REC_HEAD_001"`) | `1` |
+| `"PTTP_LEGS"` | Pants / Leggings | Legwear ID (e.g. `"PT_REC_BTM_001"`) | `1` |
+| `"1VIP"` / `"VIP"` | Express Pass | `""` (empty) | Pass count (`1` to `5`) |
 
-## 6. Reward Box / Mailbox Presents (soul.present)
-
-### Save File Path
-* `save_json["soul"]["present"]` -> List of pending rewards in the Waiting Room mailbox.
-
-### Present Item Schema
-```json
-{
-  "pid": "5c3f4a4d-64ad-4fae-a4d5-0820729a5637",
-  "from": "ADMIN",
-  "type": "MONEY",
-  "num": 1000000,
-  "created": 1670398513,
-  "fromval": "",
-  "kind": "MYSTERYBAG_RAINBOW",
-  "val0": "",
-  "val1": "0",
-  "val2": "0",
-  "val3": "0",
-  "val4": "0"
-}
-```
-
-### Valid Item Types
-* `"MONEY"` -> Direct Kill Coins (`num` = amount)
-* `"SPIRIT"` -> Direct SPLithium (`num` = amount)
-* `"MEDAL"` -> Death Metals (`num` = amount)
-* `"ITEM"` -> Crafting Material (`val0` = `itemid`)
-* `"DECAL"` -> Skill Decal (`val0` = `sklid`)
-* `"EQUIPMENT"` -> Weapon or Armor piece (`val0` = `ptid`)
+### Auto-Migration
+The Save Editor automatically runs `sync_mystery_bags_to_deathbox(save_json)` upon loading any save file, migrating all uncollected mystery bags from `soul.mysterybag` into `soul.deathbox` so they immediately appear in the Waiting Room.
 
 ---
 
