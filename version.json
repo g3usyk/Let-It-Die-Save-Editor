@@ -1,0 +1,14 @@
+{
+  "version": "2.2.0",
+  "name": "Let It Die - Complete Save Editor & Encyclopedia",
+  "release_date": "2026-09-02",
+  "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
+  "changelog": [
+    "Diseño visual moderno Windows 11 Fluent Dark (sv-ttk) con esquinas redondeadas y alto contraste",
+    "Solución total a fondos blancos con letras blancas en desplegables y campos de texto",
+    "Integración oficial de conjuntos de eventos: Travis Touchdown (NMH), Tank Commander (WOT), Kat (Gravity Rush), Momoko, Meijin, Reaper",
+    "Filtros avanzados por pisos de la torre (DOD, WE, CW, MILK, Tengoku), estilos tácticos (Addicts, Crit, Tank) y tipos de daño elemental",
+    "Equipamiento instantáneo de presets de calcomanías meta en luchadores individuales",
+    "Sistema de comprobación y actualización automática integrado desde GitHub"
+  ]
+}

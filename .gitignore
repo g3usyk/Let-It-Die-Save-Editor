@@ -1,0 +1,31 @@
+# Personal Saves & Backups (CRITICAL: Do not commit player data)
+CurrentSave/
+*.sav
+Backups/
+backups/
+*.bak
+masters.db.original.bak
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.pytest_cache/
+env/
+venv/
+.env
+
+# Editor & OS files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary and test logs
+*.log
+.system_generated/
+scratch/

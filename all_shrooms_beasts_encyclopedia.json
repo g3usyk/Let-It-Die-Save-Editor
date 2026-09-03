@@ -1,0 +1,567 @@
+{
+  "mushrooms": [
+    {
+      "id": "MSR_001",
+      "name_es": "Seta corazón",
+      "name_en": "Heartshroom",
+      "desc_es": "Al comerla, el sombrero en forma  de corazón de la seta restablece  la salud. El calor aumenta su efecto. Una exquisitez.",
+      "desc_en": "The heart-shaped cap of the mushroom restores HP when eaten. Its effects increase with heat. It is a delicacy."
+    },
+    {
+      "id": "MSR_002",
+      "name_es": "Seta de cuenco de arroz",
+      "name_en": "Ricebowl Shroom",
+      "desc_es": "Sus \"granos de arroz\" son componentes poderosos y curativos similares a las setas corazón. Sabe mejor que muchas setas.",
+      "desc_en": "The \"grains of rice\" are actually powerful, swollen Heartshroom-esque healing components. Tastes better than most mushrooms."
+    },
+    {
+      "id": "MSR_006",
+      "name_es": "Seta puñetazo",
+      "name_en": "Punchshroom",
+      "desc_es": "Su cabeza con forma de puño actúa como propulsor y explota al contacto. Es una de las \"3  setas explosivas\".  No comer.",
+      "desc_en": "Resembling a fist, the tip contains propulsion parts and  explodes when thrown. Known as one of the \"3 Exploshrooms.\"  Do not eat."
+    },
+    {
+      "id": "MSR_007",
+      "name_es": "Seta de resistencia",
+      "name_en": "Toughshroom",
+      "desc_es": "Cubierta por minerales. Es  resistente y no venenosa. Se  desaconseja su consumo, aunque puede mejorar la resistencia temporalmente.",
+      "desc_en": "Crystal-like minerals have formed over time. Tough and non-poisonous. Not ideal for  eating, but can harden the user  temporarily."
+    },
+    {
+      "id": "MSR_009",
+      "name_es": "Seta de lava",
+      "name_en": "Lavashroom",
+      "desc_es": "Tiene propiedades volcánicas.  Ligera y altamente explosiva. Una de las \"3 setas explosivas\". No comer.",
+      "desc_en": "Contains magma-like parts in the cap. Very light and explodes  at the slightest touch. One of the \"3 Exploshrooms.\" Do not  eat."
+    },
+    {
+      "id": "MSR_010",
+      "name_es": "Seta esponjosa",
+      "name_en": "Fluffy Fungus",
+      "desc_es": "Su sombrero es suave, redondo y tiene esporas venenosas. Al  tocarlo, provoca sueño. No te fíes de su agradable olor.",
+      "desc_en": "Has a round, cotton-like cap, and poisonous spores. Just  touching it will put you to sleep.  Do not trust its sweet smell."
+    },
+    {
+      "id": "MSR_012",
+      "name_es": "Seta mortífera",
+      "name_en": "Doomshroom",
+      "desc_es": "Contiene veneno α-Barbitin que provoca vómitos. Emite gas venenoso como defensa.  Puede ser letal. El calor la hace  más venenosa.",
+      "desc_en": "Contains α-Doomitin poison that induces vomiting. Can be  lethal. Releases poison gas as a  defense. Heat only enhances the poison."
+    },
+    {
+      "id": "MSR_013",
+      "name_es": "Seta de yoga",
+      "name_en": "Yogashroom",
+      "desc_es": "Esta seta turquesa, que llegó de la India a la isla de Tokyo del Sur, mejora la concentración al comerla. Es carnosa y sabrosa.",
+      "desc_en": "With a turquoise cap, this mushroom aids the user's  concentration. It spread from  India to the island of South Tokyo.  Meaty and tasty."
+    },
+    {
+      "id": "MSR_014",
+      "name_es": "Seta cerebral",
+      "name_en": "Brainshroom",
+      "desc_es": "Tiene agentes químicos que impiden el flujo sanguíneo al cerebro y causan cansancio al comerla. Rara, seca e insípida.",
+      "desc_en": "It contains chemicals that hinder blood flow to the brain,  causing temporary fatigue when consumed. Rare. Dry and  flavorless."
+    },
+    {
+      "id": "MSR_015",
+      "name_es": "Seta transparente",
+      "name_en": "Transparungus",
+      "desc_es": "Debilita los tejidos de su consumidor. Evita los peligros  borrando su existencia. Insípida e inodora.",
+      "desc_en": "Mysteriously thins the user's body tissue. It escapes danger by erasing its own existence.  Flavorless and odorless."
+    },
+    {
+      "id": "MSR_016",
+      "name_es": "Seta de aguante",
+      "name_en": "Staminungus",
+      "desc_es": "Esta seta con forma de pierna  reduce el cansancio rápidamente y por un breve espacio de tiempo. Curiosamente sabrosa.",
+      "desc_en": "Its leg-shaped fungi dissolve  fatigue quickly. Once eaten,  fatigue will disappear for a short  time. Surprisingly tasty."
+    },
+    {
+      "id": "MSR_017",
+      "name_es": "Seta señuelo",
+      "name_en": "Decoyshroom",
+      "desc_es": "Puede copiar de inmediato el ADN de cualquier cosa que toca y transformarse en una réplica exacta de ella.  Demasiado ácida.",
+      "desc_en": "Can instantly analyze the DNA of anything it touches and create or transform into a flawless duplicate. Odiously sour."
+    },
+    {
+      "id": "MSR_020",
+      "name_es": "Seta ralentizadora",
+      "name_en": "Slowmungus",
+      "desc_es": "Tiene una inusual cabeza con  forma de ojo y unos filamentos  rojos como venas. Ralentiza el  tiempo. Huele fatal.",
+      "desc_en": "Has a unique eye-shaped cap and red hyphae that resemble  veins. Slows time down. Has an  irritating smell."
+    },
+    {
+      "id": "MSR_021",
+      "name_es": "Seta descarga",
+      "name_en": "Shockshroom",
+      "desc_es": "Posee \"electrocélulas\" que liberan una potente carga eléctrica al ser ingerida. Salada y poco apetecible.",
+      "desc_en": "Consists of \"electrocells\" which  release a high electric charge when eaten. Salty and not very  palatable."
+    },
+    {
+      "id": "MSR_022",
+      "name_es": "Seta de la diversión",
+      "name_en": "Fun Fungus",
+      "desc_es": "El sombrero tiene verrugas  blancas. Le da al usuario el raro  poder de reparar las herramientas. Textura parecida a la de la carne,  muy deliciosa.",
+      "desc_en": "Cap is speckled with white warts.  Fills user with a strange power  that repairs their equipment.  Meaty texture, very tasty."
+    },
+    {
+      "id": "MSR_023",
+      "name_es": "Seta trueno",
+      "name_en": "Boomshroom",
+      "desc_es": "Seta en forma de granada que  explota cuando se le aplica presión. Es una de las \"3 setas  explosivas\" y tiene sabor a pólvora.",
+      "desc_en": "This grenade-shaped mushroom  explodes when force is applied.  One of the \"3 Exploshrooms.\" It tastes bitter like gunpowder."
+    },
+    {
+      "id": "MSR_024",
+      "name_es": "Seta destrucción",
+      "name_en": "Crushroom",
+      "desc_es": "Dura y jugosa, esta seta  aumenta la fuerza muscular por un tiempo. Muchos la usan  para doparse. Asada, está deliciosa.",
+      "desc_en": "Tough and sinewy, this mushroom increases muscle  strength for a short time. Often  used for doping, it is delicious  when grilled."
+    },
+    {
+      "id": "MSR_025",
+      "name_es": "Seta defensa",
+      "name_en": "Guardshroom",
+      "desc_es": "De superficie metálica e interior  hueco, endurece el cuerpo del  consumidor. Es muy rara y el calor aumenta sus propiedades.",
+      "desc_en": "Its surface is metallic and inside is hollow. Stiffens the user's body tissue. Rarely seen, heat  enhances its properties."
+    },
+    {
+      "id": "MSR_029",
+      "name_es": "Seta de apuestas",
+      "name_en": "Gambleshroom",
+      "desc_es": "Venenosa cuando la parte negra es mayor y beneficiosa cuando la parte blanca es mayor. Díficil de saber a simple vista.",
+      "desc_en": "Poisonous when the black side is larger, beneficial when the white side is larger. Tricky to  judge with the naked eye."
+    },
+    {
+      "id": "MSR_031",
+      "name_es": "Seta batracio estrépito",
+      "name_en": "Frongus",
+      "desc_es": "Se alimenta de ranas muertas y emite gas lacrimógeno cuando  se le aplica fuerza. No es  comestible.",
+      "desc_en": "Feeds on dead Frogs and  contains tear-inducing properties that vaporize when  force is applied. Not suitable for  eating."
+    },
+    {
+      "id": "MSR_032",
+      "name_es": "Seta batracio letal",
+      "name_en": "Croakstool",
+      "desc_es": "Se alimenta de ranas doradas  muertas y emite gas lacrimógeno potente. Su cabeza  es gelatinosa y no se debe  comer.",
+      "desc_en": "Feeds on dead Golden Frogs and has enhanced tear-inducing  properties. With a smelly gelatin  tip, it is not to be eaten."
+    },
+    {
+      "id": "MSR_033",
+      "name_es": "Seta roedora",
+      "name_en": "Mouseshroom",
+      "desc_es": "Se alimenta de ratas muertas y sus propiedades estimulantes  aumentan con el calor. Agradable al olor y apetitosa.",
+      "desc_en": "Feeds on dead Rats and contains stimulating properties  that are enhanced with heat.  Sweet-smelling and tasty."
+    },
+    {
+      "id": "MSR_034",
+      "name_es": "Seta roedora dorada",
+      "name_en": "Golden Mouseshroom",
+      "desc_es": "Se alimenta de ratas doradas muertas y estimula el cerebro, aumentando la agresividad. Sorprendentemente sabrosa.",
+      "desc_en": "Feeds on dead Golden Rats and  directly stimulates the brain,  increasing aggression. Surprisingly tasty."
+    },
+    {
+      "id": "MSR_035",
+      "name_es": "Seta aguijón",
+      "name_en": "Stingshroom",
+      "desc_es": "Llamada así por su aguijón, se  alimenta de escorpiones muertos. Aumenta la fuerza, pero debilita el cuerpo.",
+      "desc_en": "Feeds on dead Scorpions and  named after its stinger-like bump. Increases strength, but makes  the body brittle."
+    },
+    {
+      "id": "MSR_036",
+      "name_es": "Seta aguijón dorada",
+      "name_en": "Golden Stingshroom",
+      "desc_es": "Se alimenta de escorpiones  dorados muertos y es más  potente que la seta escorpión.  De aspecto mortífero y muy  apetitosa.",
+      "desc_en": "Feeds on dead Golden Scorpions  and is more potent than the  Stingshroom. Looks deadly  but is extremely tasty."
+    },
+    {
+      "id": "MSR_037",
+      "name_es": "Seta sospechosa",
+      "name_en": "Fishy Fungus",
+      "desc_es": "Se alimenta de lubinas muertas.  Solo se come la cabeza. Esta  seta alucinógena huele mal, pero sabe muy bien.",
+      "desc_en": "Feeds on dead Fish. Only the tip can be eaten. This  hallucinatory mushroom is smelly but tasty."
+    },
+    {
+      "id": "MSR_038",
+      "name_es": "Seta sospechosa dorada",
+      "name_en": "Golden Fishy Fungus",
+      "desc_es": "Se alimenta de lubinas doradas  muertas y es más potente que la seta sospechosa. Exquisita,  suave y jugosa.",
+      "desc_en": "Feeds on dead Golden Fish and is more potent than the Fishy Fungi. A true delicacy with soft, moist flesh."
+    },
+    {
+      "id": "MSR_039",
+      "name_es": "Seta caracol",
+      "name_en": "Snailshroom",
+      "desc_es": "Se alimenta de caracoles muertos. Cuantas más espirales tenga, mayor será su valor. Sus enzimas mejoran la resistencia a los estados negativos.",
+      "desc_en": "Feeds on dead Snails. The value of this fragrant mushroom is determined by the number of spirals, and has enzymes that improve immunity to bad statuses."
+    },
+    {
+      "id": "MSR_040",
+      "name_es": "Seta caracol dorada",
+      "name_en": "Golden Snailshroom",
+      "desc_es": "Se alimenta de caracoles dorados, ayuda al sistema  nervioso y alivia el dolor. Quita  el hambre, pero no tiene sabor.",
+      "desc_en": "Feeds on dead Golden Snails and aids the nervous system and relieves pain. Feels good to eat but has no taste."
+    },
+    {
+      "id": "MSR_041",
+      "name_es": "Seta dragón",
+      "name_en": "Dragonshroom",
+      "desc_es": "Se alimenta de lagartos muertos y posee una rara magia que  concede munición infinita  temporalmente. Correosa e insípida.",
+      "desc_en": "Feeds on dead Lizards and  contains strange magic that gives infinite ammo for a short  time. Chewy but dull in taste."
+    },
+    {
+      "id": "MSR_042",
+      "name_es": "Seta dragón dorada",
+      "name_en": "Golden Dragonshroom",
+      "desc_es": "Se alimenta de lagartos dorados muertos y es más  potente que la seta dragón.  Esta seta es correosa e insípida.",
+      "desc_en": "Feeds on dead Golden Lizards and more potent than the  Dragonshroom, this striking  shroom is chewy but tasteless."
+    },
+    {
+      "id": "MSR_043",
+      "name_es": "Seta de vida",
+      "name_en": "Lifeshroom",
+      "desc_es": "Come cochinillas muertas y ayuda a reparar el PS. Tan  rara como los bichos de los que se alimenta. Ácida y agria.",
+      "desc_en": "Feeds on dead Pillbugs. Revives  user and restores a little HP.  As rare as the bugs it feeds on.  Tastes citric and sour."
+    },
+    {
+      "id": "MSR_044",
+      "name_es": "Seta de vida dorada",
+      "name_en": "Golden Lifeshroom",
+      "desc_es": "Come cochinillas doradas muertas y ayuda a  restablecer el PS. Excesivamente rara y tiene un  sabor a menta fuerte.",
+      "desc_en": "Feeds on dead Golden Pillbugs.  Revives user and restores all  HP. Incredibly rare and has a  sharp mint taste."
+    },
+    {
+      "id": "MSR_045",
+      "name_es": "Seta vampiro",
+      "name_en": "Vampire Fungus",
+      "desc_es": "Se alimenta de cangrejos muertos. Permite absorber salud cuando el consumidor  produce daño. Dura, sosa y con  forma de coral.",
+      "desc_en": "Feeds on dead Crabs. This coral-like mushroom enables the user to absorb some HP when damage is dealt. Hard and tasteless."
+    },
+    {
+      "id": "MSR_046",
+      "name_es": "Seta vampiro dorada",
+      "name_en": "Golden Vampire Fungus",
+      "desc_es": "Come cangrejos dorados muertos. Su color rojo se debe a la sangre de otros animales.  También llamada \"bruta\", sabe  muy mal.",
+      "desc_en": "Feeds on dead Golden Crabs. Its tip is red with blood absorbed  from other animals. Also known as the \"brute,\" and tastes bad."
+    },
+    {
+      "id": "MSR_047",
+      "name_es": "Seta eterna",
+      "name_en": "Evershroom",
+      "desc_es": "Se alimenta de tortugas muertas. Añade efecto de  cansancio a los ataques. El calor mejora su efecto. Es áspera y huele mal.",
+      "desc_en": "Feeds on dead Turtles. This  shroom adds a fatigue effect to  attacks, and this is enhanced with heat. Smelly and coarse."
+    },
+    {
+      "id": "MSR_048",
+      "name_es": "Seta eterna dorada",
+      "name_en": "Golden Evershroom",
+      "desc_es": "Se alimenta de tortugas doradas  muertas. Tiene más propiedades  de cansancio que la seta eterna. Huele mal, pero sabe bien.",
+      "desc_en": "Feeds on dead Golden Turtles and contains more fatigue  properties than the Evershroom.  Smelly but tasty."
+    },
+    {
+      "id": "MSR_049",
+      "name_es": "Seta de roble",
+      "name_en": "Oakshroom",
+      "desc_es": "Se alimenta de casuarios muertos y aumenta el poder  explosivo del próximo ataque  brevemente. Frágil y sabe mejor en sopa.",
+      "desc_en": "Feeds on dead Birds and  momentarily improves explosive  power of the next attack. Brittle and best eaten as a soup."
+    },
+    {
+      "id": "MSR_050",
+      "name_es": "Seta de roble dorada",
+      "name_en": "Golden Oakshroom",
+      "desc_es": "Se alimenta de casuarios dorados muertos y es más  potente que la seta de roble.  Muy frágil y sabe mejor en sopa.",
+      "desc_en": "Feeds on dead Golden Birds, and is more potent than the Oakshroom. Very brittle, and tasty if made into soup."
+    },
+    {
+      "id": "MSR_051",
+      "name_es": "Seta habilidad bronce",
+      "name_en": "Bronze Skillshroom",
+      "desc_es": "Contiene bronce y parece un  rostro humano. Momoko Yamada  te dará Pegatinas de Habilidad por ella. Sabe y huele mal.",
+      "desc_en": "Contains bronze, and resembles a human face. Trade these with  Momoko Yamada for Skill Decal. Smells and tastes bad."
+    },
+    {
+      "id": "MSR_052",
+      "name_es": "Seta habilidad plata",
+      "name_en": "Silver Skillshroom",
+      "desc_es": "Contiene plata y tiene efecto  antibacteriano. Momoko Yamada  te dará Pegatinas de Habilidad por ella. Sin efecto al comerla.",
+      "desc_en": "Contains silver, and has anti- bacterial effects. Trade these with Momoko Yamada for Skill  Decal. No effect when eaten."
+    },
+    {
+      "id": "MSR_053",
+      "name_es": "Seta habilidad oro",
+      "name_en": "Golden Skillshroom",
+      "desc_es": "Es rara, contiene oro y se ve  como un símbolo solar. Momoko  Yamada te dará Pegatinas de  Habilidad por ella. Mejor no  comerla.",
+      "desc_en": "Rare and contains gold, seen as a symbol of the sun. Trade these  with Momoko Yamada for Skill  Decal. Not for eating."
+    },
+    {
+      "id": "MSR_200",
+      "name_es": "Seta huevo de bronce",
+      "name_en": "Bronze Eggshroom",
+      "desc_es": "Esta seta trueno del sur potencia las habilidades latentes. Su carne es ignífuga. Tiene un gusto metálico y algo dulce.",
+      "desc_en": "This southern Boomshroom enhances already latent skills and  abilities. Its firm flesh resists heat, and has a metallic and slightly sweet taste."
+    },
+    {
+      "id": "MSR_201",
+      "name_es": "Seta huevo de plata",
+      "name_en": "Silver Eggshroom",
+      "desc_es": "Una Seta huevo de bronce más madura. Potencia las habilidades aún más. Su carne es ignífuga. Tiene un gusto metálico y dulce único.",
+      "desc_en": "A more ripened Bronze Eggshroom. Enhances skills even more. Its firm flesh resists heat, and has a unique metallic and sweet taste."
+    },
+    {
+      "id": "MSR_202",
+      "name_es": "Seta huevo de oro",
+      "name_en": "Golden Eggshroom",
+      "desc_es": "Una Seta huevo de bronce que ha madurado completamente. Potencia mucho las habilidades.  Su carne es ignífuga. Tiene un gusto metálico y muy dulce.",
+      "desc_en": "A fully ripened Bronze Eggshroom. Greatly enhances skills. Its soft flesh resists heat, and has a metallic and very sweet taste."
+    },
+    {
+      "id": "MSR_300",
+      "name_es": "Seta aguijón roja",
+      "name_en": "Red Stingshroom",
+      "desc_es": "Crece en los cadáveres de los escorpiones rojos. Versión menos potente de la seta aguijón. Huele como a cobre y sabe fatal.",
+      "desc_en": "Grows on the nutrient-rich corpses of Red Scorpions. Similar to Stingshroom, but weaker. Smells coppery. Tastes awful."
+    },
+    {
+      "id": "MSR_301",
+      "name_es": "Seta yelmo",
+      "name_en": "Helmetshroom",
+      "desc_es": "Tiene un raro sombrerete metálico. Sus minerales mejoran el tejido corporal con menor efecto que el de una seta defensa.",
+      "desc_en": "Has a distinctive metallic cap.  Contains minerals hardening body tissues, like the Guardshroom, but less concentrated."
+    },
+    {
+      "id": "MSR_302",
+      "name_es": "Seta de paraguas",
+      "name_en": "Umbrella Rib Fungus",
+      "desc_es": "Hongo inservible con forma de paraguas. Similar a una Seta transparente, pero más débil debido a su veneno. Seca y desagradable.",
+      "desc_en": "Useless little fungus that looks like an umbrella. Same properties as a Transparungus, but weakened by poison. Dry and nasty."
+    },
+    {
+      "id": "MSR_303",
+      "name_es": "Seta cerebral falsa",
+      "name_en": "False Brainshroom",
+      "desc_es": "Copia de la seta cerebral. Su sombrerete crea copias de sí mismo. Emite esporas tóxicas al sufrir daño. Sabe a goma.",
+      "desc_en": "Brainshroom impostor. The cap consists of self- replicated copies. Emits toxic spores when damaged. Tastes rubbery."
+    },
+    {
+      "id": "MSR_304",
+      "name_es": "Seta de ojo felino",
+      "name_en": "Cateye Shroom",
+      "desc_es": "Subespecie de seta ralentizadora similar a un ojo de gato. Su visión es más débil por su veneno defensivo. Gomosa y mala.",
+      "desc_en": "Subspecies of Slowmungus. Reminiscent of a cat eye. Vision effects weakened by defensive poison. Chewy and gross."
+    },
+    {
+      "id": "MSR_305",
+      "name_es": "Boleoseta",
+      "name_en": "Boleoshroom",
+      "desc_es": "Crece en los cadáveres de los boleos micópticos. Libera unas esporas tóxicas al sufrir daño. De sabor raro y asqueroso.",
+      "desc_en": "Grows on nutrient-rich corpses of Goggly Boleos. Known to release toxic spores when damaged. Tastes fishy and gross."
+    },
+    {
+      "id": "MSR_306",
+      "name_es": "Seta de sombrilla de bronce",
+      "name_en": "Bronze Parasol Shroom",
+      "desc_es": "Seta especial de bronce con aspecto de sombrilla que requiere calor y humedad. Dura, de olor metálico e incomestible.",
+      "desc_en": "A rare bronze parasol-like mushroom requiring hot and humid conditions to grow. Rock hard. Metallic odor. Inedible."
+    },
+    {
+      "id": "MSR_307",
+      "name_es": "Seta de sombrilla de plata",
+      "name_en": "Silver Parasol Shroom",
+      "desc_es": "Seta valiosa de sombrerete plateado. Dura, de olor metálico e incomestible. Sin efecto corporal al comerla.",
+      "desc_en": "A valuable mushroom with a silver cap. Rock hard. Metallic odor. Inedible. Eating it has no effect on the human body."
+    },
+    {
+      "id": "MSR_308",
+      "name_es": "Seta de sombrilla de oro",
+      "name_en": "Golden Parasol Shroom",
+      "desc_es": "Seta valiosa de sombrerete dorado. Brillante, dura, de olor metálico e incomestible. Sin efecto corporal al comerla.",
+      "desc_en": "A valuable mushroom with a gold cap. Very shiny. Rock hard. Metallic odor. Inedible. Eating it has no effect on the human body."
+    },
+    {
+      "id": "MSR_309",
+      "name_es": "Seta calabaza de bronce",
+      "name_en": "Bronze Pumpkinshroom",
+      "desc_es": "Una seta que crece sobre las calabazas. Contiene un fuerte estimulante. Olor metálico y gusto dulce y agradable.",
+      "desc_en": "A mushroom that grows on top of pumpkins. Contains a strong stimulant. Metallic smell. Sweet and with a good bite to it."
+    },
+    {
+      "id": "MSR_310",
+      "name_es": "Seta calabaza de plata",
+      "name_en": "Silver Pumpkinshroom",
+      "desc_es": "Una seta de calabaza de mayor tamaño. Tiene un brillo plateado y contiene un estimulante más fuerte. Olor metálico. Sabe dulce.",
+      "desc_en": "More grown Pumpkinshroom. Has a silver shimmer. Has an even stronger stimulant. Metallic smell. Sweet and firm."
+    },
+    {
+      "id": "MSR_311",
+      "name_es": "Seta calabaza de oro",
+      "name_en": "Gold Pumpkinshroom",
+      "desc_es": "Una seta de calabaza muy grande. Tiene un brillo dorado y contiene el estimulante más fuerte. Sabor más dulce e intenso.",
+      "desc_en": "Fully grown Pumpkinshroom. Has a golden shimmer. Has the strongest stimulant of all Pumpkinshrooms. Also the sweetest and firmest."
+    },
+    {
+      "id": "MSR_312",
+      "name_es": "Seta nevada bronce",
+      "name_en": "Bronze Snowcap",
+      "desc_es": "Seta de la Tower of Barbs. Es de un blanco tan puro que hasta parece un minimuñeco de nieve. Da un poco de durabilidad.",
+      "desc_en": "Mushroom from the Tower of Barbs. Covered in snow to the point that it looks like a mini snowman. Restores durability a bit."
+    },
+    {
+      "id": "MSR_313",
+      "name_es": "Seta nevada plata",
+      "name_en": "Silver Snowcap",
+      "desc_es": "Efecto de recuperación de durabilidad mejorado gracias a la plata de su sombrerete y tallo. La nieve resiste el calor.",
+      "desc_en": "Its durability restoring effect is boosted by silver in the cap and scarf. The snow is super heat-resistant."
+    },
+    {
+      "id": "MSR_314",
+      "name_es": "Seta nevada oro",
+      "name_en": "Golden Snowcap",
+      "desc_es": "Los compuestos de oro mejoran mucho los efectos de esta seta. Sabe como a agua crujiente.",
+      "desc_en": "Golden compounds greatly improve this mushroom's effects. Tastes like crunchy water."
+    },
+    {
+      "id": "MSR_400",
+      "name_es": "Sanguiseta",
+      "name_en": "Splattershroom",
+      "desc_es": "Una seta empapada en sanguínium. Parece un poco una úlcera, pero cura heridas y es muy nutritiva. Huele a sangre y sabe a cobre.",
+      "desc_en": "A mushroom imbued with Bloodnium. Looks somewhat ulcerous, but is actually highly nutritious and can heal wounds. Smells like blood and tastes coppery."
+    },
+    {
+      "id": "MSR_401",
+      "name_es": "Sanguiseta grande",
+      "name_en": "Big Splattershroom",
+      "desc_es": "Tiene más sanguínium que una sanguiseta normal. También cura más. Huele y sabe a cobre.",
+      "desc_en": "Contains more Bloodnium than a regular Splattershroom. Stronger healing effects, too. Smells and tastes coppery."
+    },
+    {
+      "id": "MSR_402",
+      "name_es": "Megasanguiseta",
+      "name_en": "Mega Splattershroom",
+      "desc_es": "Esta sanguiseta ha crecido de forma desmesurada al absorber mucho sanguínium. Poderes curativos fuertes. Huele y sabe a cobre.",
+      "desc_en": "This mushroom has grown out of control after absorbing too much Bloodnium. Mega-powerful healing effects! Smells and tastes coppery."
+    }
+  ],
+  "beasts": [
+    {
+      "id": "BST_BASS",
+      "name_es": "Pescado",
+      "name_en": "Fish"
+    },
+    {
+      "id": "BST_BASS02",
+      "name_es": "Boleo micóptico",
+      "name_en": "Goggly Boleo"
+    },
+    {
+      "id": "BST_CASSOWARY",
+      "name_es": "Ave",
+      "name_en": "Bird"
+    },
+    {
+      "id": "BST_CRAB",
+      "name_es": "Cangrejo",
+      "name_en": "Crab"
+    },
+    {
+      "id": "BST_FROG",
+      "name_es": "Rana",
+      "name_en": "Frog"
+    },
+    {
+      "id": "BST_GBASS",
+      "name_es": "Pescado dorado",
+      "name_en": "Golden Fish"
+    },
+    {
+      "id": "BST_GCASSOWARY",
+      "name_es": "Ave dorado",
+      "name_en": "Golden Bird"
+    },
+    {
+      "id": "BST_GCRAB",
+      "name_es": "Cangrejo dorado",
+      "name_en": "Golden Crab"
+    },
+    {
+      "id": "BST_GFROG",
+      "name_es": "Rana dorada",
+      "name_en": "Golden Frog"
+    },
+    {
+      "id": "BST_GHONEYCOMB",
+      "name_es": "Panal dorado",
+      "name_en": "Golden Honeycomb"
+    },
+    {
+      "id": "BST_GLIZARD",
+      "name_es": "Lagarto dorado",
+      "name_en": "Golden Lizard"
+    },
+    {
+      "id": "BST_GPILLBUG",
+      "name_es": "Cochinilla dorada",
+      "name_en": "Golden Pillbug"
+    },
+    {
+      "id": "BST_GRAT",
+      "name_es": "Rata dorada",
+      "name_en": "Golden Rat"
+    },
+    {
+      "id": "BST_GSCORPION",
+      "name_es": "Escorpión dorado",
+      "name_en": "Golden Scorpion"
+    },
+    {
+      "id": "BST_GSNAIL",
+      "name_es": "Caracol dorado",
+      "name_en": "Golden Snail"
+    },
+    {
+      "id": "BST_GTURTLE",
+      "name_es": "Tortuga dorada",
+      "name_en": "Golden Turtle"
+    },
+    {
+      "id": "BST_HONEYCOMB",
+      "name_es": "Panal",
+      "name_en": "Honeycomb"
+    },
+    {
+      "id": "BST_LIZARD",
+      "name_es": "Lagarto",
+      "name_en": "Lizard"
+    },
+    {
+      "id": "BST_PILLBUG",
+      "name_es": "Cochinilla",
+      "name_en": "Pillbug"
+    },
+    {
+      "id": "BST_RAT",
+      "name_es": "Rata",
+      "name_en": "Rat"
+    },
+    {
+      "id": "BST_SCORPION",
+      "name_es": "Escorpión",
+      "name_en": "Scorpion"
+    },
+    {
+      "id": "BST_SCORPION02",
+      "name_es": "Escorpión rojo",
+      "name_en": "Red Scorpion"
+    },
+    {
+      "id": "BST_SNAIL",
+      "name_es": "Caracol",
+      "name_en": "Snail"
+    },
+    {
+      "id": "BST_TURTLE",
+      "name_es": "Tortuga",
+      "name_en": "Turtle"
+    }
+  ]
+}
