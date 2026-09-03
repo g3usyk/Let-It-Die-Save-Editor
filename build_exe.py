@@ -25,17 +25,19 @@ def build():
         ("version.json", "."),
         ("tower_map_data.json", "."),
         ("all_shrooms_beasts_db.json", "."),
+        ("icons", "icons"),
     ]
 
     cmd = [
         sys.executable, "-m", "PyInstaller",
         "--name=LetItDieSaveEditor",
         "--noconsole",
-        "--onedir",
+        "--onefile",
         "--clean",
         "--noconfirm",
         "--uac-admin",
     ]
+
 
     if os.path.exists(ICON_ICO):
         cmd.extend(["--icon", ICON_ICO])
@@ -92,20 +94,11 @@ def build():
     if result.returncode == 0:
         print("\n" + "=" * 60)
         print("BUILD SUCCESSFUL!")
-        app_dist = os.path.join(DIST_DIR, "LetItDieSaveEditor")
-        
-        src_icons = os.path.join(BASE_DIR, "icons")
-        dst_icons = os.path.join(app_dist, "icons")
-        if os.path.isdir(src_icons) and not os.path.isdir(dst_icons):
-            print(f"Copying icons to distribution folder: {dst_icons} ...")
-            shutil.copytree(src_icons, dst_icons)
-
-        os.makedirs(os.path.join(app_dist, "Backups"), exist_ok=True)
-
-        print(f"Output folder: {app_dist}")
-        print(f"Executable: {os.path.join(app_dist, 'LetItDieSaveEditor.exe')}")
+        onefile_exe = os.path.join(DIST_DIR, "LetItDieSaveEditor.exe")
+        print(f"Standalone Executable (.exe): {onefile_exe}")
         print("=" * 60)
         return True
+
     else:
         print("\nBUILD FAILED with return code:", result.returncode)
         return False
