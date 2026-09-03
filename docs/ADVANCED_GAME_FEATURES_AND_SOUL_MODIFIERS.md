@@ -193,10 +193,67 @@ The Save Editor automatically runs `sync_mystery_bags_to_deathbox(save_json)` up
 
 ---
 
-## 7. Elevator Floor ID Reference
+## 6. Waiting Room Facilities (Level 100) & Player Rank Architecture
 
-To unlock fast-travel across all four tower districts (D.O.D., War Ensemble, Candle Wolf, M.I.L.K., and Tengoku) without coin fees:
-* `save_json["soul"]["openelvflr"]` -> Complete list of elevator station IDs (`ELV_MAIN_...` and `ELV_SUB...`).
+### 1. KC Bank & SPLithium Tank Expansion (`soul.safe_level` & `soul.spirit_tank_level`)
+* In the game client database table `master_spirit_tank_level`, facility upgrades scale from **Level 1 to Level 100**.
+* Setting `safe_level = 100` and `spirit_tank_level = 100` expands capacity to **2,560,000+** Kill Coins and SPLithium.
+* The Save Editor provides an interactive input allowing any custom level (1-100) as well as a one-click maximum button.
+
+### 2. Player Rank Progression & Mathematical Synchronization (`soul.rank` & `soul.rank_point`)
+* In *LET IT DIE*, **Player Rank** is the primary account level displayed on the player profile and in Tokyo Death Metro (TDM).
+* The game database table `master_rank_point` indexes **130 distinct ranks** and their cumulative point requirements:
+  | Player Rank | Minimum Rank Points | Notes / Milestones |
+  | :---: | :---: | :--- |
+  | **Rank 1** | 0 | Starting account baseline |
+  | **Rank 10** | 1,000 | Early tower climbing |
+  | **Rank 50** | 650,000 | Mid-game (Candle Wolf / M.I.L.K.) |
+  | **Rank 61** | 1,400,000 | Grade 5 Fighter unlock |
+  | **Rank 80** | 75,000,000 | Grade 6 Fighter unlock |
+  | **Rank 100** | **1,600,000,000** | Endgame milestone |
+  | **Rank 122** | 36,000,000,000 | Grade 6 Tier 8 / Uncapped progression |
+  | **Rank 130** | **180,000,000,000** | Maximum engine cap |
+* **Automatic Synchronization Requirement**: Simply changing `soul["rank"]` without updating `soul["rank_point"]` creates a desynchronization in the engine. Upon earning TDM points, the client would attempt to recalculate or glitch the rank. The Save Editor includes the complete 130-entry mathematical table, ensuring that setting any Player Rank automatically synchronizes the exact official rank points required.
+
+---
+
+## 7. Tower of Barbs Map Architecture, Elevators & Escalator Gate Network
+
+### 1. Complete Tower Discovery: 980 Rooms (`soul.areaflag`)
+* Across Floors 1 through 50+, the Tower of Barbs contains **980 room nodes** indexed by `idx` (0 to 979), referencing `master_area_connect_node`.
+* The `val` field is an integer bitmask governing room discovery, elevator access, and gate status:
+  * `Bit 0 (0x01 = 1)`: Room visited / discovered on player map.
+  * `Bit 4 (0x10 = 16)`: Don Boss arena flag (Floors 10, 20, 30, 40).
+  * `Bit 5 (0x20 = 32)`: Elevator hub / station unlocked.
+  * `Bit 1 (0x02 = 2)`: Midboss encounter flag (Jin-Die, Coen, Goto-9).
+  * **Standard Clean Room State**: `val = 33` (`0x21` = 1 + 32). Fully reveals the room on the map and enables elevator warping.
+  * **Don Boss Rooms**: `val = 49` (`0x31` = 33 + 16 for Max, Jackson, Crowley, and Taro).
+  * **Midboss Rooms**: `val = 51` (`0x33` = 33 + 18).
+
+### 2. The Red Padlock Bitmask (`0x40 = 64`) & Padlock Purge
+* **The Problem**: Rooms visited by a player before completing specific boss fights or activating shortcut levers receive **Bit 6 (0x40 = 64)** in `soul.areaflag` (e.g. `val = 65` or `val = 97`).
+* Even if all elevators are enabled, the game client reads `val & 0x40` and renders **RED PADLOCKS** over connecting escalators on the map screen (such as Haratsuka, Futagi, Ebata, and Mitsuba).
+* **The Solution**: The Save Editor systematically purges Bit 6 from all rooms (`clean_val = cur_val & ~64`), resetting all locked rooms to `val = 33`. This permanently eliminates every red padlock from the map.
+
+### 3. Escalator Connections: 1,119 Paths (`soul.areaescflag`)
+* Connecting pathways between rooms are stored in `soul.areaescflag` (1,119 entries from `master_area_connect_escalator`).
+* Setting `val = 7` draws complete connecting escalator lines across all floors without fog of war.
+
+### 4. 193 Progression Keys, Gates, Valves, and Boss Flags (`save["gameflg"]["cl"]`)
+* Each locked escalator in `master_area_connect_escalator` has two prerequisite columns:
+  * `key`: Mini-boss defeat requirement flag (e.g., `KGF_RFT_FIXED_AREA_BOSS_0001` through `0006`).
+  * `gate`: Lever / valve / button activation flag (e.g., `KGF_RFT_FIXED_AREA_BUTTON_0001` through `0010`).
+* The Save Editor injects all **193 verified gate, key, button, and boss flags** as `1`, permanently unlocking every shortcut gate, valve, and escalator door in the game.
+
+### 5. Waiting Room Gates: Floors 41-50 (Hazama) & Tengoku (51+)
+* `KGF_GAME_CLEAR = 1`: Marks the main 40-floor campaign as completed.
+* `KGF_HZM_FIRST_TIME_ENTRANCE_GATE = 1`: Opens the iron gate in the Waiting Room, allowing free access to Floors 41-50 (Hazama) and the elevator to Tengoku (51+).
+
+### 6. All 61 Official Elevator Stations (`soul.openelvflr`)
+* The complete network of 61 elevator stations is registered in `soul.openelvflr`, covering both Main and Sub lines:
+  * `ELV_MAIN_01` through `ELV_MAIN_50`
+  * `ELV_SUB_A01_...` through `ELV_SUB_D02_...`
+  * Unlocks immediate warping without requiring the player to manually discover or fund individual elevator terminals.
 
 ---
 
@@ -333,11 +390,51 @@ Setting `clrcnt = 1` marks the corresponding quest as completed in `master_quest
 
 ---
 
+---
+
 ## 16. Automated Rolling Backup System
 
 * File pattern: `<save_name>.sav.YYYYMMDD_HHMMSS.bak`.
 * Rolling retention policy: preserves the 10 most recent backups and discards older ones.
 * Direct restore available through the Advanced tab in the GUI or via manual file replacement.
+
+---
+
+## 17. Equipment Evolution & Uncapping Hierarchy (+4 vs +19/+24)
+
+### 1. In-Game R&D Rules & Blueprints (`save["part"]["research"]`)
+In *LET IT DIE*, the crafting progression at Chokufunsha obeys strict tier and uncapping rules:
+* **Base & Intermediate Tiers (Tier 1 to Tier 3)**:
+  * Maximum upgrade level is strictly **+4**.
+  * Reaching +4 completes the blueprint (`research_type: "FINISHED"`) and unlocks the purchase of that tier at the shop, while simultaneously unlocking the development of the **next tier blueprint** (e.g. *Pork Chopper* -> *Pork Chopper+*).
+* **Final Tiers (Tier 4 / Uncapped / 44CE / Tengoku)**:
+  * Reaching Tier 4 +4 triggers **Uncapping** (Limit Break).
+  * Standard Uncapped weapons and armors can be enhanced up to **+19**, multiplying durability and ammo reserves.
+  * Extended weapons (such as Tengoku legendary weapons: *Muspelheim*, *Predator*, *Lethal Weapon*, etc.) can be enhanced up to **+24**.
+
+### 2. Save File Blueprint Representation
+In `save["part"]["research"][uid]`:
+```json
+{
+  "ptid": "PT_ARM_WP001_001",
+  "research_type": "FINISHED",
+  "lvl": 5,
+  "start_time": 0,
+  "comp_time": 0
+}
+```
+* `lvl`: Enhancement level counter (`1` = base +0; `5` = +4; `20` = +19; `25` = +24).
+* The Save Editor features a smart evolution engine that automatically identifies whether an item is intermediate (capping safely at +4 to promote the next tier recipe) or final (permitting full +19 / +24 uncapping).
+
+---
+
+## 18. Windows Administrative Auto-Elevation (UAC Architecture)
+
+Because Steam installs games to protected directories (e.g. `C:\Program Files (x86)\Steam\...`) and saves can be locked by active system handles or cloud synchronization services, running without sufficient privileges can result in `PermissionError` when writing save files or modifying `masters.db`.
+
+To resolve this seamlessly for all end-users:
+* The standalone `.exe` is compiled with the `--uac-admin` manifest flag.
+* Windows automatically prompts the user with the standard User Account Control (UAC) dialog upon launch, granting full administrative privileges and preventing save writing interruptions.
 
 ---
 

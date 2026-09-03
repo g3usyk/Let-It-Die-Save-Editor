@@ -66,9 +66,16 @@ All reverse-engineering notes, engine save keys, and data tables extracted from 
 
 ## Features
 
-### Currencies and Resources
-- Modify Kill Coins, Death Metals, SPLithium, and Bloodnium directly.
-- Safety boundaries prevent integer overflow crashes.
+### Currencies and Waiting Room Facilities
+- Modify Kill Coins, Death Metals, SPLithium, and Bloodnium directly with integer overflow protection.
+- Expand KC Bank and SPLithium Tank to **Level 100** (+2.56M capacity).
+- Configure **Player Rank** (1 to 100+) with automatic mathematical synchronization of exact official Rank Points (`master_rank_point`) preventing TDM save desync.
+
+### Tower of Barbs Map & Elevator Network
+- **Full 980-Room & 1,119-Escalator Discovery**: Completely clears fog of war across all tower districts.
+- **Red Padlock Purge**: Automatically eliminates the `0x40` lock bitmask, unlocking all escalator routes on the map.
+- **193 Progression Keys & Gates**: Unlocks all physical shortcut doors, valves, buttons, and mini-boss barriers.
+- **Immediate Fast Travel**: Activates all 61 official elevator stations and opens Waiting Room gates to Floors 41-50 (Hazama) and Tengoku (51+).
 
 ### Fighter Freezer Management
 - View and manage all fighters stored in your freezer.
@@ -86,10 +93,11 @@ All reverse-engineering notes, engine save keys, and data tables extracted from 
 - Distinct handling for Standard and Premium (`_P`) decals.
 - Filter by collaboration events (World of Tanks, No More Heroes, Killer7, Gravity Rush, Tengoku Meta) and playstyles (Addicts, Critical, Tank, Vampire, Farming, Set Synergies).
 
-### Blueprints and R&D Forge
+### Blueprints, Smart Evolution & Uncapping
 - Complete catalog of 1,370 equipment pieces and 385 weapons.
 - Filter by gear slot (Head, Body, Legs, Weapon), manufacturer faction (D.O.D. ARMS, War Ensemble, Candle Wolf, M.I.L.K., 4 Forcemen, Jackals, RE Recycling, Special/Events), and damage types (Slash, Blunt, Pierce, Fire, Electric, Poison).
-- Set unlock states (Shop unlocked +1 to +4, In R&D).
+- **Smart R&D Hierarchy**: Caps base/intermediate tiers safely at +4 to trigger the next blueprint unlock, while allowing final Tier 4 items to uncap to **+19** (standard) and **+24** (Tengoku legendary).
+- Interactive "Evolve / Unlock Next Tier" feature.
 - Includes an R&D repair tool to resolve corrupted recipe states.
 
 ### Materials and Storage Locker

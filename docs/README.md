@@ -1,4 +1,4 @@
-﻿# LET IT DIE - Technical Documentation & Developer Notes
+# LET IT DIE - Technical Documentation & Developer Notes
 
 This directory contains in-depth documentation, reverse-engineered save structure specifications, and complete game data tables extracted from the official client database (`masters.db`).
 
@@ -8,13 +8,17 @@ This directory contains in-depth documentation, reverse-engineered save structur
 
 ### 1. [Internal Save Architecture & Soul Modifiers Reference](ADVANCED_GAME_FEATURES_AND_SOUL_MODIFIERS.md)
 A comprehensive technical manual documenting the internal `.sav` layout and JSON schema paths:
-- **Elevator Fast Travel Network**: Complete list of elevator station IDs (`ELV_MAIN_...`, `ELV_SUB...`) in `soul.openelvflr`.
+- **Tower Map, Elevators & Escalator Gate Network**: Full 980-room discovery (`soul.areaflag`), 1,119 escalator pathways (`soul.areaescflag`), elimination of the red padlock bitmask (`0x40`), 193 progression flags (`KGF_RFT_...`), and Waiting Room gate bypass to Floors 41-50 (Hazama) and Tengoku 51+.
+- **Waiting Room Facilities to Level 100 & Player Rank**: KC Bank and SPL Tank capacity scaling up to Level 100, plus mathematical rank point synchronization (Ranks 1 to 130 in `master_rank_point`).
+- **Equipment Evolution & Uncapping Hierarchy**: Safe +4 limit for base/intermediate tiers triggering next blueprint unlocks, and +19/+24 limits for final uncapped equipment.
+- **UAC Administrative Auto-Elevation**: Windows manifest auto-elevation preventing save writing permission errors.
+- **Elevator Fast Travel Network**: Complete list of 61 elevator station IDs (`ELV_MAIN_...`, `ELV_SUB...`) in `soul.openelvflr`.
 - **Uncle Death Stamp Rally**: Multiplier scaling mechanics (`soul.researchstamp`) and Scythe blueprint injection (`PT_ARM_WP050_001`).
 - **Death Bag Inventory**: Capacity expansion limits and active equipment site slots (`EQSITE_HEAD`, `EQSITE_BODY`, `EQSITE_WEAPON_R1/R2/L1/L2`).
 - **Tokyo Death Metro (TDM)**: Competitive rank IDs (Bronze through Diamond 1) and Mystery Bag tier loot tables.
 - **Mailbox / Reward Box**: Schema for injecting Kill Coins, Death Metals, SPLithium, and crafting items (`soul.present`).
 - **Fighter Engine Internals**: Distinction between `bodyuser` level allocation points (1-45 stat caps, Death 'Roids) and `soul.chr` live combat states.
-- **Weapon & Armor Modifiers**: Overriding durability (`999,999` unbreakable), chamber ammo (`9,999`), and Tengoku uncap levels (+19).
+- **Weapon & Armor Modifiers**: Overriding durability (`999,999` unbreakable), chamber ammo (`9,999`), and Tengoku uncap levels (+19/+24).
 - **Endgame Equipment IDs**: Reference list for 44CE Forcemen, Jackals, and Tengoku legendary weapons.
 
 ---
