@@ -3434,11 +3434,15 @@ class CompleteSaveEditorGUI(tk.Tk):
         box_left = ttk.LabelFrame(self.tab_tower, text=t("tw_left_title"), padding=12)
         box_left.grid(row=0, column=0, sticky="nsew", padx=6, pady=6)
         
-        # 1. Emergency Rescue
-        ttk.Label(box_left, text="🚨 " + t("tw_rescue_title", "Rescate de Emergencia (Fix Carga)"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
-        ttk.Label(box_left, text=t("tw_rescue_sub", "Regresa a tu luchador a la Sala de Espera si se quedó trabado en carga o en el vacío."), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
-        btn_rescue = ttk.Button(box_left, text="🏠 " + t("tw_rescue_btn", "Regresar a Sala de Espera"), style="Accent.TButton", command=self._rescue_stuck_fighter_action)
-        btn_rescue.pack(fill="x", pady=(2, 8))
+        # 1. Elevators & Map Discovery
+        ttk.Label(box_left, text="🗺️ " + t("tw_elev_title", "Ascensores y Mapa Completo"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        ttk.Label(box_left, text=t("tw_elev_sub", "Desbloquea los 61 ascensores, 980 habitaciones, 1,119 escaleras y 122 puertas de la Torre."), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=1)
+        btn_unlock_elevators = ttk.Button(box_left, text=t("tw_elev_btn", "🗺️ Desbloquear Ascensores y Mapa"), style="Accent.TButton", command=self._unlock_elevators_action)
+        btn_unlock_elevators.pack(fill="x", pady=(2, 6))
+
+        # Emergency Rescue
+        btn_rescue = ttk.Button(box_left, text="🚨 " + t("tw_rescue_btn", "Rescate a Sala de Espera (Fix Carga)"), command=self._rescue_stuck_fighter_action)
+        btn_rescue.pack(fill="x", pady=(0, 8))
         
         # 2. Stamp Rally Perfect
         ttk.Label(box_left, text=t("tw_stamp_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)

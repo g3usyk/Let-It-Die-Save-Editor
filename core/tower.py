@@ -10,11 +10,93 @@ from core.blueprints import add_equipment_to_storage
 
 def unlock_all_tower_elevators(save):
     """
-    Temporarily disabled to ensure 100% engine stability and prevent infinite loading screens.
-    Guarantees openelvflr is a valid list structure without forcing off-rotation elevators.
+    Completely unlocks all 61 official elevators, unlocks the full Tower map (all 980 rooms & 1,119 escalators),
+    opens all 122 one-way tower gates, unlocks the Waiting Room gate to Floor 41+ (Hazama) and Tengoku 51+,
+    and sets playlog max_floor to 51.
     """
     soul = save.setdefault("soul", {})
+    now = int(time.time())
+    
+    # 1. Unlocks all 61 official elevators in soul["openelvflr"]
     openelv = get_or_create_list(soul, "openelvflr")
+    official_elevators = [
+        "ELV_MAIN_HUB",
+        "ELV_MAIN_AMS_FLR_01", "ELV_MAIN_AMS_FLR_03", "ELV_MAIN_AMS_FLR_05", "ELV_MAIN_AMS_FLR_07", "ELV_MAIN_AMS_FLR_10",
+        "ELV_MAIN_ARC_FLR_01", "ELV_MAIN_ARC_FLR_02", "ELV_MAIN_ARC_FLR_03", "ELV_MAIN_ARC_FLR_06", "ELV_MAIN_ARC_FLR_09", "ELV_MAIN_ARC_FLR_10",
+        "ELV_MAIN_MET_FLR_01", "ELV_MAIN_MET_FLR_03", "ELV_MAIN_MET_FLR_04", "ELV_MAIN_MET_FLR_05", "ELV_MAIN_MET_FLR_06", "ELV_MAIN_MET_FLR_08", "ELV_MAIN_MET_FLR_09", "ELV_MAIN_MET_FLR_10",
+        "ELV_MAIN_RFT_FLR_01", "ELV_MAIN_RFT_FLR_03", "ELV_MAIN_RFT_FLR_06", "ELV_MAIN_RFT_FLR_07", "ELV_MAIN_RFT_FLR_09", "ELV_MAIN_RFT_FLR_10",
+        "ELV_MAIN_HZM_FLR_01", "ELV_MAIN_HVN_FLR_01",
+        "ELV_SUB01_AMS_FLR_02_A", "ELV_SUB01_AMS_FLR_05_A", "ELV_SUB01_AMS_FLR_07_A",
+        "ELV_SUB01_ARC_FLR_05", "ELV_SUB01_ARC_FLR_10",
+        "ELV_SUB02_AMS_FLR_02_B", "ELV_SUB02_AMS_FLR_06_B", "ELV_SUB02_AMS_FLR_09_B", "ELV_SUB02_AMS_FLR_10_B",
+        "ELV_SUB03_AMS_FLR_02_C", "ELV_SUB03_AMS_FLR_09_C",
+        "ELV_SUB04_AMS_FLR_02_C", "ELV_SUB04_AMS_FLR_07_C",
+        "ELV_SUB05_AMS_FLR_02_D", "ELV_SUB05_AMS_FLR_05_D", "ELV_SUB05_AMS_FLR_07_D", "ELV_SUB05_AMS_FLR_09_D",
+        "ELV_SUB1_MET_FLR_02", "ELV_SUB1_MET_FLR_10",
+        "ELV_SUB2_MET_FLR_03_B", "ELV_SUB2_MET_FLR_08_B",
+        "ELV_SUB_A01_RFT_FLR_04", "ELV_SUB_A01_RFT_FLR_08",
+        "ELV_SUB_B01_RFT_FLR_04", "ELV_SUB_B01_RFT_FLR_09",
+        "ELV_SUB_C01_RFT_FLR_01", "ELV_SUB_C01_RFT_FLR_08",
+        "ELV_SUB_C02_RFT_FLR_03", "ELV_SUB_C02_RFT_FLR_10",
+        "ELV_SUB_D01_RFT_FLR_03", "ELV_SUB_D01_RFT_FLR_06",
+        "ELV_SUB_D02_RFT_FLR_07", "ELV_SUB_D02_RFT_FLR_09"
+    ]
+    existing_elvs = {e.get("id") for e in openelv if isinstance(e, dict) and "id" in e}
+    for elv in official_elevators:
+        if elv not in existing_elvs:
+            openelv.append({"id": elv})
+
+    # 2. Unlock all 980 Tower Rooms on Map in soul["areaflag"]
+    t_data = get_tower_map_data()
+    room_indices = t_data.get("room_indices", [])
+    areaflag = get_or_create_list(soul, "areaflag")
+    existing_rooms = {a.get("idx"): a for a in areaflag if isinstance(a, dict) and "idx" in a}
+    for r_idx in room_indices:
+        if r_idx not in existing_rooms:
+            areaflag.append({"idx": r_idx, "val": 33})
+        else:
+            cur_val = existing_rooms[r_idx].get("val", 33)
+            # Clear lock bit 64 (0x40) so no padlocks remain on visited rooms
+            clean_val = cur_val & ~64
+            existing_rooms[r_idx]["val"] = max(clean_val, 33)
+
+    # 3. Unlock all 1,119 Escalators on Map in soul["areaescflag"]
+    esc_indices = t_data.get("escalator_indices", [])
+    areaescflag = get_or_create_list(soul, "areaescflag")
+    existing_escs = {a.get("idx"): a for a in areaescflag if isinstance(a, dict) and "idx" in a}
+    for e_idx in esc_indices:
+        if e_idx not in existing_escs:
+            areaescflag.append({"idx": e_idx, "val": 7})
+        else:
+            existing_escs[e_idx]["val"] = max(existing_escs[e_idx].get("val", 0), 7)
+
+    # 4. Register Tower Exploration Progress in playlog (Floors 1 to 51)
+    playlog = save.setdefault("playlog", {})
+    base = playlog.setdefault("base", {})
+    if base.get("max_floor", 0) < 51:
+        base["max_floor"] = 51
+
+    # 5. Unlock all 122 Tower Gates & Story Progression Flags in gameflg["cl"]
+    gameflg = save.setdefault("gameflg", {})
+    cl = get_or_create_list(gameflg, "cl")
+    existing_flags = {f.get("var"): f for f in cl if isinstance(f, dict)}
+
+    # Gates (RELEASE_GATE)
+    for g_var in t_data.get("gate_flags", []):
+        if g_var in existing_flags:
+            existing_flags[g_var]["value"] = 1
+            existing_flags[g_var]["modified"] = now
+        else:
+            cl.append({"var": g_var, "value": 1, "modified": now})
+
+    # Progression flags (KGF_GAME_CLEAR, KGF_HZM_FIRST_TIME_ENTRANCE_GATE, etc.)
+    for p_var in t_data.get("progression_flags", []):
+        if p_var in existing_flags:
+            existing_flags[p_var]["value"] = 1
+            existing_flags[p_var]["modified"] = now
+        else:
+            cl.append({"var": p_var, "value": 1, "modified": now})
+
     return len(openelv)
 
 def set_all_stamps_perfect(save):

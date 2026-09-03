@@ -72,9 +72,9 @@ def set_vip_pass(save, days=30, passes=99, oneday_passes=99):
     vip = soul.setdefault("vip", {})
     now = int(time.time())
     
-    # Safe days cap (max 90 days): extreme values (>90d) or automatic_renewal=1
-    # cause the elevator clerk's Steam subscription validation to hang infinitely!
-    safe_days = max(1, min(int(days), 90))
+    # Safe days cap (strictly max 30 days): exceeding 30 days causes the elevator
+    # validation and cutscene to hang infinitely!
+    safe_days = max(1, min(int(days), 30))
     
     vip["flag"] = 1
     vip["type"] = 0

@@ -25,8 +25,10 @@ class TestTower(unittest.TestCase):
 
     def test_unlock_all_tower_elevators_and_map(self):
         count = modifiers.unlock_all_tower_elevators(self.save)
-        self.assertIsInstance(count, int)
-        self.assertIsInstance(self.save["soul"]["openelvflr"], list)
+        self.assertEqual(count, 61)
+        self.assertGreaterEqual(len(self.save["soul"]["areaflag"]), 900)
+        self.assertGreaterEqual(len(self.save["soul"]["areaescflag"]), 1000)
+        self.assertGreaterEqual(self.save["playlog"]["base"]["max_floor"], 51)
 
     def test_set_all_stamps_perfect(self):
         stamps_count = modifiers.set_all_stamps_perfect(self.save)
