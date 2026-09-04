@@ -235,6 +235,12 @@ For deeper technical breakdowns of specific engine mechanics, consult the docume
 
 ---
 
+## Acknowledgements
+
+- **Stephengw3** ([GitHub](https://github.com/Stephengw3) / Reddit): Discovered and diagnosed the root cause of the Royal Express VIP elevator animation freeze (`soul.vip.friendship`), resolving the attendant loading stall.
+
+---
+
 ## License and Disclaimer
 
 This project is an independent open-source tool developed for educational and single-player modding purposes. It is not affiliated with, endorsed by, or connected to Grasshopper Manufacture, Supertrick Games, or GungHo Online Entertainment.

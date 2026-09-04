@@ -469,7 +469,7 @@ To resolve this seamlessly for all end-users:
 ```
 
 ### The "Infinite Elevator Cutscene / Loading Hang" Root Cause
-A notorious bug in save modification was an infinite loading hang occurring when entering or riding the Royal Express elevator. Reverse engineering and community testing (discovered by Stephengw3 on Reddit) revealed the exact root cause:
+A notorious bug in save modification was an infinite loading hang occurring when entering or riding the Royal Express elevator. Reverse engineering and community testing (discovered by [Stephengw3](https://github.com/Stephengw3) on Reddit) revealed the exact root cause:
 1. **The Elevator Attendant Voice & Animation Dispatch**: When riding the Royal Express elevator, the attendant (`Rin`) plays a greeting cutscene with localized voice lines and animations based on the player's `"friendship"` level.
 2. **Missing Asset Request (`friendship: 100`)**: If `"friendship"` is set to `100` (or any arbitrary value above legitimate game bounds), the Unreal Engine animation loader attempts to load animation/voice clips corresponding to friendship level 100. Because no such asset exists in the game data, the engine stalls indefinitely waiting for the asset streaming callback, freezing the elevator loading screen.
 3. **The Solution (`friendship: 1`)**: Setting `"friendship": 1` points to an existing, valid greeting animation and voice clip, allowing the elevator sequence to play instantly and transition seamlessly to the next floor.
