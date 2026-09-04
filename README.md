@@ -6,6 +6,45 @@ The project operates directly on local `.sav` files, decoding the proprietary mu
 
 ---
 
+## Installation & Getting Started
+
+### Option 1: Standalone Windows Installer (For Players)
+
+If you want to use the save editor without installing Python or working with code:
+
+1. Visit the project [Releases](https://github.com/g3usyk/Let-It-Die-Save-Editor/releases) page on GitHub.
+2. Download the latest installer executable:
+   - `LetItDieSaveEditor_Setup.exe`
+3. Run the installer and follow the setup wizard.
+4. Launch the application via the Desktop or Start Menu shortcut.
+5. The editor will automatically locate your active LET IT DIE Steam save file.
+
+### Option 2: Running from Source (For Developers)
+
+If you want to modify code, develop new features, or run directly from the Python source:
+
+1. Ensure Python 3.10 or higher is installed on your system.
+2. Clone this repository:
+   ```bash
+   git clone https://github.com/g3usyk/Let-It-Die-Save-Editor.git
+   cd Let-It-Die-Save-Editor
+   ```
+3. Install required Python packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Run the editor:
+   ```bash
+   python editor_gui.py
+   ```
+   Alternatively, run `run_editor.bat` on Windows.
+5. Verify test suite health:
+   ```bash
+   python run_tests.py
+   ```
+
+---
+
 ## Architecture Overview
 
 The codebase is organized into distinct functional layers to ensure modularity, maintainability, and testability.
@@ -145,26 +184,7 @@ The editor's `unlock_tutorial_and_waiting_room(save)` function sets all these ke
 
 ---
 
-## Development Setup
-
-### Prerequisites
-- Python 3.10 or higher.
-- A functional Windows environment (tested on Windows 10/11) with Steam and LET IT DIE installed, or sample `.sav` files in `CurrentSave/`.
-
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/g3usyk/Let-It-Die-Save-Editor.git
-   cd Let-It-Die-Save-Editor
-   ```
-2. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the application from source:
-   ```bash
-   python editor_gui.py
-   ```
+## Testing and Build Pipeline
 
 ### Running Automated Tests
 The project includes a comprehensive test suite in `tests/` covering save compression, blueprint evolution, currency bounds, storage expansions, fighter slots, and tower unlocking:
