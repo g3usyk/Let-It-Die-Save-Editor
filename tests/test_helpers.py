@@ -35,5 +35,11 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(get_player_uid({"user": {"uid": 999}}), "999")
         self.assertEqual(get_player_uid({"soul": {"uid": "888"}}), "888")
 
+    def test_repair_vip_friendship(self):
+        from core.helpers import repair_save_list_structures
+        buggy_save = {"soul": {"vip": {"flag": 1, "friendship": 100}}}
+        repair_save_list_structures(buggy_save)
+        self.assertEqual(buggy_save["soul"]["vip"]["friendship"], 1)
+
 if __name__ == "__main__":
     unittest.main()

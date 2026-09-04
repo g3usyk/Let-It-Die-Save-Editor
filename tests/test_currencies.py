@@ -51,6 +51,7 @@ class TestCurrencies(unittest.TestCase):
         status = modifiers.get_vip_status(self.save)
         self.assertTrue(status["active"])
         self.assertGreaterEqual(status["days_left"], 29)
+        self.assertEqual(self.save["soul"]["vip"]["friendship"], 1)
 
 if __name__ == "__main__":
     unittest.main()

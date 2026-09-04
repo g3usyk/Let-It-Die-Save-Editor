@@ -72,9 +72,9 @@ def set_vip_pass(save, days=30, passes=99, oneday_passes=99):
     vip = soul.setdefault("vip", {})
     now = int(time.time())
     
-    # Safe days cap (strictly max 30 days): exceeding 30 days causes the elevator
-    # validation and cutscene to hang infinitely!
-    safe_days = max(1, min(int(days), 30))
+    # Safe days cap (up to 90 days): confirmed by Stephengw3 on Reddit,
+    # safe length of time is up to 99 days 23 hours 59 mins.
+    safe_days = max(1, min(int(days), 90))
     
     vip["flag"] = 1
     vip["type"] = 0
@@ -82,7 +82,9 @@ def set_vip_pass(save, days=30, passes=99, oneday_passes=99):
     vip["oneday_pass_num"] = max(0, min(int(oneday_passes), 99))
     vip["expired_time"] = now + (safe_days * 86400)
     vip["automatic_renewal"] = 0
-    vip["friendship"] = 100
+    # CRITICAL: friendship MUST be 1! A value of 100 causes the elevator attendant animation/voice
+    # lookup to fail, resulting in an infinite loading hang in the Royal Express elevator!
+    vip["friendship"] = 1
     return safe_days
 
 def deactivate_vip_pass(save):

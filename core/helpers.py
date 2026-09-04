@@ -88,6 +88,12 @@ def repair_save_list_structures(save, uid=None):
     for k in ("openelvflr", "areaescflag", "msrbook", "bstbook", "unlockfighter", "expert", "cl"):
         get_or_create_list(soul, k)
 
+    # Auto-repair VIP friendship bug: friendship > 1 causes the elevator attendant animation/voice
+    # to fail to load, resulting in an infinite loading hang in the Royal Express elevator!
+    vip = soul.get("vip", {})
+    if isinstance(vip, dict) and vip.get("friendship", 0) > 1:
+        vip["friendship"] = 1
+
 def get_equipment_meta(ptid):
     global _EQUIPMENT_META_CACHE
     if _EQUIPMENT_META_CACHE is None:

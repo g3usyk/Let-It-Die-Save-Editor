@@ -671,7 +671,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         vip_f.pack(fill="x", pady=4)
         ttk.Label(vip_f, text=t("vip_days_lbl")).pack(side="left", padx=2)
         self.vip_days_var = tk.StringVar(value="30")
-        cb_vip_days = ttk.Combobox(vip_f, textvariable=self.vip_days_var, values=["30", "15", "7", "1"], state="readonly", width=6)
+        cb_vip_days = ttk.Combobox(vip_f, textvariable=self.vip_days_var, values=["90", "60", "30", "15", "7", "1"], state="readonly", width=6)
         cb_vip_days.pack(side="left", padx=4)
         ttk.Button(vip_f, text=t("activate_vip_btn"), style="Accent.TButton", command=self._activate_custom_vip).pack(side="left", padx=4)
         ttk.Button(vip_f, text=t("deactivate_vip_btn", "❌ Cancelar"), command=self._deactivate_vip_action).pack(side="left", padx=4)
@@ -785,7 +785,7 @@ class CompleteSaveEditorGUI(tk.Tk):
         if not self.save_json:
             return
         try:
-            days = min(30, max(1, int(self.vip_days_var.get())))
+            days = min(90, max(1, int(self.vip_days_var.get())))
         except ValueError:
             days = 30
         self.vip_days_var.set(str(days))
@@ -794,8 +794,8 @@ class CompleteSaveEditorGUI(tk.Tk):
         self.refresh_all_views()
         self._notify(
             "VIP Activated", "VIP Activado",
-            f"Royal Express Pass activated for {days} days (+{passes} 30-day passes in stock)!\n\n✨ Limited to 30 days to guarantee 100% safe elevator loading.",
-            f"¡Pase Royal Express activado por {days} días (+{passes} pases de 30 días en reserva)!\n\n✨ Limitado a 30 días máximos para garantizar que el ascensor cargue sin errores."
+            f"Royal Express Pass activated for {days} days (+{passes} 30-day passes in stock)!\n\n✨ Friendship fixed to 1 (prevents elevator cutscene/voice hang) and duration 100% safe.",
+            f"¡Pase Royal Express activado por {days} días (+{passes} pases de 30 días en reserva)!\n\n✨ Amistad fijada en 1 (soluciona el cuelgue de voz/animación en el ascensor) y duración 100% segura."
         )
 
     def _deactivate_vip_action(self):
