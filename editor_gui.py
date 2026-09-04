@@ -2787,7 +2787,13 @@ class CompleteSaveEditorGUI(tk.Tk):
         
         if hasattr(self, "cb_single_lvl") and hasattr(self, "bp_evolve_lbl"):
             if can_uncap:
-                uncap_vals = ["+19 (In R&D)", "+19 (Shop Max)", "+4", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+19 (En I+D)", "+19 (Tienda Máx)", "+4", "+3", "+2", "+1", "+0 (Plano)"]
+                uncap_vals = [
+                    "+19 (In R&D)", "+19 (Shop Max)", "+18", "+17", "+16", "+15", "+14", "+13",
+                    "+12", "+11", "+10", "+9", "+8", "+7", "+6", "+5", "+4", "+3", "+2", "+1", "+0 (Blueprint)"
+                ] if is_en else [
+                    "+19 (En I+D)", "+19 (Tienda Máx)", "+18", "+17", "+16", "+15", "+14", "+13",
+                    "+12", "+11", "+10", "+9", "+8", "+7", "+6", "+5", "+4", "+3", "+2", "+1", "+0 (Plano)"
+                ]
                 self.cb_single_lvl.config(values=uncap_vals)
                 self.bp_single_lvl_var.set("+19 (In R&D)" if is_en else "+19 (En I+D)")
                 self.bp_evolve_lbl.config(
@@ -2932,41 +2938,34 @@ class CompleteSaveEditorGUI(tk.Tk):
 
         self.refresh_all_views()
 
+    def _parse_selected_level(self, val_str):
+        val = str(val_str).strip()
+        is_shop_max = ("tienda máx" in val.lower() or "tienda max" in val.lower() or "shop max" in val.lower())
+        is_rnd = ("i+d" in val.lower() or "r&d" in val.lower())
+        m = re.search(r"\+?(\d+)", val)
+        lvl_num = int(m.group(1)) if m else 0
+        return lvl_num, is_shop_max, is_rnd
+
     def _unlock_single_bp_shop(self):
         if not self.current_bp_selection or not self.save_json:
             return
         ptid = self.current_bp_selection
-        val = str(self.bp_single_lvl_var.get())
-        if "Tienda" in val or "Shop" in val:
-            lvl = 20 if ("19" in val or "24" in val) else 5
-            display_lvl = 19 if ("19" in val or "24" in val) else 4
-        elif "19" in val or "24" in val:
-            lvl = 19
-            display_lvl = 19
-        elif "4" in val:
-            lvl = 4 if ("I+D" in val or "R&D" in val) else 5
-            display_lvl = 4
-        elif "3" in val:
-            lvl = 4
-            display_lvl = 3
-        elif "2" in val:
-            lvl = 3
-            display_lvl = 2
-        elif "1" in val:
-            lvl = 2
-            display_lvl = 1
-        elif "0" in val:
-            lvl = 1
-            display_lvl = 0
+        item_meta = next((item for item in self.equipment_db if item["id"] == ptid), None)
+        can_uncap = item_meta.get("can_uncap", True) if item_meta else True
+        
+        lvl_num, is_shop_max, is_rnd = self._parse_selected_level(self.bp_single_lvl_var.get())
+        if is_shop_max or lvl_num in (20, 24, 25):
+            api_lvl = 20 if can_uncap else 5
+            display_lvl = 19 if can_uncap else 4
         else:
-            lvl = 19
-            display_lvl = 19
-        next_unlocked = modifiers.unlock_single_blueprint(self.save_json, ptid, level=lvl, unlock_next_tier=True)
+            api_lvl = lvl_num
+            display_lvl = lvl_num
+
+        next_unlocked = modifiers.unlock_single_blueprint(self.save_json, ptid, level=api_lvl, unlock_next_tier=True)
         self._auto_save()
         self.filter_blueprints_list()
         
         is_en = (i18n.get_language() == "en")
-        item_meta = next((item for item in self.equipment_db if item["id"] == ptid), None)
         cur_name = (item_meta.get("name_en") if is_en else item_meta.get("name_es")) if item_meta else ptid
         
         lvl_str = f"+{display_lvl} (Destope)" if display_lvl >= 19 else f"+{display_lvl}"
@@ -2992,20 +2991,14 @@ class CompleteSaveEditorGUI(tk.Tk):
             return
         ptid = self.current_bp_selection
         val = str(self.bp_single_lvl_var.get())
-        if "+0" in val or "Plano" in val or "Blueprint" in val:
+        lvl_num, _, _ = self._parse_selected_level(val)
+        
+        if "+0" in val or "plano" in val.lower() or "blueprint" in val.lower() or lvl_num <= 0:
             target_lvl = 0
-        elif "+24" in val or "+19" in val:
+        elif lvl_num in (19, 20, 24, 25):
             target_lvl = 19
-        elif "+4" in val:
-            target_lvl = 4
-        elif "+3" in val:
-            target_lvl = 3
-        elif "+2" in val:
-            target_lvl = 2
-        elif "+1" in val:
-            target_lvl = 1
         else:
-            target_lvl = 0
+            target_lvl = lvl_num
             
         modifiers.send_blueprint_to_rnd(self.save_json, ptid, target_level=target_lvl)
         self._auto_save()
@@ -3022,9 +3015,10 @@ class CompleteSaveEditorGUI(tk.Tk):
                 f"¡{cur_name} [{ptid}] está ahora disponible en el I+D de Chokufunsha para desarrollarlo con materiales!\nGuardado automáticamente."
             )
         else:
-            prev_str = f"+{target_lvl-1} (Uncapped)" if target_lvl >= 19 else f"+{target_lvl-1}"
+            prev_num = target_lvl - 1
+            prev_str = f"+{prev_num} (Uncapped)" if prev_num >= 19 else f"+{prev_num}"
+            prev_str_es = f"+{prev_num} (Destope)" if prev_num >= 19 else f"+{prev_num}"
             next_str = f"+{target_lvl} (Uncapped)" if target_lvl >= 19 else f"+{target_lvl}"
-            prev_str_es = f"+{target_lvl-1} (Destope)" if target_lvl >= 19 else f"+{target_lvl-1}"
             next_str_es = f"+{target_lvl} (Destope)" if target_lvl >= 19 else f"+{target_lvl}"
             self._notify(
                 "Item Set in R&D!", "¡Objeto Configurado en I+D!",
@@ -3067,28 +3061,20 @@ class CompleteSaveEditorGUI(tk.Tk):
         if not self.current_bp_selection or not self.save_json:
             return
         ptid = self.current_bp_selection
-        val = str(self.bp_single_lvl_var.get())
-        if "24" in val or "19" in val:
-            lvl = 20
-            plus = 19
-        elif "4" in val:
-            lvl = 5
-            plus = 4
-        elif "3" in val:
-            lvl = 4
-            plus = 3
-        elif "2" in val:
-            lvl = 3
-            plus = 2
-        elif "1" in val:
-            lvl = 2
-            plus = 1
-        elif "0" in val:
+        item_meta = next((item for item in self.equipment_db if item["id"] == ptid), None)
+        can_uncap = item_meta.get("can_uncap", True) if item_meta else True
+        
+        lvl_num, _, _ = self._parse_selected_level(self.bp_single_lvl_var.get())
+        if lvl_num >= 19:
+            lvl = 20 if can_uncap else 5
+            plus = 19 if can_uncap else 4
+        elif lvl_num <= 0:
             lvl = 1
             plus = 0
         else:
-            lvl = 20
-            plus = 19
+            lvl = min(20 if can_uncap else 5, lvl_num + 1)
+            plus = min(19 if can_uncap else 4, lvl_num)
+            
         modifiers.add_equipment_to_storage(self.save_json, ptid, count=1, lvl=lvl, dur=999999 if plus >= 19 else 50000)
         self._auto_save()
         self.filter_blueprints_list()
@@ -3160,20 +3146,20 @@ class CompleteSaveEditorGUI(tk.Tk):
         if not self.save_json:
             return
         val = str(self.bp_unlock_all_lvl_var.get())
-        if "24" in val: lvl = 24
-        elif "19" in val: lvl = 19
-        elif "4" in val: lvl = 4
-        elif "3" in val: lvl = 3
-        elif "2" in val: lvl = 2
-        elif "1" in val: lvl = 1
-        else: lvl = 19
+        lvl_num, _, _ = self._parse_selected_level(val)
+        if lvl_num in (19, 20, 24, 25):
+            lvl = 19
+        elif lvl_num > 0:
+            lvl = lvl_num
+        else:
+            lvl = 19
         modifiers.unlock_all_blueprints(self.save_json, level=lvl)
         self._auto_save()
         self.filter_blueprints_list()
         self._notify(
             "Blueprints Unlocked", "Planos Desbloqueados",
-            f"All 1,370 weapon and armor blueprints unlocked at Level +{lvl} in Chokufunsha!",
-            f"¡Todos los 1,370 planos de armas y armaduras han sido desbloqueados al Nivel +{lvl} en Chokufunsha!"
+            f"All weapon and armor blueprints unlocked at Level +{lvl} in Chokufunsha!",
+            f"¡Todos los planos de armas y armaduras han sido desbloqueados al Nivel +{lvl} en Chokufunsha!"
         )
 
     def _repair_blueprints_action(self):

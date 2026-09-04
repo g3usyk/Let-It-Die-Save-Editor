@@ -622,10 +622,8 @@ def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True, auto_unl
         target_engine_lvl = 20 if can_uncap else 5
     elif level in (4, 5):
         target_engine_lvl = 5
-    elif level in (1, 2, 3):
-        target_engine_lvl = level + 1
-    elif level > 5:
-        target_engine_lvl = min(level, 20 if can_uncap else 5)
+    elif 0 < level < 19:
+        target_engine_lvl = min(level + 1, 20 if can_uncap else 5)
     else:
         target_engine_lvl = 1
 

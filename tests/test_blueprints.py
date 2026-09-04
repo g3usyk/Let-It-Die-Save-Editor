@@ -165,6 +165,20 @@ class TestBlueprints(unittest.TestCase):
         self.assertEqual(uncapped_item.get("lvl"), 20)
         self.assertGreaterEqual(uncapped_item.get("dur"), 50000)
 
+    def test_uncapped_intermediate_level_plus15(self):
+        # When unlocking an uncapped piece at level 15:
+        # Shop should have +15 (engine lvl 16 CHARGE), and R&D counter should show +15 -> +16
+        modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=15, unlock_next_tier=False)
+        pr_map = modifiers.get_blueprints_unlock_map(self.save)
+        self.assertEqual(pr_map["PT_ARM_WP001_005"]["status"], "RND_UNCAPPED")
+        self.assertEqual(pr_map["PT_ARM_WP001_005"]["lvl"], 16)
+        self.assertIn("+15 → +16", pr_map["PT_ARM_WP001_005"]["label"])
+        
+        pr_u = self.save["soul"]["partresearch"]["user"]
+        charge_entry = next((e for e in pr_u if e.get("ptid") == "PT_ARM_WP001_005" and e.get("receive_type") == "CHARGE"), None)
+        self.assertIsNotNone(charge_entry)
+        self.assertEqual(charge_entry.get("lvl"), 16)
+
 if __name__ == "__main__":
     unittest.main()
 
