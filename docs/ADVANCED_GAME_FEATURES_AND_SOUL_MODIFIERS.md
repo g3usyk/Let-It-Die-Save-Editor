@@ -21,6 +21,12 @@
 14. [Official Quest Auto-Completion (soul.quest)](#14-official-quest-auto-completion-soulquest)
 15. [Yotsuyama Magazines and Jukebox Channels](#15-yotsuyama-magazines-and-jukebox-channels)
 16. [Automated Rolling Backup System](#16-automated-rolling-backup-system)
+17. [Equipment Evolution & Uncapping Hierarchy (+4 vs +19/+24)](#17-equipment-evolution--uncapping-hierarchy-4-vs-1924)
+18. [Windows Administrative Auto-Elevation (UAC Architecture)](#18-windows-administrative-auto-elevation-uac-architecture)
+19. [Royal Express VIP Pass Validation & The Friendship Bug Fix (soul.vip)](#19-royal-express-vip-pass-validation--the-friendship-bug-fix-soulvip)
+20. [Balanced ZLIB Multi-Chunk Compressor (save_io.py)](#20-balanced-zlib-multi-chunk-compressor-save_iopy)
+21. [Chokufunsha R&D Mode vs Shop Max for +19 Uncapped Equipment (soul.partresearch.user)](#21-chokufunsha-rd-mode-vs-shop-max-for-19-uncapped-equipment-soulpartresearchuser)
+22. [Emergency Waiting Room Fighter Rescue (soul.chr.chrs)](#22-emergency-waiting-room-fighter-rescue-soulchrchrs)
 
 ---
 
@@ -435,6 +441,113 @@ Because Steam installs games to protected directories (e.g. `C:\Program Files (x
 To resolve this seamlessly for all end-users:
 * The standalone `.exe` is compiled with the `--uac-admin` manifest flag.
 * Windows automatically prompts the user with the standard User Account Control (UAC) dialog upon launch, granting full administrative privileges and preventing save writing interruptions.
+
+---
+
+## 19. Royal Express VIP Pass Validation & The Friendship Bug Fix (`soul.vip`)
+
+### Save File Path
+* `save["soul"]["vip"]`: Dictionary managing the player's active Royal Express subscription, express passes, and elevator attendant friendship.
+
+### Structure of `soul.vip`
+```json
+{
+  "flag": 1,
+  "type": 0,
+  "pass_num": 99,
+  "oneday_pass_num": 99,
+  "expired_time": 1791063593,
+  "automatic_renewal": 0,
+  "friendship": 1,
+  "last_use_day": 1788474564,
+  "sequence": 1,
+  "rest_week_flag": 0
+}
+```
+
+### The "Infinite Elevator Cutscene / Loading Hang" Root Cause
+A notorious bug in save modification was an infinite loading hang occurring when entering or riding the Royal Express elevator. Reverse engineering and community testing (discovered by Stephengw3 on Reddit) revealed the exact root cause:
+1. **The Elevator Attendant Voice & Animation Dispatch**: When riding the Royal Express elevator, the attendant (`Rin`) plays a greeting cutscene with localized voice lines and animations based on the player's `"friendship"` level.
+2. **Missing Asset Request (`friendship: 100`)**: If `"friendship"` is set to `100` (or any arbitrary value above legitimate game bounds), the Unreal Engine animation loader attempts to load animation/voice clips corresponding to friendship level 100. Because no such asset exists in the game data, the engine stalls indefinitely waiting for the asset streaming callback, freezing the elevator loading screen.
+3. **The Solution (`friendship: 1`)**: Setting `"friendship": 1` points to an existing, valid greeting animation and voice clip, allowing the elevator sequence to play instantly and transition seamlessly to the next floor.
+
+### Expiration Timestamp Rules
+* **Safe Maximum Duration**: Up to 99 days, 23 hours, and 59 minutes (~100 days).
+* Exceeding ~100 days causes the timestamp validation to mark the pass as invalid without resetting it.
+* **Recommended Setting**: 30 to 90 days active, accompanied by 99 reserve passes (`pass_num: 99`, `oneday_pass_num: 99`) stored in the inventory.
+* **Automated Auto-Healing**: The editor automatically audits `soul.vip.friendship` on load/save and heals any value `> 1` back to `1`.
+
+---
+
+## 20. Balanced ZLIB Multi-Chunk Compressor (`save_io.py`)
+
+### Problem with Standard / Single-Chunk ZLIB Writing
+Standard ZLIB compression scripts often compress the entire JSON payload into a single massive chunk or arbitrary 64KB blocks. However, *LET IT DIE*'s native engine utilizes a streaming memory-chunked decompressor designed to process save data across discrete, balanced decompression buffers. Writing imbalanced or malformed chunks can cause the game to crash or stall during the initial "Checking Save Data" phase.
+
+### Balanced 4-Chunk Engine Specification
+The editor implements the exact 4-chunk balanced streaming structure utilized by native client saves:
+```python
+def _balanced_sizes(total: int, count: int = 4) -> list[int]:
+    base, remainder = divmod(total, count)
+    return [base + (1 if i < remainder else 0) for i in range(count)]
+```
+
+### Binary Layout:
+1. **Header (16 bytes)**:
+   * `0x00 - 0x03`: Magic signature `BRG\0` (`0x42 0x52 0x47 0x00`).
+   * `0x04 - 0x07`: Save version uint32 (typically `2`).
+   * `0x08 - 0x0B`: Total uncompressed JSON byte length (uint32 LE).
+   * `0x0C - 0x0F`: Compression algorithm identifier `ZLIB`.
+2. **4 Balanced Data Chunks**:
+   * `uncompressed_size` (uint32 LE, 4 bytes).
+   * `compressed_size` (uint32 LE, 4 bytes).
+   * `compressed_payload` (zlib raw stream, compressed_size bytes).
+3. **EOF Trailer**:
+   * `0x00000000` (uint32 0, 4 bytes marking end of stream).
+4. **JSON Serialization Rules**:
+   * UTF-8 encoded with `ensure_ascii=False`.
+   * Strict compact separators `(',', ':')` without trailing whitespace.
+
+---
+
+## 21. Chokufunsha R&D Mode vs Shop Max for +19 Uncapped Equipment (`soul.partresearch.user`)
+
+### The Challenge with Uncapped Blueprints
+Players frequently want their equipment at maximum uncapped potential (+19), but in two very different ways:
+* **Option A ("Shop Max")**: Ready to buy fully completed at +19 from Chokufunsha Shop.
+* **Option B ("R&D Active / De Fábrica")**: Available to buy at +18 ("de fábrica el máximo"), while the final upgrade to +19 is actively waiting in the Chokufunsha R&D counter so the player can experience researching it themselves with their own materials.
+
+### Save Schema Representation in `soul.partresearch.user`
+* **Intermediate Levels (1 to 18)**:
+  `{"ptid": "PT_ARM_WP003_005", "lvl": L, "research_type": "FINISHED", "receive_type": "FINISHED"}`
+* **R&D Active Mode (+18 in Shop, +19 in R&D)**:
+  Level 19 has:
+  `{"ptid": "PT_ARM_WP003_005", "lvl": 19, "research_type": "FINISHED", "receive_type": "CHARGE"}`
+  Level 20 is intentionally omitted.
+  * In-game behavior: The shop sells the item at Level 19 (+18). The R&D development menu presents the active recipe to forge Level 20 (+19).
+* **Shop Max Mode (+19 Completed)**:
+  Level 20 has:
+  `{"ptid": "PT_ARM_WP003_005", "lvl": 20, "research_type": "FINISHED", "receive_type": "CHARGE"}`
+  * In-game behavior: The shop sells the item at Level 20 (+19). The R&D menu shows the item as 100% completed.
+
+### Bulk Uncap Processing Architecture
+The bulk uncap feature (`⚡ Mejorar Todo a Nivel +19`) iterates across all **377+ authentic uncapped weapons and armors**:
+1. Uses pre-cached SQLite parent mapping from `master_part` (`nextptid` relationships) to resolve ancestors in constant time (`O(1)`).
+2. Guarantees prerequisite ancestor tiers (e.g. Tier 1, Tier 2, Tier 3, Tier 4 Base) are safely registered at Level 5 (+4 `CHARGE`) so the game's evolution prerequisite checks succeed.
+3. Places the final uncapped tier at Level 19 `CHARGE`, instantly populating the entire Chokufunsha R&D catalog without skipping game logic.
+
+---
+
+## 22. Emergency Waiting Room Fighter Rescue (`soul.chr.chrs`)
+
+### Mechanics
+When fighters become stuck in elevator loading states, frozen in mid-tower transitions, or trapped in invalid room coordinates:
+1. The editor targets the active fighter in `soul.chr.chrs[uid]`.
+2. Resets:
+   * `"floor": 0` (Waiting Room ground floor).
+   * `"scene": "HUB_MAIN"` (Central Waiting Room scene).
+   * `"state": "WAITING_ROOM"` (Normal standing idle state).
+   * Restores full HP and stamina without triggering death or loss of equipped items/deathbag.
 
 ---
 

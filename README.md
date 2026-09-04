@@ -70,6 +70,8 @@ All reverse-engineering notes, engine save keys, and data tables extracted from 
 - Modify Kill Coins, Death Metals, SPLithium, and Bloodnium directly with integer overflow protection.
 - Expand KC Bank and SPLithium Tank to **Level 100** (+2.56M capacity).
 - Configure **Player Rank** (1 to 100+) with automatic mathematical synchronization of exact official Rank Points (`master_rank_point`) preventing TDM save desync.
+- **Royal Express VIP Pass**: Safe activation from 1 to 90 days with +99 reserve tickets. Automatically secures `friendship: 1` to eliminate the elevator attendant animation/voice loading freeze.
+- **Emergency Waiting Room Rescue**: Safely teleports stuck, frozen, or trapped fighters back to the Waiting Room without death penalties or gear loss.
 
 ### Tower of Barbs Map & Elevator Network
 - **Full 980-Room & 1,119-Escalator Discovery**: Completely clears fog of war across all tower districts.
@@ -96,8 +98,11 @@ All reverse-engineering notes, engine save keys, and data tables extracted from 
 ### Blueprints, Smart Evolution & Uncapping
 - Complete catalog of 1,370 equipment pieces and 385 weapons.
 - Filter by gear slot (Head, Body, Legs, Weapon), manufacturer faction (D.O.D. ARMS, War Ensemble, Candle Wolf, M.I.L.K., 4 Forcemen, Jackals, RE Recycling, Special/Events), and damage types (Slash, Blunt, Pierce, Fire, Electric, Poison).
-- **Smart R&D Hierarchy**: Caps base/intermediate tiers safely at +4 to trigger the next blueprint unlock, while allowing final Tier 4 items to uncap to **+19** (standard) and **+24** (Tengoku legendary).
-- Interactive "Evolve / Unlock Next Tier" feature.
+- **Dual-Mode Uncapping (+19 / +24)**:
+  - **`🔨 En I+D (+18 → +19)` (Pink `#ff79c6`)**: Equipment is purchasable at **+18** in the Chokufunsha Shop ("de fábrica"), while the recipe to research **+19** is actively waiting at the R&D counter for the player to complete in-game!
+  - **`⭐ Tienda (+19 Destope)`**: Completely unlocks the item at maximum level directly in the shop.
+- **Bulk Uncapper**: Instantly upgrades all 377+ uncapped weapons and armors across Storage and R&D with valid prerequisite hierarchy resolution.
+- Interactive "Evolve / Unlock Next Tier" feature with one-click final uncap dispatch.
 - Includes an R&D repair tool to resolve corrupted recipe states.
 
 ### Materials and Storage Locker
@@ -192,20 +197,28 @@ def read_save(filepath: str) -> dict:
 
     return json.loads(b"".join(chunks).decode("utf-8"))
 
-def write_save(save_dict: dict, output_path: str):
-    raw_json = json.dumps(save_dict, ensure_ascii=False).encode("utf-8")
-    header = b"BRG\x00\x01\x00\x00\x00\x00\x00\x00\x00ZL\x00\x00"
+def write_save(save_dict: dict, output_path: str, version: int = 2):
+    # Strict UTF-8 with compact separators matching native client JSON
+    json_bytes = json.dumps(save_dict, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+    total_uncomp = len(json_bytes)
     
-    chunk_size = 65536
-    body = bytearray()
-    for i in range(0, len(raw_json), chunk_size):
-        chunk = raw_json[i:i + chunk_size]
-        comp = zlib.compress(chunk)
-        body += struct.pack("<II", len(chunk), len(comp))
-        body += comp
-
+    header = b"BRG\x00" + struct.pack("<II", version, total_uncomp) + b"ZLIB"
+    
+    # Divide payload into 4 balanced chunks for native streaming decompression
+    base, remainder = divmod(total_uncomp, 4)
+    sizes = [base + (1 if i < remainder else 0) for i in range(4)]
+    
+    chunks = []
+    pos = 0
+    for sz in sizes:
+        raw_chunk = json_bytes[pos:pos+sz]
+        comp = zlib.compress(raw_chunk)
+        chunks.append(struct.pack("<II", len(raw_chunk), len(comp)) + comp)
+        pos += sz
+        
+    eof_trailer = struct.pack("<I", 0)
     with open(output_path, "wb") as f:
-        f.write(header + body)
+        f.write(header + b"".join(chunks) + eof_trailer)
 
 # Usage example:
 save = read_save("save.sav")

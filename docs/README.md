@@ -20,6 +20,10 @@ A comprehensive technical manual documenting the internal `.sav` layout and JSON
 - **Fighter Engine Internals**: Distinction between `bodyuser` level allocation points (1-45 stat caps, Death 'Roids) and `soul.chr` live combat states.
 - **Weapon & Armor Modifiers**: Overriding durability (`999,999` unbreakable), chamber ammo (`9,999`), and Tengoku uncap levels (+19/+24).
 - **Endgame Equipment IDs**: Reference list for 44CE Forcemen, Jackals, and Tengoku legendary weapons.
+- **Royal Express VIP Pass Validation & Friendship Bug Fix**: Technical explanation of `soul.vip.friendship` (must be `1` to avoid elevator cutscene voice/animation stall), safe expiration rules (~100 days), and auto-healing logic.
+- **Balanced 4-Chunk ZLIB Compressor**: Engine streaming decompressor compliance using 4 balanced ZLIB chunks with compact UTF-8 formatting and zero-byte trailer.
+- **Chokufunsha R&D Mode vs Shop Max**: Implementation of `soul.partresearch.user` Level 19 `CHARGE` (+18 in Shop, active +19 in R&D) versus Level 20 `CHARGE` (Shop Max).
+- **Emergency Waiting Room Fighter Rescue**: Immediate extraction of stuck or frozen fighters back to the Waiting Room without death penalties.
 
 ---
 
