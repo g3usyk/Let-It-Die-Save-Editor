@@ -1,14 +1,14 @@
 {
-  "version": "2.6.1",
+  "version": "2.7.0",
   "name": "Let It Die - Complete Save Editor & Encyclopedia",
-  "release_date": "2026-09-03",
+  "release_date": "2026-09-04",
   "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
   "changelog": [
+    "Modularizacion de Arquitectura: Division del editor monolitico en mixins de dominio desacoplados en ui/tabs/",
+    "Correccion de Congelador y Tutorial en Partidas Nuevas: Desbloqueo automatico de Kiwako Seto, Sala de Espera e instalaciones al crear/modificar luchadores o desbloquear mapa",
+    "Sincronizacion de 10 Ranuras del Congelador: Mapeo y reordenamiento sin corrupcion de slots en soul.chr.slots",
     "Compresor ZLIB Balanceado: Distribucion en 4 trozos balanceados con UTF-8 estricto compatible con streaming nativo",
     "Estabilizacion de la Torre: Retirada de inyeccion forzada de habitaciones off-rotation para prevenir cuelgues de carga",
-    "Boton de Rescate de Emergencia: Recuperacion automatica de luchadores atrapados en el vacio o en bucles de carga hacia la Sala de Espera",
-    "Auto-reparador de Esquemas (repair_save_list_structures): Correccion de diccionarios vacios serializados por el juego",
-    "Soporte Hibrido de Almacen: Compatibilidad nativa para inventarios serializados como listas o diccionarios",
-    "Proteccion de Casillas de Bolsa de Muerte: Limitacion a 35 casillas maximas seguras para evitar desbordes en la interfaz del juego"
+    "Boton de Rescate de Emergencia: Recuperacion automatica de luchadores atrapados en el vacio o en bucles de carga hacia la Sala de Espera"
   ]
 }
