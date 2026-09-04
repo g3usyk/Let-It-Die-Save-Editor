@@ -8,7 +8,30 @@ from game_data import CLASS_CODE_ALIASES
 from core.helpers import get_player_uid, get_masters_db_path, PROJECT_ROOT, get_or_create_list
 
 
+def is_tutorial_cleared(save):
+    """
+    Checks if the save has completed the tutorial and unlocked the Fighter Freezer.
+    """
+    cl = save.get("gameflg", {}).get("cl", [])
+    has_kiwako = any(f.get("var") == "KGF_FIRST_KIWAKOROOM" and f.get("value") == 1 for f in cl if isinstance(f, dict))
+    sv = save.get("gameflg", {}).get("sv", [])
+    tut_prog = next((f.get("value", 0) for f in sv if isinstance(f, dict) and f.get("var") == "KGF_TUTORIAL_PROGRESS"), 0)
+    return has_kiwako and tut_prog >= 100
+
+def _ensure_freezer_accessible(save):
+    """
+    Automatically completes the tutorial and unlocks Waiting Room facilities
+    if modifying/creating fighters on a fresh save, preventing Kiwako Seto lockout.
+    """
+    if not is_tutorial_cleared(save):
+        try:
+            from core.tower import unlock_tutorial_and_waiting_room
+            unlock_tutorial_and_waiting_room(save)
+        except Exception:
+            pass
+
 def max_fighter_level_and_stats(save, fighter_index=0, level=247):
+    _ensure_freezer_accessible(save)
     uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
@@ -83,6 +106,7 @@ def revive_all_fighters(save):
             c["state"] = "GUARD"
 
 def update_fighter(save, fighter_idx, name=None, clazz=None, grade=None, lvl=None, hp=None, str_stat=None, dex=None, vit=None, stm=None, luk=None, bag=None, param_hp=None, param_stm=None, param_str=None, param_dex=None, param_vit=None, param_luk=None, body_model=None):
+    _ensure_freezer_accessible(save)
     uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
@@ -454,11 +478,12 @@ def clone_fighter(save, fighter_idx, new_name=None):
         d["cid"] = new_cid
         eq_list.append(d)
         
-    # Clone deathbag and all equipped equipment (armors, weapons, mushrooms, items)
+    # Clone deathbag and all equipped equipment (armors, weapons, mushrooms, beasts, items)
     orig_db = save.get("soul", {}).get("deathbag", {}).get(uid, {}).get(orig_cid, [])
     new_db = []
     pts_list = save.setdefault("part", {}).setdefault("pts", {}).setdefault(uid, [])
     msrs_list = get_or_create_list(save.setdefault("mushroom", {}), "msrs")
+    bsts_list = get_or_create_list(save.setdefault("beast", {}), "bsts")
     items_list = get_or_create_list(save.setdefault("item", {}), "items")
 
     for slot_item in orig_db:
@@ -483,7 +508,13 @@ def clone_fighter(save, fighter_idx, new_name=None):
                     new_m = copy.deepcopy(orig_m)
                     new_m["eid"] = new_eid
                     msrs_list.append(new_m)
-            elif item_type == 2:  # Material / Item
+            elif item_type == 2:  # Beast
+                orig_b = next((b for b in bsts_list if b.get("eid") == old_eid), None)
+                if orig_b:
+                    new_b = copy.deepcopy(orig_b)
+                    new_b["eid"] = new_eid
+                    bsts_list.append(new_b)
+            elif item_type == 3:  # Material / Item
                 orig_i = next((i for i in items_list if i.get("eid") == old_eid), None)
                 if orig_i:
                     new_i = copy.deepcopy(orig_i)
@@ -494,6 +525,7 @@ def clone_fighter(save, fighter_idx, new_name=None):
 
     save.setdefault("soul", {}).setdefault("deathbag", {}).setdefault(uid, {})[new_cid] = new_db
     sync_fighter_slots(save)
+    _ensure_freezer_accessible(save)
     return True, new_cid
 
 
@@ -615,6 +647,7 @@ def create_new_fighter(save, name, clazz="BAL", grade=6, body_model="Female 1", 
     chr_chrs.append(new_ch)
     save.setdefault("soul", {}).setdefault("deathbag", {}).setdefault(uid, {})[new_cid] = []
     sync_fighter_slots(save)
+    _ensure_freezer_accessible(save)
     return True, new_cid
 
 def delete_fighter(save, fighter_idx):
@@ -654,6 +687,9 @@ def delete_fighter(save, fighter_idx):
         msrs = get_or_create_list(save.setdefault("mushroom", {}), "msrs")
         if msrs:
             save["mushroom"]["msrs"] = [m for m in msrs if isinstance(m, dict) and m.get("eid") not in del_eids]
+        bsts = get_or_create_list(save.setdefault("beast", {}), "bsts")
+        if bsts:
+            save["beast"]["bsts"] = [b for b in bsts if isinstance(b, dict) and b.get("eid") not in del_eids]
         items = get_or_create_list(save.setdefault("item", {}), "items")
         if items:
             save["item"]["items"] = [i for i in items if isinstance(i, dict) and i.get("eid") not in del_eids]

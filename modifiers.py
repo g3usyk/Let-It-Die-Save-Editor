@@ -66,6 +66,7 @@ from core.fighters import (
     clone_fighter,
     create_new_fighter,
     delete_fighter,
+    is_tutorial_cleared,
 )
 
 
@@ -144,6 +145,7 @@ from core.tower import (
     get_tower_playlog,
     set_tower_max_floor,
     reset_tower_interruptions,
+    unlock_tutorial_and_waiting_room,
 )
 
 from core import __all__

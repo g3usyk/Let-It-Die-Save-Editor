@@ -187,13 +187,25 @@ class TestFighters(unittest.TestCase):
         self.save.setdefault("soul", {}).setdefault("skl", {}).setdefault("eqskl", {})["443455"] = [
             {"uid": 443455, "cid": "fighter_1", "slot": 0, "sklid": "SKL_01"}
         ]
-        # Add equipped armor and weapon to deathbag
+        # Add equipped armor (type 0), mushroom (type 1), beast (type 2), and material (type 3)
         self.save.setdefault("part", {}).setdefault("pts", {})["443455"] = [
             {"uid": 443455, "eid": "armor_eid_1", "ptid": "PT_REC_HEAD_102_G", "dur": 1000, "lvl": 4}
         ]
+        self.save.setdefault("mushroom", {})["msrs"] = [
+            {"eid": "msr_eid_1", "msrid": "MSR_001", "owner": "FIGHTER"}
+        ]
+        self.save.setdefault("beast", {})["bsts"] = [
+            {"eid": "bst_eid_1", "bstid": "BST_001", "owner": "FIGHTER"}
+        ]
+        self.save.setdefault("item", {})["items"] = [
+            {"eid": "mat_eid_1", "itemid": "ITEM_MAT_001", "owner": "FIGHTER"}
+        ]
         self.save.setdefault("soul", {}).setdefault("deathbag", {})["443455"] = {
             "fighter_1": [
-                {"uid": 443455, "cid": "fighter_1", "slot": 0, "type": 0, "eid": "armor_eid_1", "site": "EQSITE_HEAD", "arm_slot": -1}
+                {"uid": 443455, "cid": "fighter_1", "slot": 0, "type": 0, "eid": "armor_eid_1", "site": "EQSITE_HEAD", "arm_slot": -1},
+                {"uid": 443455, "cid": "fighter_1", "slot": 1, "type": 1, "eid": "msr_eid_1", "site": "", "arm_slot": -1},
+                {"uid": 443455, "cid": "fighter_1", "slot": 2, "type": 2, "eid": "bst_eid_1", "site": "", "arm_slot": -1},
+                {"uid": 443455, "cid": "fighter_1", "slot": 3, "type": 3, "eid": "mat_eid_1", "site": "", "arm_slot": -1}
             ]
         }
         
@@ -211,27 +223,49 @@ class TestFighters(unittest.TestCase):
         self.assertEqual(len(eq_list), 2)
         self.assertTrue(any(d["cid"] == clone_cid and d["sklid"] == "SKL_01" for d in eq_list))
         
-        # Check cloned deathbag & equipped armor
+        # Check cloned deathbag contains all 4 items with new unique eids
         clone_db = self.save["soul"]["deathbag"]["443455"][clone_cid]
-        self.assertEqual(len(clone_db), 1)
-        self.assertEqual(clone_db[0]["cid"], clone_cid)
-        self.assertEqual(clone_db[0]["site"], "EQSITE_HEAD")
-        clone_eid = clone_db[0]["eid"]
-        self.assertNotEqual(clone_eid, "armor_eid_1")
+        self.assertEqual(len(clone_db), 4)
+        cloned_eids = {slot["type"]: slot["eid"] for slot in clone_db}
         
-        # Check that part.pts contains the cloned armor entity
+        self.assertNotEqual(cloned_eids[0], "armor_eid_1")
+        self.assertNotEqual(cloned_eids[1], "msr_eid_1")
+        self.assertNotEqual(cloned_eids[2], "bst_eid_1")
+        self.assertNotEqual(cloned_eids[3], "mat_eid_1")
+        
+        # Check part.pts (type 0)
         pts_list = self.save["part"]["pts"]["443455"]
         self.assertEqual(len(pts_list), 2)
-        cloned_pt = next((p for p in pts_list if p.get("eid") == clone_eid), None)
-        self.assertIsNotNone(cloned_pt)
-        self.assertEqual(cloned_pt["ptid"], "PT_REC_HEAD_102_G")
-        self.assertEqual(cloned_pt["dur"], 1000)
+        self.assertTrue(any(p.get("eid") == cloned_eids[0] for p in pts_list))
+        
+        # Check mushroom.msrs (type 1)
+        msrs_list = self.save["mushroom"]["msrs"]
+        self.assertEqual(len(msrs_list), 2)
+        self.assertTrue(any(m.get("eid") == cloned_eids[1] for m in msrs_list))
+        
+        # Check beast.bsts (type 2)
+        bsts_list = self.save["beast"]["bsts"]
+        self.assertEqual(len(bsts_list), 2)
+        self.assertTrue(any(b.get("eid") == cloned_eids[2] for b in bsts_list))
+        
+        # Check item.items (type 3)
+        items_list = self.save["item"]["items"]
+        self.assertEqual(len(items_list), 2)
+        self.assertTrue(any(i.get("eid") == cloned_eids[3] for i in items_list))
 
     def test_delete_fighter(self):
         # Create a second fighter first
         ok, cid2 = modifiers.create_new_fighter(self.save, name="Temp Fighter")
         self.assertTrue(ok)
         self.assertEqual(len(self.save["bodyuser"]["443455"]), 2)
+        
+        # Add bag items to fighter 2 (including a beast and material)
+        self.save.setdefault("beast", {})["bsts"] = [
+            {"eid": "del_bst_1", "bstid": "BST_002"}
+        ]
+        self.save["soul"]["deathbag"]["443455"][cid2] = [
+            {"uid": 443455, "cid": cid2, "slot": 0, "type": 2, "eid": "del_bst_1"}
+        ]
         
         # Cannot delete in-use fighter
         self.save["soul"]["chr"]["chrs"]["443455"][0]["state"] = "USE"
@@ -243,10 +277,32 @@ class TestFighters(unittest.TestCase):
         self.assertTrue(del_ok)
         self.assertEqual(len(self.save["bodyuser"]["443455"]), 1)
         
+        # Verify beast entity was cleaned up and not orphaned
+        self.assertEqual(len(self.save["beast"]["bsts"]), 0)
+        
         # Cannot delete the only remaining fighter
         self.save["soul"]["chr"]["chrs"]["443455"][0]["state"] = "GUARD"
         last_del_fail, _ = modifiers.delete_fighter(self.save, 0)
         self.assertFalse(last_del_fail)
+
+    def test_fresh_save_fighter_creation_auto_unlocks_freezer(self):
+        fresh_save = {
+            "user": {"uid": 77777},
+            "bodyuser": {"77777": []},
+            "soul": {"chr": {"chrs": {"77777": []}}}
+        }
+        self.assertFalse(modifiers.is_tutorial_cleared(fresh_save))
+        
+        ok, cid = modifiers.create_new_fighter(fresh_save, name="Fresh Starter", grade=1)
+        self.assertTrue(ok)
+        self.assertTrue(modifiers.is_tutorial_cleared(fresh_save))
+        
+        # Verify Kiwako Seto flag is unlocked
+        cl = fresh_save.get("gameflg", {}).get("cl", [])
+        self.assertTrue(any(f.get("var") == "KGF_FIRST_KIWAKOROOM" and f.get("value") == 1 for f in cl))
+        # Verify tutorial progress is 100
+        sv = fresh_save.get("gameflg", {}).get("sv", [])
+        self.assertTrue(any(f.get("var") == "KGF_TUTORIAL_PROGRESS" and f.get("value") == 100 for f in sv))
 
 
 if __name__ == "__main__":

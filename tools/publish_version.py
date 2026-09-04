@@ -8,7 +8,7 @@ import subprocess
 import sys
 from datetime import date
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERSION_FILE = os.path.join(BASE_DIR, "version.json")
 
 def main():

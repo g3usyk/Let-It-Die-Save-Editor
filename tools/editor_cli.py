@@ -54,7 +54,7 @@ def main():
         print("=" * 68)
         print("  [1] Max Currencies (9999 DM, 10,000,000 KC, SPL, 999,999 Bloodnium, RE)")
         print("  [2] Custom Currency Values")
-        print("  [3] Grant Permanent VIP Express Pass (10 Years + 99 Passes)")
+        print("  [3] Grant Royal VIP Express Pass (30 Safe Days + 99 Passes)")
         print("  [4] Unlock ALL 1,346 Blueprints (Max Tier +4 in Chokufunsha)")
         print("  [5] Max All Weapon Masteries (PTARMTP_00..64 to Lv 20 / 30)")
         print("  [6] Revive & Heal All Fighters (Free Salvage)")
@@ -67,13 +67,14 @@ def main():
         print(" [13] Infinite Durability (999,999) & Massive Ammo (9,999) on Gear")
         print(" [14] Complete All 232 Official Quests (Misiones con recompensas DM)")
         print(" [15] Unlock All 36 Magazines & Radio Jukebox")
-        print(" [16] Export Save to Uncompressed JSON (for manual editing)")
-        print(" [17] Import Save from JSON file")
-        print(" [18] Save Changes & Apply to Game (.sav with rolling auto-backup)")
+        print(" [16] Unlock Tower Map & 61 Elevators (980 Rooms, 1,119 Escalators)")
+        print(" [17] Export Save to Uncompressed JSON (for manual editing)")
+        print(" [18] Import Save from JSON file")
+        print(" [19] Save Changes & Apply to Game (.sav with rolling auto-backup)")
         print("  [0] Exit without saving")
         print("=" * 68)
 
-        choice = input("Select an option (0-18): ").strip()
+        choice = input("Select an option (0-19): ").strip()
 
         if choice == "1":
             modifiers.set_currencies(save_json, dm=9999, kc=10000000, spl=10000000, bloodnium=999999, re_points=999999, safe_lvl=64, tank_lvl=64)
@@ -100,8 +101,8 @@ def main():
             input("Press Enter to continue...")
 
         elif choice == "3":
-            modifiers.set_vip_pass(save_json, days=3650, passes=99, oneday_passes=99)
-            print("\n✅ VIP Express Pass activated for 10 years!")
+            modifiers.set_vip_pass(save_json, days=30, passes=99, oneday_passes=99)
+            print("\n✅ Royal VIP Express Pass activated for 30 safe days (+99 reserve tickets)!")
             input("Press Enter to continue...")
 
         elif choice == "4":
@@ -190,14 +191,19 @@ def main():
             input("Press Enter to continue...")
 
         elif choice == "16":
+            elv_cnt = modifiers.unlock_all_tower_elevators(save_json)
+            print(f"\n✅ Unlocked all {elv_cnt} official elevators and discovered all 980 rooms and 1,119 escalators on Tower Map!")
+            input("Press Enter to continue...")
+
+        elif choice == "17":
             out_json = os.path.join(os.path.dirname(save_path), "save_decompressed.json")
             with open(out_json, "w", encoding="utf-8") as f:
                 json.dump(save_json, f, indent=2, ensure_ascii=False)
             print(f"\n✅ Saved decompressed JSON to:\n{out_json}")
-            print("You can open and edit this file with VSCode or Notepad, then use option [17] to re-import it.")
+            print("You can open and edit this file with VSCode or Notepad, then use option [18] to re-import it.")
             input("Press Enter to continue...")
 
-        elif choice == "17":
+        elif choice == "18":
             in_json = os.path.join(os.path.dirname(save_path), "save_decompressed.json")
             if not os.path.exists(in_json):
                 in_json = input("Enter path to JSON file: ").strip().strip('"')
@@ -209,7 +215,7 @@ def main():
                 print(f"\n❌ File not found: {in_json}")
             input("Press Enter to continue...")
 
-        elif choice == "18":
+        elif choice == "19":
             backup_file = create_backup(save_path)
             save_to_file(save_json, save_path, version=version, make_backup=False)
             print(f"\n🎉 Save file updated successfully!")

@@ -1,267 +1,220 @@
-# LET IT DIE - Offline Save Editor & Encyclopedia
+# LET IT DIE - Save Editor and Developer Reference
 
-An open-source desktop save editing suite and comprehensive game database for the PC (Steam) release of **LET IT DIE**.
+An open-source desktop application and technical reference suite for inspecting, editing, and repairing PC (Steam) save files for LET IT DIE.
 
-The tool operates directly on local `.sav` files, reading compressed game data, allowing granular adjustments to fighters, equipment, decals, and storage, and recompressing the save while maintaining full file integrity and automated backups.
-
----
-
-## Download & Installation
-
-### Option 1: Standalone Windows Installer (Recommended for Players)
-
-If you just want to use the editor without dealing with code, Python, or command-line tools:
-
-1. Go to the **[Releases](https://github.com/g3usyk/Let-It-Die-Save-Editor/releases)** page.
-2. Download the latest installer:
-   - `LetItDieSaveEditor_Setup.exe`
-3. Double-click the installer and complete the setup wizard.
-4. Launch the application from your Desktop or Start Menu shortcut.
-5. No additional software or dependencies are required.
+The project operates directly on local `.sav` files, decoding the proprietary multi-chunk compressed stream, exposing validated game systems through a modular graphical interface, and repacking modifications with strict binary parity, atomic file operations, and automated rolling backups.
 
 ---
 
-### Option 2: Running from Source / Modifying the Code (For Developers)
+## Architecture Overview
 
-The entire codebase is 100% open-source, readable Python. You can clone the repository, inspect all logic, tweak features, modify databases, or build your own custom fork:
+The codebase is organized into distinct functional layers to ensure modularity, maintainability, and testability.
 
-1. Clone or download the repository:
+### 1. UI Layer and Domain Mixins (`ui/`)
+The graphical user interface is built on Python's native Tkinter and TTK frameworks with a custom dark cyberpunk theme (`ui/theme.py`). Rather than maintaining a monolithic GUI class, the interface uses the Domain Mixin pattern:
+- **`ui/tabs/`**: Each notebook tab is implemented as an independent mixin class (`CurrenciesTabMixin`, `FightersTabMixin`, `MaterialsTabMixin`, `DecalsTabMixin`, `BlueprintsTabMixin`, `MasteryTabMixin`, `TowerTabMixin`, `AdvancedTabMixin`).
+- **`editor_gui.py`**: The primary orchestrator class `CompleteSaveEditorGUI` inherits from `tk.Tk` and all tab mixins. It handles top-level lifecycle events (file loading, auto-saving, HUD status rendering, modal dialog spawning) while delegating tab construction and event binding to the respective mixin modules.
+- **`ui/dialogs/`**: Dedicated modal windows for complex workflows (custom fighter creation, blueprint R&D analyzer, armor set visualization, and full inventory inspection).
+- **`ui/components/`**: Reusable widgets such as dynamic scrollable frames with native mousewheel handling.
+
+### 2. Core Logic Layer (`core/`)
+The business logic of save editing is completely decoupled from the graphical interface. Functions in `core/` receive the loaded Python dictionary (`save_json`) and perform targeted mutations without UI side effects:
+- `currencies.py`: Safe arithmetic adjustments for Kill Coins, Death Metals, SPLithium, Bloodnium, Recycle Points, and bank/tank facility caps up to level 100.
+- `fighters.py`: Full character manipulation, stat point allocation, grade 6 limit break/Tier 8 calculations, decal slot expansions, fighter cloning, freezer reordering, and slot synchronization.
+- `storage.py`: Storage locker expansion, dynamic material insertion across all 106 authentic crafting items, stack top-ups, and bag/box distribution.
+- `decals.py`: Skill decal collection management, standard/premium decal differentiation, and preset loadout injection into active fighter rosters.
+- `blueprints.py`: R&D blueprint state tracking, equipment uncap levels (+4 through +19/+24), infinite durability flags, and ammo capacity overrides.
+- `mastery.py`: Weapon mastery calculations across all 57 weapon categories up to level 20/30 with exact experience point mapping.
+- `tower.py`: Tower of Barbs elevator network (61 stations), full map discovery (980 rooms, 1,119 escalators), physical gate unlocks (122 gates), Stamp Rally completion, and tutorial/waiting room facility unlocks.
+- `helpers.py`: Common utilities including player UID resolution, save structure repair, database discovery, and account summary generation.
+
+### 3. Save File I/O Engine (`save_io.py`)
+LET IT DIE save files use a proprietary binary layout:
+- **Magic Header**: 16 bytes containing the ASCII signature `BRG\0`, uint32 version, total uncompressed JSON byte length, and the algorithm identifier `ZLIB`.
+- **Balanced Multi-Chunk Compression**: The uncompressed UTF-8 JSON payload is split into balanced chunks (default: 4 chunks), each compressed separately with zlib and prefixed by an 8-byte chunk descriptor (`uncompressed_size`, `compressed_size`).
+- **EOF Trailer**: A 4-byte zero integer (`0x00000000`) signaling the end of the streaming decompressor.
+- **Atomic File Writing**: Modified data is written to a unique temporary file (`.tmp_<uuid>.sav`) before an atomic rename (`os.replace`) replaces the active save. This eliminates corruption risks caused by process interruption or system crashes.
+- **Rolling Backups**: Prior to writing, a timestamped `.bak` copy is deposited into the `Backups/` directory, retaining the 10 most recent states with automatic pruning.
+
+### 4. Database Integration (`masters.db`)
+The project dynamically queries the game's official SQLite master database (`masters.db`) located in the game client's content directory. This database supplies authentic weapon names, base damage tables, required crafting materials, and weapon evolution chains (`nextptid`). If running standalone without the full game installed, the application seamlessly falls back to pre-compiled JSON snapshots (`all_blueprints_db.json`, `all_decals_db.json`, `all_materials_db.json`, `all_shrooms_beasts_db.json`, `tower_map_data.json`).
+
+### 5. Internationalization (`i18n.py`)
+Complete bilingual support (English and Spanish) is managed via a centralized dictionary. Key parity between languages is enforced via automated unit tests.
+
+---
+
+## Directory Structure
+
+```
+.
+├── core/                           # Core business logic for save mutations
+│   ├── __init__.py                 # Public API exports
+│   ├── blueprints.py               # Equipment R&D, forge recipes, and uncapping
+│   ├── currencies.py               # KC, DM, SPL, Bloodnium, and facility caps
+│   ├── decals.py                   # Decal collection, inventory, and presets
+│   ├── fighters.py                 # Fighter attributes, cloning, and freezer logic
+│   ├── helpers.py                  # Player UID detection and structure repair
+│   ├── mastery.py                  # Weapon mastery levels and EXP formulas
+│   ├── storage.py                  # Materials, beasts, mushrooms, and coin locker
+│   └── tower.py                    # Elevators, 980-room map, gates, and tutorial flags
+├── ui/                             # User interface presentation layer
+│   ├── components/                 # Reusable Tkinter custom widgets
+│   │   ├── __init__.py
+│   │   └── scrollable_frame.py     # Canvas-based smooth scrollable frame
+│   ├── dialogs/                    # Specialized modal windows
+│   │   ├── __init__.py
+│   │   ├── armor_set_viewer.py     # Armor set inspection and full gear viewer
+│   │   ├── create_fighter.py       # Custom fighter creation wizard
+│   │   ├── inventory_viewer.py     # Full inventory browser and item inspector
+│   │   └── smart_analyzer.py       # Blueprint R&D material requirement calculator
+│   ├── tabs/                       # Modular notebook tab mixins
+│   │   ├── __init__.py             # Exports all domain mixins
+│   │   ├── advanced_tab.py         # Backups manager and JSON import/export
+│   │   ├── blueprints_tab.py       # 1,370 equipment items, uncap, and forge actions
+│   │   ├── currencies_tab.py       # Resources, bank/tank upgrades, and VIP pass
+│   │   ├── decals_tab.py           # 626 decals, filters, and preset equipment
+│   │   ├── fighters_tab.py         # Fighter freezer, slots, stats, and reordering
+│   │   ├── mastery_tab.py          # Weapon mastery table and bulk setters
+│   │   ├── materials_tab.py        # 106 materials catalog, storage stock, and locker
+│   │   └── tower_tab.py            # Elevators, stamps, quests, and TDM configuration
+│   └── theme.py                    # Color palette constants and TTK styling definitions
+├── tests/                          # Automated unit test suite
+│   ├── __init__.py
+│   ├── test_blueprints.py          # Blueprint evolution and uncap validation
+│   ├── test_currencies.py          # Resource boundaries and VIP logic
+│   ├── test_decals.py              # Decal loading and preset equipping
+│   ├── test_fighters.py            # Fighter stats, freezer ordering, and fresh save
+│   ├── test_helpers.py             # UID extraction and schema repair
+│   ├── test_i18n.py                # Translation key parity and formatting
+│   ├── test_mastery.py             # Weapon mastery calculations
+│   ├── test_save_io.py             # Binary compression roundtrip and backups
+│   ├── test_storage.py             # Storage additions and capacity expansion
+│   └── test_tower.py               # Elevators, gates, and tutorial unlock flags
+├── tools/                          # Developer utilities and build scripts
+│   ├── editor_cli.py               # Interactive command-line save editor
+│   ├── extract_complete_game_encyclopedia.py # SQLite database dump utility
+│   ├── publish_version.py          # Release tagging and manifest updater
+│   └── update_docs_english_primary.py # Documentation synchronization script
+├── docs/                           # In-depth technical documentation
+│   ├── README.md                   # Documentation index
+│   ├── ADVANCED_GAME_FEATURES_AND_SOUL_MODIFIERS.md # Save schema reference
+│   ├── GAME_DATABASE_VERIFIED_NOTES.md # Material catalog and flag IDs
+│   └── LET_IT_DIE_COMPLETE_ENCYCLOPEDIA.md # Equipment, weapon, and decal tables
+├── editor_gui.py                   # Main GUI entrypoint and window orchestrator
+├── save_io.py                      # Binary save decompressor, compressor, and backup manager
+├── modifiers.py                    # Compatibility facade re-exporting core functions
+├── game_data.py                    # Static game enumerations and class definitions
+├── i18n.py                         # Internationalization engine and dictionaries
+├── build_exe.py                    # PyInstaller standalone build configuration
+├── run_tests.py                    # Test runner executing all unit tests
+├── requirements.txt                # Python package dependencies
+└── tower_map_data.json             # Pre-compiled indices for 980 rooms and 1,119 escalators
+```
+
+---
+
+## Save File Schema and Key Engine Paths
+
+Understanding how LET IT DIE represents state in memory and storage is essential for contributing.
+
+### 1. Fighter Engine Hierarchy
+Character information is split across three structures keyed by the player's User ID (`uid`):
+- **`save_json["bodyuser"][uid]`**: Array of fighter base structures containing permanent attribute allocations (1-45 points across HP, STR, DEX, VIT, STM, LUK), Death 'Roids bonuses (+20 each for Tier 8), MINGO bag expansions (0-3), and decal slot expansions (0-3).
+- **`save_json["soul"]["chr"]["chrs"][uid]`**: Array of live combat entities containing visual model meshes (`BODY_FEMALE_001` through `BODY_MALE_008`), head gasmasks, class codes (`BAL`, `STR`, `DEF`, `ATK`, `SHO`, `COL`, `SKI`, `LUK`), tier grade (1-6), uncapping limit break (0-4), and live states (`GUARD`, `USE`, `WAITING_ROOM`, `DEAD`).
+- **`save_json["soul"]["chr"]["slots"][uid]`**: Exactly 10 freezer slot entries mapping indices 0 through 9 to fighter UUIDs (`cid`). Empty slots must maintain `"cid": ""`.
+
+### 2. Tower Map Exploration and Padlock Cleansing
+- **`save_json["soul"]["areaflag"]`**: Contains 980 room entries `{"idx": N, "val": 33}`. If bit 64 is active (`val & 64`), the game renders a red padlock icon indicating an unreachable one-way gate. The editor strips bit 64 (`val & ~64`) across all rooms, removing all padlocks from the map.
+- **`save_json["soul"]["areaescflag"]`**: Contains 1,119 escalator pathways `{"idx": N, "val": 7}`.
+- **`save_json["gameflg"]["cl"]`**: Contains 122 one-way gate flags (`RELEASE_GATE_...`). Setting their value to `1` opens all physical shortcut gates and valves.
+
+### 3. Fresh Save Initialization and Tutorial Lockout
+When a new game starts from scratch, the save is locked in a prologue state:
+- `gameflg["sv"]`: Contains `KGF_TUTORIAL_PROGRESS`. Until this value reaches `100`, the engine restricts facility usage.
+- `gameflg["cl"]`: Requires specific interaction flags before NPCs activate:
+  - `KGF_FIRST_KIWAKOROOM`: Unlocks Kiwako Seto and the Fighter Freezer interface.
+  - `KGF_FIRST_BASE`: Registers the first Waiting Room arrival cutscene.
+  - `KGF_FIRST_SHOP_BASE`: Activates Chokufunsha equipment forging and purchases.
+  - `KGF_FIRST_KINOKOYA`: Activates the Mushroom Club (Momoko Yamada).
+  - `KGF_FIRST_NAOMI`: Activates the Hater mission counter.
+  - `KGF_FIRST_VIP_ELEVATORGIRL`: Activates the Direct Hell VIP elevator attendant.
+  - `KGF_MET_TUTORIAL_CLEAR` and `KGF_TUTORIAL_COMP`: Concludes the subway prologue.
+
+The editor's `unlock_tutorial_and_waiting_room(save)` function sets all these keys simultaneously and resets dungeon floor coordinates (`soul.stgid`, `soul.flrid`, `soul.areaid`) to empty strings, guaranteeing a clean spawn in the center of the Waiting Room. This function runs automatically whenever a new fighter is created or cloned on a fresh save.
+
+---
+
+## Development Setup
+
+### Prerequisites
+- Python 3.10 or higher.
+- A functional Windows environment (tested on Windows 10/11) with Steam and LET IT DIE installed, or sample `.sav` files in `CurrentSave/`.
+
+### Installation
+1. Clone the repository:
    ```bash
    git clone https://github.com/g3usyk/Let-It-Die-Save-Editor.git
    cd Let-It-Die-Save-Editor
    ```
-2. Ensure you have Python 3.10+ installed ([python.org](https://www.python.org/downloads/)).
-3. Install dependencies:
+2. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-4. Start the editor:
+3. Run the application from source:
    ```bash
    python editor_gui.py
    ```
-   Or double-click **`run_editor.bat`**.
 
----
-
-## Technical Documentation & Reverse Engineering Notes
-
-All reverse-engineering notes, engine save keys, and data tables extracted from `masters.db` are documented in English inside the **[`docs/`](docs/)** directory:
-
-- **[Internal Save Architecture & Soul Modifiers Reference](docs/ADVANCED_GAME_FEATURES_AND_SOUL_MODIFIERS.md)**:
-  Full technical breakdown of internal save paths (`soul.bodyuser`, `soul.chr`, `soul.psskl`, `soul.pr`), fighter stat calculations (level allocations vs combat health), Death 'Roids bonuses, TDM rank tables, inventory slot bindings, and elevator station IDs.
-- **[Verified Material Catalog & R&D Database](docs/GAME_DATABASE_VERIFIED_NOTES.md)**:
-  Complete reference indexing all 106 authentic crafting materials with internal item IDs, localized names, star rarities, and tower sector classifications.
-- **[Master Game Encyclopedia & Data Tables](docs/LET_IT_DIE_COMPLETE_ENCYCLOPEDIA.md)**:
-  Extracted reference tables covering 1,370 equipment pieces, 385 weapons, and 368 decals with exact combat effect descriptions.
-
----
-
-## Security, Privacy & Transparency
-
-- **100% Open Source**: All source code is completely visible and readable in plain Python (`editor_gui.py`, `save_io.py`, `modifiers.py`). There is zero obfuscation or compiled proprietary blobs.
-- **Offline & Local**: Save processing occurs strictly on your machine in memory. The tool does not collect personal data, telemetry, or account credentials. The only network request made is an optional check against the public GitHub releases API to inform you when a new version is available.
-- **Rolling Backups**: The editor creates a timestamped `.bak` file in `Backups/` before writing any changes, keeping the 10 most recent versions so you can restore your original save at any point.
-
----
-
-## Features
-
-### Currencies and Waiting Room Facilities
-- Modify Kill Coins, Death Metals, SPLithium, and Bloodnium directly with integer overflow protection.
-- Expand KC Bank and SPLithium Tank to **Level 100** (+2.56M capacity).
-- Configure **Player Rank** (1 to 100+) with automatic mathematical synchronization of exact official Rank Points (`master_rank_point`) preventing TDM save desync.
-- **Royal Express VIP Pass**: Safe activation from 1 to 90 days with +99 reserve tickets. Automatically secures `friendship: 1` to eliminate the elevator attendant animation/voice loading freeze.
-- **Emergency Waiting Room Rescue**: Safely teleports stuck, frozen, or trapped fighters back to the Waiting Room without death penalties or gear loss.
-
-### Tower of Barbs Map & Elevator Network
-- **Full 980-Room & 1,119-Escalator Discovery**: Completely clears fog of war across all tower districts.
-- **Red Padlock Purge**: Automatically eliminates the `0x40` lock bitmask, unlocking all escalator routes on the map.
-- **193 Progression Keys & Gates**: Unlocks all physical shortcut doors, valves, buttons, and mini-boss barriers.
-- **Immediate Fast Travel**: Activates all 61 official elevator stations and opens Waiting Room gates to Floors 41-50 (Hazama) and Tengoku (51+).
-
-### Fighter Freezer Management
-- View and manage all fighters stored in your freezer.
-- Modify attributes:
-  - Class (All-Rounder, Striker, Defender, Attacker, Shooter, Collector, Skill Master, Lucky Star).
-  - Grade and uncapped stats (HP, STM, STR, DEX, VIT, LUK).
-- Equip endgame preset builds directly into active loadouts:
-  - Tengoku Climber (High-floor progression setup)
-  - KAMAS Shooter (Ranged DPS optimization)
-  - Melee Striker (Heavy burst damage configuration)
-  - TDM Defender (High resistance and tank setup)
-
-### Decal Inventory
-- Full database of 626 official decals extracted from game data.
-- Distinct handling for Standard and Premium (`_P`) decals.
-- Filter by collaboration events (World of Tanks, No More Heroes, Killer7, Gravity Rush, Tengoku Meta) and playstyles (Addicts, Critical, Tank, Vampire, Farming, Set Synergies).
-
-### Blueprints, Smart Evolution & Uncapping
-- Complete catalog of 1,370 equipment pieces and 385 weapons.
-- Filter by gear slot (Head, Body, Legs, Weapon), manufacturer faction (D.O.D. ARMS, War Ensemble, Candle Wolf, M.I.L.K., 4 Forcemen, Jackals, RE Recycling, Special/Events), and damage types (Slash, Blunt, Pierce, Fire, Electric, Poison).
-- **Dual-Mode Uncapping (+19 / +24)**:
-  - **`🔨 En I+D (+18 → +19)` (Pink `#ff79c6`)**: Equipment is purchasable at **+18** in the Chokufunsha Shop ("de fábrica"), while the recipe to research **+19** is actively waiting at the R&D counter for the player to complete in-game!
-  - **`⭐ Tienda (+19 Destope)`**: Completely unlocks the item at maximum level directly in the shop.
-- **Bulk Uncapper**: Instantly upgrades all 377+ uncapped weapons and armors across Storage and R&D with valid prerequisite hierarchy resolution.
-- Interactive "Evolve / Unlock Next Tier" feature with one-click final uncap dispatch.
-- Includes an R&D repair tool to resolve corrupted recipe states.
-
-### Materials and Storage Locker
-- Tower floor sector classification (1F-10F DOD, 11F-20F WE, 21F-30F CW, 31F-40F MILK, 41F-50F Battle, 51F+ Tengoku).
-- Filter by inventory state: In Stock, Low Stock (< 10), Out of Stock.
-- Instant Coin Locker expansion to 500, 1000, or the maximum cap of 2000 slots.
-- Max stock preset (x100 to all materials).
-
-### Weapon Mastery
-- Adjust proficiency levels for all 35+ weapon categories from level 1 to 30.
-- Quick preset to max out all masteries at once.
-
-### Armor Sets Encyclopedia
-- Interactive set viewer covering 60+ armor lines across Tiers 1-4, including uncapped stats (+19).
-- Full coverage of collaboration sets (Travis Touchdown, Tank Commander, Kat, Momoko, Meijin, Reaper, and the 4 Forcemen).
-
----
-
-## Save Architecture and Technical Reference
-
-This section outlines how LET IT DIE save files operate for developers wanting to write custom extensions or tools.
-
-### Save File Location
-The editor scans all local drives for the standard Steam library directory:
+### Running Automated Tests
+The project includes a comprehensive test suite in `tests/` covering save compression, blueprint evolution, currency bounds, storage expansions, fighter slots, and tower unlocking:
+```bash
+python run_tests.py
 ```
-<SteamLibrary>\steamapps\common\LET IT DIE\Savedata\
+All pull requests must pass the full test suite with zero failures before being merged.
+
+### Building Standalone Executable
+The project uses PyInstaller with a custom build script that bundles required assets, databases, and hidden imports:
+```bash
+python build_exe.py
 ```
-Default typical location:
-```
-C:\Program Files (x86)\Steam\steamapps\common\LET IT DIE\Savedata\
-```
-
-### Binary Format & Compression
-LET IT DIE `.sav` files use a 16-byte binary wrapper followed by sequential zlib compression blocks:
-
-| Byte Range | Type | Purpose |
-| :--- | :--- | :--- |
-| `0x00 - 0x03` | Char array | Magic number: `BRG\0` (`0x42 0x52 0x47 0x00`) |
-| `0x04 - 0x07` | uint32 (LE) | Format version indicator 1 |
-| `0x08 - 0x0B` | uint32 (LE) | Format version indicator 2 |
-| `0x0C - 0x0F` | Char array | Compression tag: `ZL\0\0` (zlib) |
-
-Following byte `0x10`, repeating chunk blocks are structured as:
-- `uncompressed_chunk_size` (uint32, little-endian, 4 bytes)
-- `compressed_chunk_size` (uint32, little-endian, 4 bytes)
-- `compressed_bytes` (zlib payload of length `compressed_chunk_size`)
-
-Concatenating the decompressed streams yields valid UTF-8 JSON.
-
-### Core JSON Schema (`soul`)
-- `soul.money`, `soul.dm`, `soul.spl`, `soul.deathstone`: Player currency balances.
-- `soul.bodyuser`: List of stored fighters with class codes (0-7), grades, and status.
-- `soul.chr`: Detailed fighter progression attributes, uncapped levels, and decal slot bindings.
-- `soul.psskl`: Owned decal inventory list (`id`, `cnt`, `lock`).
-- `soul.pr`: R&D forge recipe progress (`id`, `status` [0: locked, 1: shop, 2: remodel, 3: map], `level`).
-- `soul.item`: Coin Locker contents (`id`, `cnt`, `slot`).
-- `soul.openelvflr`: Unlocked elevator destinations.
-- `soul.mastery`: Weapon proficiencies (`PTARMTP_00` to `PTARMTP_64`).
-
-For complete schema details and property paths, refer to [docs/ADVANCED_GAME_FEATURES_AND_SOUL_MODIFIERS.md](docs/ADVANCED_GAME_FEATURES_AND_SOUL_MODIFIERS.md).
+The compiled standalone executable and support files will be generated in `dist/LetItDieSaveEditor/`.
 
 ---
 
-## Python API Quickstart
+## Contribution Guidelines
 
-Developers can read and write save files using the following standalone pattern:
+### Adding a New Modifier Function
+1. Implement the modification in the appropriate module under `core/` (e.g. `core/fighters.py`, `core/storage.py`).
+2. Keep functions pure: accept the `save_json` dictionary as the first argument, mutate the structure safely, and return a result value or boolean.
+3. Handle missing keys gracefully using `.setdefault()` or `get_or_create_list()`.
+4. Export the function in `core/__init__.py` and add it to `__all__`.
+5. Re-export in `modifiers.py` to maintain backward compatibility.
+6. Write a corresponding unit test in `tests/` validating expected mutations on both populated and empty save schemas.
 
-```python
-import json
-import zlib
-import struct
+### Modifying or Adding UI Tabs
+1. Open or create the appropriate mixin file in `ui/tabs/`.
+2. Follow the existing naming convention: `_build_<feature>_tab(self)` for layout construction and `_<feature>_action(self)` for user event handlers.
+3. Access save state exclusively through `self.save_json`.
+4. After mutating state, invoke `self._auto_save()` and `self.refresh_all_views()`.
+5. Display non-blocking status notifications via `self._notify(title_en, title_es, msg_en, msg_es)`.
 
-def read_save(filepath: str) -> dict:
-    with open(filepath, "rb") as f:
-        data = f.read()
-
-    if data[:4] != b"BRG\x00":
-        raise ValueError("Invalid Let It Die save header.")
-
-    offset = 16
-    chunks = []
-    while offset < len(data):
-        if offset + 4 > len(data):
-            break
-        uncomp_size = struct.unpack("<I", data[offset:offset+4])[0]
-        if uncomp_size == 0:
-            break
-        comp_size = struct.unpack("<I", data[offset+4:offset+8])[0]
-        offset += 8
-        chunks.append(zlib.decompress(data[offset:offset+comp_size]))
-        offset += comp_size
-
-    return json.loads(b"".join(chunks).decode("utf-8"))
-
-def write_save(save_dict: dict, output_path: str, version: int = 2):
-    # Strict UTF-8 with compact separators matching native client JSON
-    json_bytes = json.dumps(save_dict, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
-    total_uncomp = len(json_bytes)
-    
-    header = b"BRG\x00" + struct.pack("<II", version, total_uncomp) + b"ZLIB"
-    
-    # Divide payload into 4 balanced chunks for native streaming decompression
-    base, remainder = divmod(total_uncomp, 4)
-    sizes = [base + (1 if i < remainder else 0) for i in range(4)]
-    
-    chunks = []
-    pos = 0
-    for sz in sizes:
-        raw_chunk = json_bytes[pos:pos+sz]
-        comp = zlib.compress(raw_chunk)
-        chunks.append(struct.pack("<II", len(raw_chunk), len(comp)) + comp)
-        pos += sz
-        
-    eof_trailer = struct.pack("<I", 0)
-    with open(output_path, "wb") as f:
-        f.write(header + b"".join(chunks) + eof_trailer)
-
-# Usage example:
-save = read_save("save.sav")
-save["soul"]["money"] = 9999999
-write_save(save, "save_modified.sav")
-```
+### Localization
+1. All user-facing strings must use `i18n.t("key_name")`.
+2. Define both English (`en`) and Spanish (`es`) values in the `TRANSLATIONS` dictionary inside `i18n.py`.
+3. Verify that `tests/test_i18n.py` passes to ensure key parity between languages.
 
 ---
 
-## Repository Structure
+## Technical Documentation Reference
 
-- `editor_gui.py`: Primary Tkinter desktop application with live English/Spanish switching.
-- `save_io.py`: Binary decompressor/compressor, Steam path auto-detection, and backup engine.
-- `modifiers.py`: High-level modifications (currencies, stats, inventory, R&D states).
-- `i18n.py`: Bilingual localization dictionary and formatter.
-- `game_data.py`: Weapon categories, mastery mapping, and item constants.
-- `updater.py`: Version checking against the public GitHub Releases API.
-- `run_editor.bat`: Convenient launcher script for running directly from source.
-- `requirements.txt`: Python package requirements (`sv-ttk`, `pillow`).
-- `docs/`: In-depth reference notes, complete item tables, and technical specifications.
-- `tools/`: Packaging scripts (`build_exe.py`, `installer.iss`) and extraction utilities.
+For deeper technical breakdowns of specific engine mechanics, consult the documents in the `docs/` folder:
+- **[Internal Save Architecture & Soul Modifiers Reference](docs/ADVANCED_GAME_FEATURES_AND_SOUL_MODIFIERS.md)**: Exhaustive JSON paths, binary chunk offsets, Death 'Roids formulas, and VIP friendship validation.
+- **[Verified Material Catalog & R&D Database](docs/GAME_DATABASE_VERIFIED_NOTES.md)**: All 106 authentic crafting materials with internal IDs, localized names, and floor ranges.
+- **[Master Game Encyclopedia & Data Tables](docs/LET_IT_DIE_COMPLETE_ENCYCLOPEDIA.md)**: Tables covering 1,370 equipment pieces, 385 weapons, and 368 decals.
 
 ---
 
-## Compiling Your Own Build
+## License and Disclaimer
 
-To package your modifications into a standalone `.exe` or installer:
-
-1. Compile the portable binary:
-   ```bash
-   python build_exe.py
-   ```
-   (or run `tools\Compilar_EXE.bat`).
-2. Generate the Windows setup wizard (requires Inno Setup 6):
-   ```bash
-   tools\Compilar_Instalador.bat
-   ```
-   The resulting setup executable will be placed in `dist/`.
-
----
-
-## License & Disclaimer
-
-This project is licensed under the [MIT License](LICENSE).
-
-This software is an unofficial, community-developed utility intended for personal, offline use and educational purposes. It is not affiliated with, maintained by, or endorsed by Grasshopper Manufacture, Supertrick Games, or GungHo Online Entertainment. Always verify your save backups prior to applying edits.
+This project is an independent open-source tool developed for educational and single-player modding purposes. It is not affiliated with, endorsed by, or connected to Grasshopper Manufacture, Supertrick Games, or GungHo Online Entertainment.

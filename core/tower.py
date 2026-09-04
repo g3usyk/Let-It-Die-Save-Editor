@@ -97,6 +97,9 @@ def unlock_all_tower_elevators(save):
         else:
             cl.append({"var": p_var, "value": 1, "modified": now})
 
+    # 6. Ensure tutorial & waiting room facilities are unlocked for fresh saves
+    unlock_tutorial_and_waiting_room(save)
+
     return len(openelv)
 
 def set_all_stamps_perfect(save):
@@ -351,6 +354,125 @@ def reset_floor_to_waiting_room(save):
     floor["closed_area_flags"] = {}
     return True
 
+def unlock_tutorial_and_waiting_room(save):
+    """
+    Unlocks all Waiting Room facilities (Fighter Freezer / Kiwako Seto, Chokufunsha shop,
+    Mushroom Club, Naomi Detox Quest counter, VIP Direct Hell elevator),
+    completes all tutorial quests/dialogue flags (setting KGF_TUTORIAL_PROGRESS to 100),
+    clears any stuck intro/prologue floor states, and synchronizes fighter freezer slots.
+    Crucial for fresh saves starting from 0 to prevent freezer lockout.
+    """
+    now = int(time.time())
+    soul = save.setdefault("soul", {})
+    gameflg = save.setdefault("gameflg", {})
+    
+    # 1. Set KGF_TUTORIAL_PROGRESS = 100 in gameflg["sv"]
+    sv = get_or_create_list(gameflg, "sv")
+    existing_sv = {f.get("var"): f for f in sv if isinstance(f, dict)}
+    
+    sv_flags = [
+        ("KGF_TUTORIAL_PROGRESS", 100),
+        ("DELETE_NO_USER_DEATH_BAG_DATA", 1),
+        ("SGF_PRESENT_FORMAT", 1),
+        ("SGF_DEATHBOX_COPPER_FIRST", 1),
+        ("SGF_DEATHBOX_SILVER_FIRST", 1),
+        ("SGF_DEATHBOX_GOLD_FIRST", 1),
+    ]
+    for var_name, var_val in sv_flags:
+        if var_name in existing_sv:
+            existing_sv[var_name]["value"] = var_val
+            existing_sv[var_name]["modified"] = now
+        else:
+            sv.append({"var": var_name, "value": var_val, "modified": now})
+            
+    # 2. Set all essential tutorial clear & facility unlock flags in gameflg["cl"]
+    cl = get_or_create_list(gameflg, "cl")
+    existing_cl = {f.get("var"): f for f in cl if isinstance(f, dict)}
+    
+    cl_flags = [
+        # Waiting Room Facilities
+        "KGF_FIRST_BASE",
+        "KGF_FIRST_KIWAKOROOM",        # Fighter Freezer / Kiwako Seto!
+        "KGF_FIRST_SHOP_BASE",         # Chokufunsha Shop
+        "KGF_FIRST_KINOKOYA",          # Mushroom Club
+        "KGF_FIRST_NAOMI",             # Naomi Detox Quest Counter
+        "KGF_FIRST_VIP_ELEVATORGIRL",  # VIP Direct Hell Elevator
+        "KGF_FIRST_MEIJIN",
+        "KGF_FIRST_MEIJIN_FINISH",
+        "KGF_FIRST_PLAY",
+        # Tutorial Clear
+        "KGF_MET_TUTORIAL_CLEAR",
+        "KGF_TUTORIAL_COMP",
+        "KGF_QUEST_UNLOCKED",
+        "KGF_RADIO_SELECT_ENABLE",
+        "KGF_TUTORIAL_DEATHBAG_ENABLE",
+        "KGF_TUTORIAL_DHSERVICE_ENABLE",
+        "KGF_TUTORIAL_DROPDEATHBAG_ENABLE",
+        "KGF_TUTORIAL_ENMATYOU_ENABLE",
+        "KGF_TUTORIAL_RAGEMOVE_ENABLE",
+        "KGF_TUTORIAL_RETURN_TITLE_ENABLE",
+        # TDM / Metro Tutorial
+        "KGF_FORT_FIRST_TUTORIAL_COMP",
+        "KGF_FORT_SECOND_TUTORIAL_COMP",
+        "KGF_FORT_BALOON3_RELEASE",
+        "KGF_FORT_BALOON4_RELEASE",
+        "KGF_FORT_BALOON5_RELEASE",
+        "KGF_FORT_INTRO_CAMERA",
+        # High-rise & General
+        "KGF_AMS_FIRST_ELEVATOR",
+        "KGF_AMS_FIRST_MATINEE",
+        "KGF_ARC_FIRSTTIME",
+        "KGF_RFT_FIRST_TIME",
+        "KGF_UNCLE_PRIME_ARRIVAL",
+        "KGF_UNCLE_PRIME_FIRST",
+    ]
+    
+    # Add Tutorial Balloons (1..36, 40)
+    for b_idx in range(1, 37):
+        cl_flags.append(f"KGF_TUTORIAL_BALLOON_{b_idx:02d}")
+    cl_flags.append("KGF_TUTORIAL_BALLOON_40")
+    
+    # Add Tutorial Enma Reads (1..36, 40)
+    for e_idx in range(1, 37):
+        cl_flags.append(f"KGF_TUTORIAL_ENMA_READ_{e_idx:02d}")
+    cl_flags.append("KGF_TUTORIAL_ENMA_READ_40")
+    
+    for c_var in cl_flags:
+        if c_var in existing_cl:
+            existing_cl[c_var]["value"] = 1
+            existing_cl[c_var]["modified"] = now
+        else:
+            cl.append({"var": c_var, "value": 1, "modified": now})
+            
+    # Facility upgrade markers (no wait timer in progress)
+    for fac_flag in ["KGF_FACILITY_UPGRADE_FINISH_FREEZER", "KGF_FACILITY_UPGRADE_WAITTIME_FREEZER",
+                     "KGF_FACILITY_UPGRADE_FINISH_PRISON", "KGF_FACILITY_UPGRADE_WAITTIME_PRISON",
+                     "KGF_FACILITY_UPGRADE_FINISH_SAFE", "KGF_FACILITY_UPGRADE_WAITTIME_SAFE",
+                     "KGF_FACILITY_UPGRADE_FINISH_TANK", "KGF_FACILITY_UPGRADE_WAITTIME_TANK",
+                     "KGF_RELEASE_NEW_FIGHTER"]:
+        if fac_flag in existing_cl:
+            existing_cl[fac_flag]["value"] = -1
+        else:
+            cl.append({"var": fac_flag, "value": -1, "modified": now})
+            
+    # 3. Safely reset dungeon floor & stage caches to Waiting Room
+    soul["stgid"] = ""
+    soul["flrid"] = ""
+    soul["areaid"] = ""
+    soul["current_died_cid"] = ""
+    soul["die_flag"] = 0
+    soul["resurrection"] = 0
+    reset_floor_to_waiting_room(save)
+    
+    # 4. Synchronize freezer slots
+    try:
+        from core.fighters import sync_fighter_slots
+        sync_fighter_slots(save)
+    except Exception:
+        pass
+        
+    return True
+
 def unlock_all_magazines(save):
     """
     Sets all 36 Uncle Death comic and Yotsuyama magazine issues to read (status 2).
@@ -416,6 +538,11 @@ def reset_tower_interruptions(save):
     base = playlog.setdefault("base", {})
     old_cnt = base.get("interruption", 0)
     base["interruption"] = 0
-    save["force_shutdown_counts"] = 0
+    fs_counts = save.get("force_shutdown_counts")
+    if isinstance(fs_counts, dict):
+        for k in fs_counts:
+            fs_counts[k] = 0
+    else:
+        save["force_shutdown_counts"] = {}
     return old_cnt
 

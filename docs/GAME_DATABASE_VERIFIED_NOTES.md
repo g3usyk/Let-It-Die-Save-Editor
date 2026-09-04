@@ -202,3 +202,39 @@ Primary language is **English** with **Spanish** provided as secondary reference
 | `ITMT_STEROID_6` | **Death 'Roids (Orange)** | Muerteroides (naranjas) | 6★ | A powerful drug used for uncapping Fighters. / Un poderoso fármaco que da poder a los luchadores más allá de los límites. |
 
 ---
+
+### Verified Waiting Room Facility & Tutorial Flags (`gameflg`)
+
+| Flag Identifier | Target Container | Value | Purpose / Notes |
+| :--- | :---: | :---: | :--- |
+| `KGF_TUTORIAL_PROGRESS` | `gameflg["sv"]` | `100` | Core tutorial progress. Must be 100 to exit prologue. |
+| `KGF_FIRST_KIWAKOROOM` | `gameflg["cl"]` | `1` | **Fighter Freezer (Kiwako Seto)** - Unlocks freezer menu & roster. |
+| `KGF_FIRST_BASE` | `gameflg["cl"]` | `1` | **Waiting Room** - Arrival cutscene registered. |
+| `KGF_FIRST_SHOP_BASE` | `gameflg["cl"]` | `1` | **Chokufunsha** - Equipment shop and R&D crafting in base. |
+| `KGF_FIRST_KINOKOYA` | `gameflg["cl"]` | `1` | **Mushroom Club (Momoko Yamada)** - Decal stew & skill decals. |
+| `KGF_FIRST_NAOMI` | `gameflg["cl"]` | `1` | **Hater Quests (Naomi Detox)** - Official quest counter. |
+| `KGF_FIRST_VIP_ELEVATORGIRL` | `gameflg["cl"]` | `1` | **VIP Express Elevator** - Elevator cabin girl introduction. |
+| `KGF_MET_TUTORIAL_CLEAR` | `gameflg["cl"]` | `1` | Metro front tutorial dungeon completion trigger. |
+| `KGF_TUTORIAL_COMP` | `gameflg["cl"]` | `1` | Master prologue clearance flag. |
+| `KGF_QUEST_UNLOCKED` | `gameflg["cl"]` | `1` | Quest system active flag. |
+| `KGF_RADIO_SELECT_ENABLE` | `gameflg["cl"]` | `1` | Waiting Room Radio Jukebox tuner enabled. |
+| `KGF_FORT_FIRST_TUTORIAL_COMP` | `gameflg["cl"]` | `1` | Tokyo Death Metro (TDM) tutorial phase 1. |
+| `KGF_FORT_SECOND_TUTORIAL_COMP` | `gameflg["cl"]` | `1` | Tokyo Death Metro (TDM) tutorial phase 2. |
+
+---
+
+### Verified Official Elevator Station IDs (`soul.openelvflr`)
+
+| Elevator Station ID | Tower District | Floor Level | Type |
+| :--- | :---: | :---: | :--- |
+| `ELV_MAIN_HUB` | Waiting Room | F0 (Ground) | Main Hub Central Station |
+| `ELV_MAIN_MET_FLR_01` .. `_10` | Tamata (Metropolitan) | Floors 1 to 10 | Main Line Metro Stations (6 stations) |
+| `ELV_MAIN_ARC_FLR_01` .. `_10` | Imokawa-Cho (Arcade) | Floors 11 to 20 | Main Line Arcade Stations (6 stations) |
+| `ELV_MAIN_AMS_FLR_01` .. `_10` | Seyane (Amusement) | Floors 21 to 30 | Main Line Amusement Stations (5 stations) |
+| `ELV_MAIN_RFT_FLR_01` .. `_10` | Katsuma (Roof/Industrial) | Floors 31 to 40 | Main Line Roof Stations (6 stations) |
+| `ELV_MAIN_HZM_FLR_01` | Hazama (Battle Royale) | Floor 41+ | Hazama Special Line |
+| `ELV_MAIN_HVN_FLR_01` | Tengoku (Paradise) | Floor 51+ | Tengoku Divine Line |
+| `ELV_SUB...` | Sub-Districts (All) | Floors 1 to 40 | 35 Sub-Line & Branch Stations |
+
+---
+

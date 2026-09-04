@@ -27,6 +27,9 @@
 20. [Balanced ZLIB Multi-Chunk Compressor (save_io.py)](#20-balanced-zlib-multi-chunk-compressor-save_iopy)
 21. [Chokufunsha R&D Mode vs Shop Max for +19 Uncapped Equipment (soul.partresearch.user)](#21-chokufunsha-rd-mode-vs-shop-max-for-19-uncapped-equipment-soulpartresearchuser)
 22. [Emergency Waiting Room Fighter Rescue (soul.chr.chrs)](#22-emergency-waiting-room-fighter-rescue-soulchrchrs)
+23. [Full Tower Map Discovery, Escalator Pathways & Gates (soul.areaflag, soul.areaescflag, gameflg.cl)](#23-full-tower-map-discovery-escalator-pathways--gates-soulareaflag-soulareaescflag-gameflgcl)
+24. [Tutorial Progression, Fresh Save Recovery & Waiting Room Facility Flags (gameflg.sv, gameflg.cl)](#24-tutorial-progression-fresh-save-recovery--waiting-room-facility-flags-gameflgsv-gameflgcl)
+25. [Fighter Freezer Architecture & 10-Slot Synchronization (soul.chr.slots, bodyuser, soul.chr.chrs)](#25-fighter-freezer-architecture--10-slot-synchronization-soulchrslots-bodyuser-soulchrchrs)
 
 ---
 
@@ -548,6 +551,191 @@ When fighters become stuck in elevator loading states, frozen in mid-tower trans
    * `"scene": "HUB_MAIN"` (Central Waiting Room scene).
    * `"state": "WAITING_ROOM"` (Normal standing idle state).
    * Restores full HP and stamina without triggering death or loss of equipped items/deathbag.
+
+---
+
+## 23. Full Tower Map Discovery, Escalator Pathways & Gates (`soul.areaflag`, `soul.areaescflag`, `gameflg.cl`)
+
+### Tower Map Exploration Schema
+The Tower of Barbs map discovery is divided across three interconnected data structures in the save file:
+
+#### 1. Room Exploration (`soul.areaflag`)
+* **List Path**: `save_json["soul"]["areaflag"]`
+* **Entry Schema**: `{"idx": <int>, "val": <int>}`
+* **Coverage**: Exactly 980 room indices spanning Districts 1 through 4 (AMS, ARC, MET, RFT), Hazama (41-50), and Tengoku (51+).
+* **Exploration State (`val`)**:
+  - `val = 33` (`0x21`): Indicates that the room has been fully discovered, mapped, and visited by the player.
+  - **The Red Padlock Bitmask (`0x40` / bit 64)**:
+    When a player approaches a room from a locked gate direction or discovers a room with a one-way entrance, the game applies a bitwise flag `val |= 64` (resulting in values like `97`). This places a red padlock icon on the map room node.
+    The editor cleanses this bitmask using:
+    ```python
+    clean_val = cur_val & ~64
+    existing_rooms[r_idx]["val"] = max(clean_val, 33)
+    ```
+    This completely eliminates all padlocks and reveals the entire tower topology cleanly.
+
+#### 2. Escalator Connections (`soul.areaescflag`)
+* **List Path**: `save_json["soul"]["areaescflag"]`
+* **Entry Schema**: `{"idx": <int>, "val": <int>}`
+* **Coverage**: 1,119 unique escalator indices connecting adjacent tower chambers.
+* **State Value**: `val = 7` marks the escalator path as traversed and visible in both upward and downward transit routes.
+
+#### 3. Tower Physical Gates (`gameflg.cl`)
+* **List Path**: `save_json["gameflg"]["cl"]`
+* **Total Official Gate Flags**: 122 `RELEASE_GATE_...` flags.
+* **Mechanism**:
+  Physical gates, valves, and mini-boss security doors are controlled by client flags in `cl`:
+  ```json
+  {"var": "RELEASE_GATE_AMS_AREA_001_A01", "value": 1, "modified": 1788365507}
+  ```
+  Activating all 122 flags permanently unlocks all one-way gates and bypasses throughout the Tower, preventing players from being locked behind one-way access doors.
+
+#### 4. High-Tower Progression & Tengoku Bypass Flags
+In addition to physical gates, `gameflg.cl` stores 17 critical narrative progression keys:
+* `KGF_GAME_CLEAR`: Floor 40 Taro Gunkanyama defeat flag.
+* `KGF_HZM_FIRST_TIME`, `KGF_HZM_FIRST_TIME_ENTRANCE_GATE`, `KGF_HZM_FIRST_TIME_HAZAMA_RULE`: Unlocks the Waiting Room gate to Floors 41-50 Battle Royale (Hazama) without requiring Floor 40 re-clearing.
+* `KGF_HVN_GOTO_NEO`, `KGF_HVN_ROUTE_NEO0`, `KGF_HVN_ROUTE_NEO1`: Unlocks direct elevator access to Floor 51+ Tengoku and specialized NEO areas (D.O.D., War Ensemble, Candle Wolf, M.I.L.K.).
+* `save_json["playlog"]["base"]["max_floor"] = 51`: Automatically updates the player's lifetime highest reached floor, satisfying fast-travel level gates.
+
+---
+
+## 24. Tutorial Progression, Fresh Save Recovery & Waiting Room Facility Flags (`gameflg.sv`, `gameflg.cl`)
+
+### The "Fresh Save" Facility Lockout Problem
+When a player starts a new playthrough from zero, the save file initializes in an uncompleted tutorial state:
+1. `gameflg.sv` has `KGF_TUTORIAL_PROGRESS` set to `0` or intermediate values (`< 100`).
+2. `gameflg.cl` lacks the critical receptionist interaction flag: `KGF_FIRST_KIWAKOROOM`.
+3. In this state, the game client's scripting engine restricts access to the **Fighter Freezer**: Kiwako Seto will not open the freezer interface, repeating introductory dialogue or displaying facility lock messages.
+4. Additional facilities remain disabled: Chokufunsha (`KGF_FIRST_SHOP_BASE`), Mushroom Club (`KGF_FIRST_KINOKOYA`), Naomi Detox Quest Counter (`KGF_FIRST_NAOMI`), and the Direct Hell VIP Elevator (`KGF_FIRST_VIP_ELEVATORGIRL`).
+5. Modifying or duplicating fighters on a fresh save while in this state trapped new fighters in an inaccessible freezer, while unlocking the Tower map created a game state desync where the tower was open but the base was still in prologue mode.
+
+### Complete Tutorial & Facility Flag Specification
+
+#### Server-Side Progression (`gameflg.sv`)
+```json
+[
+  {"var": "KGF_TUTORIAL_PROGRESS", "value": 100, "modified": 1788365507},
+  {"var": "DELETE_NO_USER_DEATH_BAG_DATA", "value": 1, "modified": 1788365507},
+  {"var": "SGF_PRESENT_FORMAT", "value": 1, "modified": 1788365507},
+  {"var": "SGF_DEATHBOX_COPPER_FIRST", "value": 1, "modified": 1788365507},
+  {"var": "SGF_DEATHBOX_SILVER_FIRST", "value": 1, "modified": 1788365507},
+  {"var": "SGF_DEATHBOX_GOLD_FIRST", "value": 1, "modified": 1788365507}
+]
+```
+Setting `KGF_TUTORIAL_PROGRESS` to `100` signals to the game engine that all prologue quests with Uncle Death have been fulfilled.
+
+#### Client Facility Unlocks (`gameflg.cl`)
+| Flag Identifier | Value | Effect / Unlocks |
+| :--- | :---: | :--- |
+| `KGF_FIRST_KIWAKOROOM` | `1` | **Fighter Freezer (Kiwako Seto)** - Opens freezer UI and character management. |
+| `KGF_FIRST_BASE` | `1` | **Waiting Room Ground State** - Marks initial arrival cutscene as completed. |
+| `KGF_FIRST_SHOP_BASE` | `1` | **Chokufunsha** - Unlocks weapons, armors, and R&D crafting in base. |
+| `KGF_FIRST_KINOKOYA` | `1` | **Mushroom Club (Momoko Yamada)** - Unlocks decal stew and skill decals. |
+| `KGF_FIRST_NAOMI` | `1` | **Hater Quests (Naomi Detox)** - Unlocks the official mission counter. |
+| `KGF_FIRST_VIP_ELEVATORGIRL` | `1` | **Direct Hell VIP Elevator** - Unlocks direct elevator cabin travel. |
+| `KGF_FIRST_MEIJIN` | `1` | Clears Meijin introductory tutorial dialogue. |
+| `KGF_FIRST_MEIJIN_FINISH` | `1` | Clears Meijin advanced tips sequence. |
+| `KGF_FIRST_PLAY` | `1` | Marks first-time account initialization as cleared. |
+| `KGF_MET_TUTORIAL_CLEAR` | `1` | Metro prologue tutorial dungeon cleared. |
+| `KGF_TUTORIAL_COMP` | `1` | Master tutorial completion trigger. |
+| `KGF_QUEST_UNLOCKED` | `1` | General quest system availability. |
+| `KGF_RADIO_SELECT_ENABLE` | `1` | Waiting Room Radio Jukebox station tuning enabled. |
+| `KGF_TUTORIAL_DEATHBAG_ENABLE` | `1` | Deathbag inventory enabled for exploration. |
+| `KGF_TUTORIAL_DHSERVICE_ENABLE` | `1` | Direct Hell revive service enabled. |
+| `KGF_TUTORIAL_DROPDEATHBAG_ENABLE` | `1` | Item dropping and salvage enabled. |
+| `KGF_TUTORIAL_ENMATYOU_ENABLE` | `1` | Uncle Death Enmatyou guide entries enabled. |
+| `KGF_TUTORIAL_RAGEMOVE_ENABLE` | `1` | Rage Move combat mechanics enabled. |
+| `KGF_TUTORIAL_RETURN_TITLE_ENABLE` | `1` | In-game pause menu return to title screen enabled. |
+| `KGF_FORT_FIRST_TUTORIAL_COMP` | `1` | Tokyo Death Metro (TDM) introduction part 1 completed. |
+| `KGF_FORT_SECOND_TUTORIAL_COMP` | `1` | Tokyo Death Metro (TDM) introduction part 2 completed. |
+| `KGF_TUTORIAL_BALLOON_01..40` | `1` | Dismisses all 37 pop-up tutorial hint balloons. |
+| `KGF_TUTORIAL_ENMA_READ_01..40` | `1` | Marks all Uncle Death Enmatyou tips as read. |
+
+#### Stage Coordinates and Dungeon Purge
+To prevent a player from spawning into an active tutorial dungeon instance, the editor safely clears:
+```python
+soul["stgid"] = ""
+soul["flrid"] = ""
+soul["areaid"] = ""
+soul["current_died_cid"] = ""
+soul["die_flag"] = 0
+soul["resurrection"] = 0
+```
+And resets `floor.rlg` and `floor.pop` through `reset_floor_to_waiting_room(save)`. This guarantees that upon launching the game, the player spawns standing safely in the center of the Waiting Room with all facilities active.
+
+---
+
+## 25. Fighter Freezer Architecture & 10-Slot Synchronization (`soul.chr.slots`, `bodyuser`, `soul.chr.chrs`)
+
+### Three-Tier Character Storage Structure
+LET IT DIE distributes fighter data across three distinct dictionary trees keyed by the player's unique User ID (`uid`):
+
+```
+Save Root
+│
+├── bodyuser[uid]            -> Level & Stat Allocation Points
+│    ├── Fighter 0 (cid_a)
+│    └── Fighter 1 (cid_b)
+│
+├── soul.chr.chrs[uid]       -> Visuals, Class & Live Combat State
+│    ├── Fighter 0 (cid_a)
+│    └── Fighter 1 (cid_b)
+│
+└── soul.chr.slots[uid]      -> The 10 Physical Freezer Slots (0 to 9)
+     ├── Slot 0 -> cid_a
+     ├── Slot 1 -> cid_b
+     ├── Slot 2 -> "" (Empty)
+     └── ...
+```
+
+#### 1. Attribute & Allocation Tier (`bodyuser[uid]`)
+Contains stat allocation point distributions (1 to 45 points per stat):
+* `hp`, `str`, `dex`, `vit`, `stm`, `luk`: Base level points (1-30 standard, up to 45 with limit breaks).
+* `hp_bonus` .. `luk_bonus`: Death 'Roids bonuses (+20 each for Tier 8).
+* `skill`: Decal slot expansion count (0 to 3, unlocking slots 6, 7, and 8).
+* `bag`: MINGO pouch expansion (+1 to +3 slots).
+* `rage`: Rage gauge expansion (+1).
+
+#### 2. Visual & Live Combat State Tier (`soul.chr.chrs[uid]`)
+* `body`: Model mesh ID (`BODY_FEMALE_001` through `BODY_FEMALE_008`, `BODY_MALE_001` through `BODY_MALE_008`).
+* `gasmask`: Head gasmask asset (`ASSET_NF_GAS_HEAD_...` / `ASSET_NM_GAS_HEAD_...`).
+* `type`: Class code (`BAL`, `ATK`, `DEF`, `STR`, `SHO`, `COL`, `SKI`, `LUK`).
+* `grade`: Tier level (1 to 6).
+* `limit_break`: Uncapping level (0 to 4).
+* `state`: Live status:
+  - `"GUARD"`: Stored safely in the Freezer / Waiting Room defense roster.
+  - `"USE"`: Currently controlled by the player in the Waiting Room.
+  - `"WAITING_ROOM"`: Idle in Waiting Room.
+  - `"DEAD"`: Fallen in the Tower (generates roaming Hater if unrecovered).
+
+#### 3. The 10 Freezer Slots (`soul.chr.slots[uid]`)
+The Fighter Freezer consists of exactly 10 slots (indices `0` through `9`).
+* Each slot entry contains:
+  ```json
+  {"uid": 443455, "slot": 0, "cid": "097b0757-4530-4c7b-9188-cf8a878e8765"}
+  ```
+* Occupied slots reference the fighter's UUID (`cid`).
+* Empty slots MUST contain an empty string (`"cid": ""`).
+
+### Slot Synchronization Algorithm (`sync_fighter_slots`)
+To prevent corruption when cloning, deleting, or reordering fighters, the editor executes:
+```python
+def sync_fighter_slots(save):
+    uid = get_player_uid(save)
+    fighters = save.get("bodyuser", {}).get(uid, [])
+    slots = save.setdefault("soul", {}).setdefault("chr", {}).setdefault("slots", {}).setdefault(uid, [])
+    while len(slots) < 10:
+        slots.append({"uid": int(uid), "slot": len(slots), "cid": ""})
+    for s_idx in range(len(slots)):
+        slots[s_idx]["slot"] = s_idx
+        if s_idx < len(fighters):
+            slots[s_idx]["cid"] = fighters[s_idx].get("cid", "")
+        else:
+            slots[s_idx]["cid"] = ""
+```
+
+### Proactive Freezer Accessibility Guard (`_ensure_freezer_accessible`)
+Whenever a fighter is created (`create_new_fighter`), duplicated (`clone_fighter`), or has stats edited (`update_fighter`, `max_fighter_level_and_stats`), the editor checks `is_tutorial_cleared(save)`. If the save has not yet unlocked Kiwako Seto, `unlock_tutorial_and_waiting_room(save)` is run proactively. This guarantees that newly forged or duplicated fighters can always be accessed immediately upon entering the game.
 
 ---
 

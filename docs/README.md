@@ -24,6 +24,9 @@ A comprehensive technical manual documenting the internal `.sav` layout and JSON
 - **Balanced 4-Chunk ZLIB Compressor**: Engine streaming decompressor compliance using 4 balanced ZLIB chunks with compact UTF-8 formatting and zero-byte trailer.
 - **Chokufunsha R&D Mode vs Shop Max**: Implementation of `soul.partresearch.user` Level 19 `CHARGE` (+18 in Shop, active +19 in R&D) versus Level 20 `CHARGE` (Shop Max).
 - **Emergency Waiting Room Fighter Rescue**: Immediate extraction of stuck or frozen fighters back to the Waiting Room without death penalties.
+- **Full Tower Map, Escalators & Gate Unlock**: 980 rooms (`soul.areaflag` val=33), 1,119 escalators (`soul.areaescflag` val=7), padlock bitmask removal (`& ~64`), 122 physical gates (`RELEASE_GATE_...`), and Floor 41-50 / Tengoku progression keys.
+- **Tutorial Skip & Waiting Room Facility Flags**: Complete specification of `gameflg.sv` (`KGF_TUTORIAL_PROGRESS: 100`) and `gameflg.cl` flags (`KGF_FIRST_KIWAKOROOM` for Fighter Freezer, `KGF_FIRST_BASE`, `KGF_FIRST_SHOP_BASE`, `KGF_FIRST_KINOKOYA`, `KGF_FIRST_NAOMI`, `KGF_FIRST_VIP_ELEVATORGIRL`) solving fresh save freezer lockouts.
+- **Fighter Freezer Architecture & 10-Slot Synchronization**: Three-tier structure (`bodyuser`, `soul.chr.chrs`, `soul.chr.slots`), 10-slot layout, and proactive accessibility guards.
 
 ---
 

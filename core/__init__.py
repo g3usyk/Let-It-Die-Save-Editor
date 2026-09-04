@@ -50,6 +50,7 @@ from core.fighters import (
     clone_fighter,
     create_new_fighter,
     delete_fighter,
+    is_tutorial_cleared,
 )
 
 
@@ -128,6 +129,7 @@ from core.tower import (
     get_tower_playlog,
     set_tower_max_floor,
     reset_tower_interruptions,
+    unlock_tutorial_and_waiting_room,
 )
 
 __all__ = [
@@ -219,6 +221,7 @@ __all__ = [
     'clone_fighter',
     'create_new_fighter',
     'delete_fighter',
+    'is_tutorial_cleared',
     'sync_mystery_bags_to_deathbox',
 
     'sync_storage_slots',
@@ -230,6 +233,7 @@ __all__ = [
     'unlock_all_magazines',
     'unlock_all_radio_music',
     'unlock_all_tower_elevators',
+    'unlock_tutorial_and_waiting_room',
     'unlock_blueprints',
     'unlock_single_blueprint',
     'update_fighter',

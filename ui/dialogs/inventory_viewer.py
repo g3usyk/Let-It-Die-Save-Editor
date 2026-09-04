@@ -26,7 +26,8 @@ class InventoryViewerDialog(tk.Toplevel):
         if shrooms_beasts_db:
             self.shrooms_beasts_db = shrooms_beasts_db
         else:
-            sb_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "all_shrooms_beasts_db.json")
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            sb_path = os.path.join(project_root, "all_shrooms_beasts_db.json")
             if os.path.exists(sb_path):
                 try:
                     with open(sb_path, "r", encoding="utf-8") as f:

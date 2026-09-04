@@ -51,5 +51,50 @@ class TestTower(unittest.TestCase):
         user_quests = self.save["soul"]["quest"]['user']
         self.assertGreater(len(user_quests), 0)
 
+    def test_reset_tower_interruptions(self):
+        self.save["playlog"]["base"]["interruption"] = 5
+        self.save["force_shutdown_counts"] = {"session_1": 2, "session_2": 3}
+        old_cnt = modifiers.reset_tower_interruptions(self.save)
+        self.assertEqual(old_cnt, 5)
+        self.assertEqual(self.save["playlog"]["base"]["interruption"], 0)
+        self.assertIsInstance(self.save["force_shutdown_counts"], dict)
+        self.assertEqual(self.save["force_shutdown_counts"]["session_1"], 0)
+        self.assertEqual(self.save["force_shutdown_counts"]["session_2"], 0)
+
+    def test_unlock_tutorial_and_waiting_room(self):
+        fresh_save = {
+            "user": {"uid": 99999},
+            "soul": {"stgid": "STG_MET_TUTORIAL", "flrid": "FLR_01", "areaid": "AREA_01"}
+        }
+        res = modifiers.unlock_tutorial_and_waiting_room(fresh_save)
+        self.assertTrue(res)
+        
+        # Verify sv flags
+        sv = fresh_save.get("gameflg", {}).get("sv", [])
+        tut_prog = next((f.get("value") for f in sv if f.get("var") == "KGF_TUTORIAL_PROGRESS"), None)
+        self.assertEqual(tut_prog, 100)
+        
+        # Verify cl flags
+        cl = fresh_save.get("gameflg", {}).get("cl", [])
+        cl_dict = {f.get("var"): f.get("value") for f in cl}
+        self.assertEqual(cl_dict.get("KGF_FIRST_KIWAKOROOM"), 1)
+        self.assertEqual(cl_dict.get("KGF_FIRST_BASE"), 1)
+        self.assertEqual(cl_dict.get("KGF_FIRST_SHOP_BASE"), 1)
+        self.assertEqual(cl_dict.get("KGF_FIRST_KINOKOYA"), 1)
+        self.assertEqual(cl_dict.get("KGF_FIRST_NAOMI"), 1)
+        self.assertEqual(cl_dict.get("KGF_FIRST_VIP_ELEVATORGIRL"), 1)
+        self.assertEqual(cl_dict.get("KGF_MET_TUTORIAL_CLEAR"), 1)
+        self.assertEqual(cl_dict.get("KGF_TUTORIAL_COMP"), 1)
+        
+        # Verify safe waiting room coordinates
+        self.assertEqual(fresh_save["soul"]["stgid"], "")
+        self.assertEqual(fresh_save["soul"]["flrid"], "")
+        self.assertEqual(fresh_save["soul"]["areaid"], "")
+
+    def test_unlock_all_tower_elevators_also_unlocks_tutorial(self):
+        fresh_save = {"user": {"uid": 88888}}
+        modifiers.unlock_all_tower_elevators(fresh_save)
+        self.assertTrue(modifiers.is_tutorial_cleared(fresh_save))
+
 if __name__ == "__main__":
     unittest.main()

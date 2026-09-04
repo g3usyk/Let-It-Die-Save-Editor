@@ -168,22 +168,25 @@ def get_masters_db_path(custom_path=None, save_path=None):
     3. Detected Steam libraries from save_io
     4. Local masters.db.original.bak in project directory
     """
-    if custom_path and os.path.exists(custom_path):
+    def _is_valid_db(p):
+        return p and os.path.isfile(p) and os.path.getsize(p) > 0
+
+    if custom_path and _is_valid_db(custom_path):
         return custom_path
     if save_path:
         candidate = os.path.abspath(os.path.join(os.path.dirname(save_path), "..", "BrgGame", "Content", "masters.db"))
-        if os.path.exists(candidate):
+        if _is_valid_db(candidate):
             return candidate
     try:
         import save_io
         for d in save_io.get_all_detected_steam_dirs():
             candidate = os.path.abspath(os.path.join(d, "..", "BrgGame", "Content", "masters.db"))
-            if os.path.exists(candidate):
+            if _is_valid_db(candidate):
                 return candidate
     except Exception:
         pass
     local_bak = os.path.join(PROJECT_ROOT, "masters.db.original.bak")
-    if os.path.exists(local_bak):
+    if _is_valid_db(local_bak):
         return local_bak
     return r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
 
