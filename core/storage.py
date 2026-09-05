@@ -18,7 +18,7 @@ def _assign_to_coin_locker(save, eid, item_type):
       3: ITEM (Material)
     """
     soul = save.setdefault("soul", {})
-    cl = soul.setdefault("cl", [])
+    cl = get_or_create_list(soul, "cl")
     
     # Search for an existing empty slot (type == -1 or empty eid)
     for entry in cl:
@@ -44,7 +44,7 @@ def sync_storage_slots(save):
     and assigns any orphaned items to empty slots in soul.cl.
     """
     soul = save.setdefault("soul", {})
-    cl = soul.setdefault("cl", [])
+    cl = get_or_create_list(soul, "cl")
     assigned_eids = set(c.get("eid") for c in cl if c.get("eid"))
     
     unassigned = []
@@ -61,8 +61,16 @@ def sync_storage_slots(save):
             unassigned.append((b.get("eid"), 2))
             
     pts = save.get("part", {}).get("pts", [])
-    pts_iter = pts.values() if isinstance(pts, dict) else (pts if isinstance(pts, list) else [])
-    for p in pts_iter:
+    all_pts = []
+    if isinstance(pts, dict):
+        for val in pts.values():
+            if isinstance(val, list):
+                all_pts.extend(val)
+            elif isinstance(val, dict):
+                all_pts.append(val)
+    elif isinstance(pts, list):
+        all_pts = pts
+    for p in all_pts:
         if isinstance(p, dict) and p.get("owner") == "COIN_LOCKER" and p.get("eid") not in assigned_eids:
             unassigned.append((p.get("eid"), 0))
             

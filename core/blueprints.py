@@ -6,7 +6,7 @@ import time
 import uuid
 import sqlite3
 from collections import Counter
-from core.helpers import get_player_uid, get_masters_db_path, get_equipment_meta, load_all_equipment, get_authentic_uncap_ptids, get_firearms_capacity
+from core.helpers import get_player_uid, get_masters_db_path, get_equipment_meta, load_all_equipment, get_authentic_uncap_ptids, get_firearms_capacity, get_or_create_list
 from core.storage import _assign_to_coin_locker, analyze_storage_stock
 
 DUMMY_OR_CLOSED_PARTS = {'PT_ARM_FirstAid', 'PT_ARM_Food', 'PT_ARM_Sand', 'PT_ARM_WP000_001', 'PT_ARM_WP011_0C1', 'PT_ARM_WP023_001', 'PT_ARM_WP025_0A4', 'PT_GAS_HEAD_001', 'PT_GAS_HEAD_002', 'PT_GAS_HEAD_003', 'PT_GAS_HEAD_004', 'PT_GAS_HEAD_005', 'PT_GAS_HEAD_006', 'PT_GAS_HEAD_007', 'PT_GAS_HEAD_008', 'PT_MASK_001', 'PT_MASK_002', 'PT_MIL_BTM_1003', 'PT_MIL_HEAD_1003', 'PT_MIL_TOPS_1003', 'PT_NONE_BTM_001', 'PT_NONE_HEAD_001', 'PT_NONE_MASK_001', 'PT_NONE_PANTS_001', 'PT_NONE_TOPS_001', 'PT_PANTS_001', 'PT_PANTS_002'}
@@ -271,13 +271,19 @@ def unlock_blueprints(save, category="all", max_level=4):
     return len(target_ids), added
 
 def repair_all_storage_equipment(save):
-    pts = save.get("part", {}).get("pts", [])
-    pts_iter = pts.values() if isinstance(pts, dict) else (pts if isinstance(pts, list) else [])
-    for p in pts_iter:
-        if isinstance(p, dict):
-            p["dur"] = 50000
-            p["rest"] = 0
-            p["spare"] = 0
+    pts = save.get("part", {}).get("pts", {})
+    pts_lists = list(pts.values()) if isinstance(pts, dict) else [pts]
+    for p_list in pts_lists:
+        if isinstance(p_list, list):
+            for p in p_list:
+                if isinstance(p, dict):
+                    p["dur"] = 50000
+                    p["rest"] = 0
+                    p["spare"] = 0
+        elif isinstance(p_list, dict):
+            p_list["dur"] = 50000
+            p_list["rest"] = 0
+            p_list["spare"] = 0
 
 def add_equipment_to_storage(save, ptid, count=1, lvl=5, dur=50000):
     meta = get_equipment_meta(ptid)
@@ -302,9 +308,17 @@ def add_equipment_to_storage(save, ptid, count=1, lvl=5, dur=50000):
         uid_int = int(uid_str)
     except ValueError:
         uid_int = 0
-    pts_list = save.setdefault("part", {}).setdefault("pts", [])
-    if isinstance(pts_list, dict):
-        pts_list = pts_list.setdefault(uid_str, [])
+    pts_container = save.setdefault("part", {}).setdefault("pts", {})
+    if isinstance(pts_container, dict):
+        if "COIN_LOCKER" in pts_container and isinstance(pts_container["COIN_LOCKER"], list) and uid_str not in pts_container:
+            pts_list = pts_container["COIN_LOCKER"]
+        else:
+            pts_list = get_or_create_list(pts_container, uid_str)
+    elif isinstance(pts_container, list):
+        pts_list = pts_container
+    else:
+        pts_list = []
+        save.setdefault("part", {})["pts"] = pts_list
     now = int(time.time())
     added = 0
     for _ in range(count):

@@ -27,6 +27,7 @@ from core.helpers import (
     get_save_summary,
     get_account_overview,
     get_authentic_uncap_ptids,
+    repair_save_list_structures,
 )
 
 from core.currencies import (

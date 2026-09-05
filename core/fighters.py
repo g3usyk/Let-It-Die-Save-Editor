@@ -536,7 +536,7 @@ def clone_fighter(save, fighter_idx, new_name=None):
     # Clone deathbag and all equipped equipment (armors, weapons, mushrooms, beasts, items)
     orig_db = save.get("soul", {}).get("deathbag", {}).get(uid, {}).get(orig_cid, [])
     new_db = []
-    pts_list = save.setdefault("part", {}).setdefault("pts", {}).setdefault(uid, [])
+    pts_list = get_or_create_list(save.setdefault("part", {}).setdefault("pts", {}), uid)
     msrs_list = get_or_create_list(save.setdefault("mushroom", {}), "msrs")
     bsts_list = get_or_create_list(save.setdefault("beast", {}), "bsts")
     items_list = get_or_create_list(save.setdefault("item", {}), "items")

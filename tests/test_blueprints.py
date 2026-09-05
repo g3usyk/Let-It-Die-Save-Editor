@@ -271,6 +271,24 @@ class TestBlueprints(unittest.TestCase):
             if os.path.exists(bak):
                 os.remove(bak)
 
+    def test_add_equipment_to_storage_when_pts_uid_is_empty_dict(self):
+        # When an empty equipment array was serialized by the game as {}
+        save_with_empty_dict_pts = {
+            "user": {"uid": 1},
+            "soul": {"cl": []},
+            "part": {
+                "pts": {
+                    "-1": [{"eid": "e-1", "ptid": "PT_ARM_WP051_001"}],
+                    "1": {}  # empty dict from msgpack serialization
+                }
+            }
+        }
+        added = modifiers.add_equipment_to_storage(save_with_empty_dict_pts, "PT_DIY_HEAD_001", count=1, lvl=5)
+        self.assertEqual(added, 1)
+        self.assertIsInstance(save_with_empty_dict_pts["part"]["pts"]["1"], list)
+        self.assertEqual(len(save_with_empty_dict_pts["part"]["pts"]["1"]), 1)
+        self.assertEqual(save_with_empty_dict_pts["part"]["pts"]["1"][0]["ptid"], "PT_DIY_HEAD_001")
+
 if __name__ == "__main__":
     unittest.main()
 

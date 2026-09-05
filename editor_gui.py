@@ -607,6 +607,9 @@ class CompleteSaveEditorGUI(
             self.version = ver
             self.save_path = path
 
+            # Normalize empty associative arrays ({}) to lists
+            modifiers.repair_save_list_structures(self.save_json)
+
             # Auto-sanitize currencies and facilities against C++ out-of-bounds corruption (> level 99)
             repaired_curr, fixes_curr = modifiers.repair_and_sanitize_currencies(self.save_json)
             if repaired_curr:

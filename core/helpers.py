@@ -65,8 +65,12 @@ def repair_save_list_structures(save, uid=None):
     
     pt = save.setdefault("part", {})
     pts = pt.setdefault("pts", {})
-    if uid:
-        get_or_create_list(pts, uid)
+    if isinstance(pts, dict):
+        if uid:
+            get_or_create_list(pts, uid)
+        for k in list(pts.keys()):
+            if isinstance(pts[k], dict) and not pts[k]:
+                pts[k] = []
         
     bu = save.setdefault("bodyuser", {})
     if uid:

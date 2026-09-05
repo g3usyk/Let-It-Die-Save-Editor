@@ -10,6 +10,7 @@ from core.helpers import (
     load_all_equipment,
     get_save_summary,
     get_account_overview,
+    repair_save_list_structures,
 )
 
 from core.currencies import (
@@ -197,6 +198,7 @@ __all__ = [
     'repair_and_sanitize_currencies',
     'repair_and_sanitize_mastery',
     'repair_unlocked_blueprints_states',
+    'repair_save_list_structures',
     'reset_tower_interruptions',
     'reset_wandering_shop_timer',
     'reset_floor_to_waiting_room',
