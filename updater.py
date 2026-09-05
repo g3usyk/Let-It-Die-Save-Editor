@@ -12,7 +12,7 @@ import urllib.request
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-CURRENT_VERSION = "2.7.0"
+CURRENT_VERSION = "4.0.0"
 REPO_OWNER = "g3usyk"
 REPO_NAME = "Let-It-Die-Save-Editor"
 RAW_VERSION_URL = f"https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/main/version.json"
@@ -89,8 +89,12 @@ def check_for_updates(timeout=4):
         return (False, None, str(e_raw))
 
 def perform_update_git():
-    """Performs git pull and updates requirements in the local directory."""
+    """Performs git pull and updates requirements in the local directory, or opens browser if standalone executable."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
+    if getattr(sys, "frozen", False) or not os.path.exists(os.path.join(base_dir, ".git")):
+        import webbrowser
+        webbrowser.open(f"https://github.com/{REPO_OWNER}/{REPO_NAME}/releases/latest")
+        return True, "BROWSER_OPENED"
     try:
         # Run git pull
         pull_proc = subprocess.run(
@@ -265,20 +269,28 @@ class UpdateNotificationDialog(tk.Toplevel):
         def run_upd():
             ok, msg = perform_update_git()
             if ok:
-                self.after(0, self._on_success)
+                self.after(0, lambda: self._on_success(mode=msg))
             else:
                 self.after(0, lambda: self._on_error(msg))
                 
         threading.Thread(target=run_upd, daemon=True).start()
 
-    def _on_success(self):
+    def _on_success(self, mode="GIT"):
         try:
             import i18n
-            msg = i18n.t("updater_success")
-            title = i18n.t("notice")
+            if mode == "BROWSER_OPENED":
+                msg = i18n.t("updater_browser_opened", "Se ha abierto la página de descargas en tu navegador web para obtener el instalador más reciente.")
+                title = i18n.t("notice")
+            else:
+                msg = i18n.t("updater_success")
+                title = i18n.t("notice")
         except Exception:
-            msg = "Editor updated successfully!\nPlease restart to apply all changes."
-            title = "Notice"
+            if mode == "BROWSER_OPENED":
+                msg = "The releases page has been opened in your browser to download the latest setup."
+                title = "Notice"
+            else:
+                msg = "Editor updated successfully!\nPlease restart to apply all changes."
+                title = "Notice"
         messagebox.showinfo(title, msg)
         self.destroy()
         if self.on_update_complete:

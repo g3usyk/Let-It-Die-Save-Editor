@@ -153,7 +153,7 @@ class MaterialsTabMixin:
         # Right Material Card (Wiki Showcase)
         mat_card_container = ttk.LabelFrame(paned, text=t("mat_card_title"), padding=4)
         paned.add(mat_card_container, weight=2)
-        scroll_mat = ScrollableFrame(mat_card_container)
+        self.materials_scroll = scroll_mat = ScrollableFrame(mat_card_container)
         scroll_mat.pack(fill="both", expand=True)
         self.mat_card = scroll_mat.content
         

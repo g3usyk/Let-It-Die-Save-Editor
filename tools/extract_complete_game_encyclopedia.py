@@ -1,9 +1,23 @@
 import sqlite3
 import json
 import os
+import sys
 
-db_path = r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
-out_dir = r"c:\Users\sipi_\Downloads\Let it die mod"
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from core.helpers import get_masters_db_path
+
+db_path = get_masters_db_path()
+if not db_path or not os.path.exists(db_path):
+    candidate = r"E:\SteamLibrary\steamapps\common\LET IT DIE\BrgGame\Content\masters.db"
+    if os.path.exists(candidate):
+        db_path = candidate
+    else:
+        raise FileNotFoundError("masters.db could not be located in project root or standard Steam paths.")
+
+out_dir = PROJECT_ROOT
 conn = sqlite3.connect(db_path)
 cur = conn.cursor()
 

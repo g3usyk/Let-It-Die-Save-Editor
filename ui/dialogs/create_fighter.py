@@ -86,10 +86,30 @@ class CreateFighterDialog(tk.Toplevel):
         # 4. Model / Appearance
         tk.Label(form_frame, text="Modelo / Aspecto:", font=("Segoe UI", 9, "bold"), bg=BG_DARK, fg=FG_MAIN).grid(row=3, column=0, sticky="w", pady=8)
 
-        self.models_list = [f"Female {i}" for i in range(1, 9)] + [f"Male {i}" for i in range(1, 9)]
+        self.models_list = [f"Female {i} (BODY_FEMALE_{i:03d})" for i in range(1, 9)] + [f"Male {i} (BODY_MALE_{i:03d})" for i in range(1, 9)]
         self.model_var = tk.StringVar(value=self.models_list[0])
-        cb_model = ttk.Combobox(form_frame, textvariable=self.model_var, values=self.models_list, state="readonly", width=32)
-        cb_model.grid(row=3, column=1, sticky="w", pady=8)
+        
+        from ui.dialogs.fighter_model_gallery import get_fighter_model_art
+        from ui.components import ImageCombobox
+        
+        model_items = [
+            (opt, get_fighter_model_art(opt)) for opt in self.models_list
+        ]
+        m_row = tk.Frame(form_frame, bg=BG_DARK)
+        m_row.grid(row=3, column=1, sticky="w", pady=8)
+        
+        get_photo = getattr(self.parent, "get_photo", None)
+        self.cb_model = ImageCombobox(
+            m_row,
+            values_with_icons=model_items,
+            textvariable=self.model_var,
+            get_photo_cb=get_photo,
+            width=240
+        )
+        self.cb_model.pack(side="left", padx=(0, 6))
+        
+        btn_gal = ttk.Button(m_row, text="🖼️ Galería", command=self._open_gallery)
+        btn_gal.pack(side="left")
         
         # 5. Max stats checkbox
         self.max_stats_var = tk.BooleanVar(value=True)
@@ -140,3 +160,11 @@ class CreateFighterDialog(tk.Toplevel):
         if self.on_created_cb:
             self.on_created_cb()
         self.destroy()
+
+    def _open_gallery(self):
+        from ui.dialogs.fighter_model_gallery import FighterModelGalleryDialog
+        def on_pick(full_opt, code):
+            self.model_var.set(full_opt)
+            if hasattr(self, "cb_model"):
+                self.cb_model.set(full_opt)
+        FighterModelGalleryDialog(self, current_model=self.model_var.get(), on_select_cb=on_pick)

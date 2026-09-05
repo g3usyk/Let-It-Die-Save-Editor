@@ -12,8 +12,8 @@ from ui.theme import (
     BG_CARD, BG_DARK, BG_PANEL, FG_MAIN, FG_MUTED,
     ACCENT_GOLD, ACCENT_GREEN, ACCENT_CYAN, ACCENT_RED,
 )
-from ui.components import ScrollableFrame
-from ui.dialogs import CreateFighterDialog
+from ui.components import ScrollableFrame, ImageCombobox
+from ui.dialogs import CreateFighterDialog, FighterModelGalleryDialog, get_fighter_model_art
 from game_data import FIGHTER_CLASSES
 
 
@@ -71,13 +71,17 @@ class FightersTabMixin:
         right_container = ttk.LabelFrame(paned, text=t("f_tech_sheet"), padding=4)
         paned.add(right_container, weight=3)
         
-        scroll_right = ScrollableFrame(right_container)
+        self.fighters_scroll = scroll_right = ScrollableFrame(right_container)
         scroll_right.pack(fill="both", expand=True)
         right_box = scroll_right.content
         
         # Fighter Top Profile
         prof_f = ttk.Frame(right_box)
         prof_f.pack(fill="x", pady=2)
+        
+        self.f_model_hero_lbl = ttk.Label(prof_f, cursor="hand2")
+        self.f_model_hero_lbl.pack(side="left", padx=(0, 10))
+        self.f_model_hero_lbl.bind("<Button-1>", lambda e: self._open_fighter_model_gallery())
         
         self.f_class_icon_lbl = ttk.Label(prof_f)
         self.f_class_icon_lbl.pack(side="left", padx=(0, 10))
@@ -137,8 +141,26 @@ class FightersTabMixin:
         ] + [
             f"Male {i} (BODY_MALE_{i:03d})" for i in range(1, 9)
         ]
-        cb_model = ttk.Combobox(id_frame, textvariable=self.f_model_select_var, values=self.f_model_opts, state="readonly", width=26)
-        cb_model.grid(row=3, column=1, columnspan=3, padx=4, pady=3, sticky="w")
+        self.f_model_items = [
+            (opt, get_fighter_model_art(opt)) for opt in self.f_model_opts
+        ]
+        
+        model_row = ttk.Frame(id_frame)
+        model_row.grid(row=3, column=1, columnspan=3, padx=4, pady=3, sticky="w")
+        
+        self.cb_f_model = ImageCombobox(
+            model_row,
+            values_with_icons=self.f_model_items,
+            textvariable=self.f_model_select_var,
+            get_photo_cb=self.get_photo,
+            width=270
+        )
+        self.cb_f_model.pack(side="left", padx=(0, 8))
+        self.cb_f_model.bind("<<ComboboxSelected>>", lambda e: self._update_fighter_model_preview())
+        
+        is_en = (i18n.get_language() == "en")
+        btn_gallery = ttk.Button(model_row, text="🖼️ " + ("Gallery" if is_en else "Galería"), style="Accent.TButton", command=self._open_fighter_model_gallery)
+        btn_gallery.pack(side="left")
         
         # Row 4: Real In-Game Capacity indicator
         self.f_real_bag_lbl = ttk.Label(id_frame, text="🎒 Capacidad Real: Calculando...", foreground=ACCENT_GOLD, font=("Segoe UI", 9, "bold"))
@@ -279,9 +301,10 @@ class FightersTabMixin:
                 if body_val in opt:
                     self.f_model_select_var.set(opt)
                     break
+            self._update_fighter_model_preview()
             
             # Calculate real in-game bag capacity
-            db_st = modifiers.get_deathbag_masters_status()
+            db_st = modifiers.get_deathbag_masters_status(save_path=getattr(self, "save_path", None))
             vip_active = bool(self.save_json.get("soul", {}).get("vip", {}).get("flag", 0))
             vip_bonus = db_st.get("vip_bonus", 10) if vip_active else 0
             base_slots = db_st.get("min_bag", 20)
@@ -317,6 +340,30 @@ class FightersTabMixin:
                     self.tree_images[f"eq_decal_{s_idx}"] = d_thumb
                 else:
                     self.f_decal_slots_lbls[s_idx].config(text=f" Espacio {s_idx+1}: [Vacío]", image="", foreground=FG_MUTED)
+
+    def _update_fighter_model_preview(self):
+        sel_val = self.f_model_select_var.get() if hasattr(self, "f_model_select_var") else ""
+        art_rel = get_fighter_model_art(sel_val)
+        
+        # 1. Sync ImageCombobox display
+        if hasattr(self, "cb_f_model"):
+            self.cb_f_model.set(sel_val)
+            
+        # 2. Hero portrait in profile header
+        if hasattr(self, "f_model_hero_lbl"):
+            photo_hero = self.get_photo(art_rel, size=(54, 66), preserve_aspect=True)
+            self.f_model_hero_lbl.config(image=photo_hero or "")
+            self.tree_images["f_model_hero"] = photo_hero
+
+    def _open_fighter_model_gallery(self):
+        cur = self.f_model_select_var.get() if hasattr(self, "f_model_select_var") else ""
+        def on_picked(full_opt, code):
+            if hasattr(self, "f_model_select_var"):
+                self.f_model_select_var.set(full_opt)
+            if hasattr(self, "cb_f_model"):
+                self.cb_f_model.set(full_opt)
+            self._update_fighter_model_preview()
+        FighterModelGalleryDialog(self, current_model=cur, on_select_cb=on_picked)
 
     def _move_fighter_up_action(self):
         if not self.save_json:
@@ -575,7 +622,7 @@ class FightersTabMixin:
     def _refresh_deathbag_db_status(self):
         if not hasattr(self, "f_bag_db_status_lbl"):
             return
-        st = modifiers.get_deathbag_masters_status()
+        st = modifiers.get_deathbag_masters_status(save_path=getattr(self, "save_path", None))
         if not st.get("exists"):
             self.f_bag_db_status_lbl.config(text=t("db_mod_status_missing"), foreground=FG_MUTED)
         elif st.get("is_modded"):
@@ -603,7 +650,7 @@ class FightersTabMixin:
         if not target:
             return
         try:
-            res = modifiers.expand_deathbag_capacity(target_capacity=target, vip_bonus=10)
+            res = modifiers.expand_deathbag_capacity(target_capacity=target, vip_bonus=10, save_path=getattr(self, "save_path", None))
             self._refresh_deathbag_db_status()
             if hasattr(self, "current_fighter_idx"):
                 self._on_fighter_select(None)
@@ -622,7 +669,7 @@ class FightersTabMixin:
         ):
             return
         try:
-            res = modifiers.restore_deathbag_capacity()
+            res = modifiers.restore_deathbag_capacity(save_path=getattr(self, "save_path", None))
             self._refresh_deathbag_db_status()
             if hasattr(self, "current_fighter_idx"):
                 self._on_fighter_select(None)

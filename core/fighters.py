@@ -30,8 +30,25 @@ def _ensure_freezer_accessible(save):
         except Exception:
             pass
 
+GRADE6_MAX_HP_BY_CLASS = {
+    "COL": 32600,
+    "BAL": 26670,
+    "BRE": 31775,
+    "DEF": 37430,
+    "LUK": 22220,
+    "SHT": 25785,
+    "SKI": 21750,
+    "TEC": 15475,
+}
+
+
 def max_fighter_level_and_stats(save, fighter_index=0, level=247):
     _ensure_freezer_accessible(save)
+    try:
+        from core.storage import ensure_death_roids
+        ensure_death_roids(save)
+    except Exception:
+        pass
     uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
@@ -54,21 +71,34 @@ def max_fighter_level_and_stats(save, fighter_index=0, level=247):
         f["vit_bonus"] = 20
         f["stm_bonus"] = 20
         f["luk_bonus"] = 20
-        # Decal slot expansion (3 extra slots -> unlocks slots 6, 7 and 8!)
-        f["skill"] = 3
-        # Max bag addition (3 is the safe max for MINGO upgrade)
-        f["bag"] = 3
-        # Max rage gauge addition
-        f["rage"] = 1
+        # In authentic saves, skill, bag, and rage in bodyuser are 0.
+        # Limit break (4) and master_body_detail dynamically grant 9 decal slots,
+        # 54 bag slots, and 5 rage gauge bars. Setting rage != 0 causes the engine's
+        # status query to fail, freezing the rage gauge at Level 0!
+        f["skill"] = 0
+        f["bag"] = 0
+        f["rage"] = 0
         f["die"] = 0
     if 0 <= fighter_index < len(chr_chrs):
         c = chr_chrs[fighter_index]
         c["grade"] = 6
         c["limit_break"] = 4
         c["lvl"] = int(level)
-        c["hp"] = 20000
+        c_type = str(c.get("type", "COL")).upper()
+        c["hp"] = GRADE6_MAX_HP_BY_CLASS.get(c_type, 32600)
         c["escdie"] = 0
-        c["state"] = "GUARD"
+        c["total_exp"] = max(int(c.get("total_exp", 0)), 482191)
+        c["rest_exp"] = max(int(c.get("rest_exp", 0)), 9999999)
+        # Preserve active character state ("USE") so player isn't kicked out
+        if c.get("state") != "USE":
+            c["state"] = "GUARD"
+    sync_fighter_slots(save)
+    sanitize_fighters(save)
+    try:
+        from core.tdm import repair_and_sanitize_tdm
+        repair_and_sanitize_tdm(save)
+    except Exception:
+        pass
 
 def revive_all_fighters(save):
     uid = get_player_uid(save)
@@ -180,20 +210,25 @@ def update_fighter(save, fighter_idx, name=None, clazz=None, grade=None, lvl=Non
                 has_high_stats = any(int(f.get(st, 1)) > 30 for st in ["hp", "str", "dex", "vit", "stm", "luk"])
                 if cur_lvl > 140 or has_high_stats:
                     c["limit_break"] = 4
-                    f["skill"] = 3
-                    f["bag"] = 3
-                    f["rage"] = 1
+                    f["skill"] = 0
+                    f["bag"] = 0
+                    f["rage"] = 0
                     for st in ["hp", "str", "dex", "vit", "stm", "luk"]:
                         f[f"{st}_bonus"] = 20
+                    c_type = str(c.get("type", "COL")).upper()
+                    if c.get("hp", 0) <= 0 or c.get("hp", 0) == 20000:
+                        c["hp"] = GRADE6_MAX_HP_BY_CLASS.get(c_type, 32600)
                 else:
                     c.setdefault("limit_break", 0)
                     f.setdefault("skill", 0)
-                    f.setdefault("bag", 3)
+                    f.setdefault("bag", 0)
                     f.setdefault("rage", 0)
             elif grade_val < 6:
                 c["limit_break"] = 0
                 f["skill"] = 0
                 f["rage"] = 0
+                if bag is None:
+                    f.setdefault("bag", 0)
                 for st in ["hp", "str", "dex", "vit", "stm", "luk"]:
                     f.pop(f"{st}_bonus", None)
 
@@ -215,29 +250,36 @@ def update_fighter(save, fighter_idx, name=None, clazz=None, grade=None, lvl=Non
                 c["body"] = f"BODY_MALE_{num:03d}"
                 c["gasmask"] = f"ASSET_NM_GAS_HEAD_{num:03d}"
 
+    sync_fighter_slots(save)
+    sanitize_fighters(save)
+    try:
+        from core.tdm import repair_and_sanitize_tdm
+        repair_and_sanitize_tdm(save)
+    except Exception:
+        pass
+
 
 def expand_death_bag(save, slots=50, fighter_index=None):
-    # In LET IT DIE, bodyuser['bag'] is the M.I.N.G.O. upgrade stat which has BagAddMax=3.
-    # Exceeding 3 causes 'body_deathbag distribute failed' crash on levelup!
-    # True deathbag capacity is expanded naturally by Royal Express VIP pass (+10) and Collector class.
+    # In LET IT DIE, bodyuser['bag'] is an internal counter that should remain 0 in saves.
+    # True deathbag capacity is expanded naturally by limit_break, Collector class, and soul['bag_slot'].
     uid = get_player_uid(save)
     fighters = save.get("bodyuser", {}).get(uid, [])
     if fighter_index is not None and 0 <= fighter_index < len(fighters):
-        fighters[fighter_index]["bag"] = 3
+        fighters[fighter_index]["bag"] = 0
     else:
         for f in fighters:
-            f["bag"] = 3
+            f["bag"] = 0
     save.setdefault("soul", {})["bag_slot"] = int(slots)
     return slots
 
 def upgrade_fighter_tier8(save, fighter_idx=0):
     return max_fighter_level_and_stats(save, fighter_index=fighter_idx, level=247)
 
-def get_deathbag_masters_status(db_path=None):
+def get_deathbag_masters_status(db_path=None, save_path=None):
     """
     Returns the current Death Bag modification status from masters.db.
     """
-    db_path = get_masters_db_path(db_path)
+    db_path = get_masters_db_path(custom_path=db_path, save_path=save_path)
     if not os.path.exists(db_path):
         return {"exists": False, "db_path": db_path}
     try:
@@ -261,7 +303,7 @@ def get_deathbag_masters_status(db_path=None):
     except Exception as e:
         return {"exists": True, "db_path": db_path, "error": str(e), "is_modded": False}
 
-def expand_deathbag_capacity(target_capacity=60, vip_bonus=10, db_path=None):
+def expand_deathbag_capacity(target_capacity=60, vip_bonus=10, db_path=None, save_path=None):
     """
     Expands the Death Bag capacity in masters.db for all fighter classes and grades:
     1. Backs up masters.db to masters.db.bak if not already present.
@@ -270,9 +312,16 @@ def expand_deathbag_capacity(target_capacity=60, vip_bonus=10, db_path=None):
     4. Updates master_const_int.VIP_INCREASE_DEATHBAG.
     Returns summary dict.
     """
-    db_path = get_masters_db_path(db_path)
+    db_path = get_masters_db_path(custom_path=db_path, save_path=save_path)
     if not os.path.exists(db_path):
         raise FileNotFoundError(f"masters.db not found at: {db_path}")
+
+    # Guard: never mutate the pristine original backup directly
+    if db_path.endswith(".original.bak"):
+        working_db = os.path.join(PROJECT_ROOT, "masters.db")
+        if not os.path.exists(working_db) or os.path.getsize(working_db) == 0:
+            shutil.copy2(db_path, working_db)
+        db_path = working_db
         
     bak_path = db_path + ".bak"
     if not os.path.exists(bak_path):
@@ -306,13 +355,19 @@ def expand_deathbag_capacity(target_capacity=60, vip_bonus=10, db_path=None):
         "db_path": db_path
     }
 
-def restore_deathbag_capacity(db_path=None):
+def restore_deathbag_capacity(db_path=None, save_path=None):
     """
     Restores original Death Bag capacity in masters.db using masters.db.original.bak or masters.db.bak.
     """
-    db_path = get_masters_db_path(db_path)
+    db_path = get_masters_db_path(custom_path=db_path, save_path=save_path)
     if not os.path.exists(db_path):
         raise FileNotFoundError(f"masters.db not found at: {db_path}")
+
+    # Guard: if target is the pristine backup itself, target working masters.db instead
+    if db_path.endswith(".original.bak"):
+        db_path = os.path.join(PROJECT_ROOT, "masters.db")
+        if not os.path.exists(db_path):
+            raise FileNotFoundError("No working masters.db found to restore.")
         
     local_orig = os.path.join(PROJECT_ROOT, "masters.db.original.bak")
     bak_path = db_path + ".bak"
@@ -466,7 +521,7 @@ def clone_fighter(save, fighter_idx, new_name=None):
     new_ch["cid"] = new_cid
     new_ch["name"] = new_name or f"{new_ch.get('name', 'Luchador')} (Copia)"
     new_ch["state"] = "GUARD"
-    new_ch["hp"] = 20000
+    new_ch["hp"] = chr_chrs[fighter_idx].get("hp", 3000)
     
     fighters.append(new_bu)
     chr_chrs.append(new_ch)
@@ -525,7 +580,13 @@ def clone_fighter(save, fighter_idx, new_name=None):
 
     save.setdefault("soul", {}).setdefault("deathbag", {}).setdefault(uid, {})[new_cid] = new_db
     sync_fighter_slots(save)
+    sanitize_fighters(save)
     _ensure_freezer_accessible(save)
+    try:
+        from core.tdm import repair_and_sanitize_tdm
+        repair_and_sanitize_tdm(save)
+    except Exception:
+        pass
     return True, new_cid
 
 
@@ -544,33 +605,17 @@ def create_new_fighter(save, name, clazz="BAL", grade=6, body_model="Female 1", 
     new_cid = str(uuid.uuid4())
     
     # Resolve body model and gasmask
-    model_map = {
-        "Female 1": ("BODY_FEMALE_001", "ASSET_NF_GAS_HEAD_001"),
-        "Female 2": ("BODY_FEMALE_002", "ASSET_NF_GAS_HEAD_002"),
-        "Female 3": ("BODY_FEMALE_003", "ASSET_NF_GAS_HEAD_003"),
-        "Female 4": ("BODY_FEMALE_004", "ASSET_NF_GAS_HEAD_004"),
-        "Female 5": ("BODY_FEMALE_005", "ASSET_NF_GAS_HEAD_005"),
-        "Female 6": ("BODY_FEMALE_006", "ASSET_NF_GAS_HEAD_006"),
-        "Female 7": ("BODY_FEMALE_007", "ASSET_NF_GAS_HEAD_007"),
-        "Female 8": ("BODY_FEMALE_008", "ASSET_NF_GAS_HEAD_008"),
-        "Male 1": ("BODY_MALE_001", "ASSET_NM_GAS_HEAD_001"),
-        "Male 2": ("BODY_MALE_002", "ASSET_NM_GAS_HEAD_002"),
-        "Male 3": ("BODY_MALE_003", "ASSET_NM_GAS_HEAD_003"),
-        "Male 4": ("BODY_MALE_004", "ASSET_NM_GAS_HEAD_004"),
-        "Male 5": ("BODY_MALE_005", "ASSET_NM_GAS_HEAD_005"),
-        "Male 6": ("BODY_MALE_006", "ASSET_NM_GAS_HEAD_006"),
-        "Male 7": ("BODY_MALE_007", "ASSET_NM_GAS_HEAD_007"),
-        "Male 8": ("BODY_MALE_008", "ASSET_NM_GAS_HEAD_008"),
-    }
-    body_code, gasmask_code = model_map.get(body_model, ("BODY_FEMALE_001", "ASSET_NF_GAS_HEAD_001"))
-    if body_model.startswith("BODY_FEMALE_"):
-        num_str = body_model.replace("BODY_FEMALE_", "")
-        body_code = body_model
-        gasmask_code = f"ASSET_NF_GAS_HEAD_{num_str}"
-    elif body_model.startswith("BODY_MALE_"):
-        num_str = body_model.replace("BODY_MALE_", "")
-        body_code = body_model
-        gasmask_code = f"ASSET_NM_GAS_HEAD_{num_str}"
+    import re
+    b_str = str(body_model).upper()
+    m_num = re.search(r"\d+", b_str)
+    num = int(m_num.group()) if m_num else 1
+    num = max(1, min(8, num))
+    if "FEMALE" in b_str or "FEM" in b_str or "MUJER" in b_str:
+        body_code = f"BODY_FEMALE_{num:03d}"
+        gasmask_code = f"ASSET_NF_GAS_HEAD_{num:03d}"
+    else:
+        body_code = f"BODY_MALE_{num:03d}"
+        gasmask_code = f"ASSET_NM_GAS_HEAD_{num:03d}"
 
     grade_int = int(grade)
     is_tier8 = (grade_int == 6 and max_stats)
@@ -579,20 +624,28 @@ def create_new_fighter(save, name, clazz="BAL", grade=6, body_model="Female 1", 
         lvl = 247
         stat_alloc = 45
         limit_break = 4
-        skill = 3
-        bag = 3
-        rage = 1
+        skill = 0
+        bag = 0
+        rage = 0
         bonus = 20
+        c_hp = GRADE6_MAX_HP_BY_CLASS.get(clazz, 32600)
+        tot_exp = 482191
+        rst_exp = 9999999
     else:
+        # Authentic canonical stats and levels aligned with master_body_detail and master_bodylvl_exp
         base_lvls = {1: 25, 2: 50, 3: 75, 4: 100, 5: 125, 6: 140}
-        base_stats = {1: 10, 2: 15, 3: 20, 4: 25, 5: 30, 6: 30}
+        base_stats = {1: 5, 2: 9, 3: 13, 4: 17, 5: 21, 6: 25}
+        cum_exps = {1: 2746, 2: 10750, 3: 26055, 4: 50370, 5: 78540, 6: 139875}
         lvl = base_lvls.get(grade_int, 25)
-        stat_alloc = base_stats.get(grade_int, 10)
+        stat_alloc = base_stats.get(grade_int, 5)
         limit_break = 0
         skill = 0
         bag = 0
         rage = 0
         bonus = 0
+        c_hp = 3000
+        tot_exp = cum_exps.get(grade_int, 2746)
+        rst_exp = 5000000
 
     new_bu = {
         "uid": int(uid),
@@ -622,14 +675,15 @@ def create_new_fighter(save, name, clazz="BAL", grade=6, body_model="Female 1", 
         "type": clazz,
         "grade": grade_int,
         "limit_break": limit_break,
+        "lvl": lvl,
         "money": 0,
         "spirit": 0,
         "bloodnium": 0,
         "bloodnium_result": "{\"enemy_count\":0,\"bloodnium\":0,\"elapsed_time\":0,\"max_floor_id\":\"\"}",
-        "hp": 20000,
+        "hp": c_hp,
         "escdie": 0,
-        "total_exp": 0,
-        "rest_exp": 0,
+        "total_exp": tot_exp,
+        "rest_exp": rst_exp,
         "gain_exp": 0,
         "start_exp": 0,
         "sklgauge": 0,
@@ -637,7 +691,7 @@ def create_new_fighter(save, name, clazz="BAL", grade=6, body_model="Female 1", 
         "abid": "",
         "name": name,
         "state": "GUARD",
-        "select_arm_slots": "1,2",
+        "select_arm_slots": "0,0",
         "hunter_win": -1,
         "hunter_lose": -1,
         "hunter_draw": -1
@@ -647,7 +701,19 @@ def create_new_fighter(save, name, clazz="BAL", grade=6, body_model="Female 1", 
     chr_chrs.append(new_ch)
     save.setdefault("soul", {}).setdefault("deathbag", {}).setdefault(uid, {})[new_cid] = []
     sync_fighter_slots(save)
+    sanitize_fighters(save)
     _ensure_freezer_accessible(save)
+    if is_tier8:
+        try:
+            from core.storage import ensure_death_roids
+            ensure_death_roids(save)
+        except Exception:
+            pass
+    try:
+        from core.tdm import repair_and_sanitize_tdm
+        repair_and_sanitize_tdm(save)
+    except Exception:
+        pass
     return True, new_cid
 
 def delete_fighter(save, fighter_idx):
@@ -695,7 +761,128 @@ def delete_fighter(save, fighter_idx):
             save["item"]["items"] = [i for i in items if isinstance(i, dict) and i.get("eid") not in del_eids]
             
     sync_fighter_slots(save)
+    sanitize_fighters(save)
+    try:
+        from core.tdm import repair_and_sanitize_tdm
+        repair_and_sanitize_tdm(save)
+    except Exception:
+        pass
     return True, "Fighter deleted"
+
+
+def sanitize_fighters(save):
+    """
+    Sanitizes all fighter records across bodyuser and soul.chr.chrs:
+    1. Fixes Rage Gauge level 0 freeze bug: f['rage'] must be 0!
+       When f['rage'] != 0, the engine attempts to lot rage status from master_bodylvl_status_value
+       where no matching rows exist for Grade 6, causing rage gauge initialization to abort.
+    2. Fixes Mingo Head slot desync (45/30, 8/6): f['skill'] and f['bag'] must be 0!
+       Limit break (4) and master_body_detail dynamically provide 9 decal slots and 54 death bag slots.
+    3. Fixes fake HP (e.g. 20000) with authentic canonical HP for Grade 6 limit_break 4.
+    4. Ensures active fighter state ('USE') is preserved.
+    """
+    if not isinstance(save, dict):
+        return
+    uid = str(get_player_uid(save))
+    fighters = save.get("bodyuser", {}).get(uid, [])
+    chr_chrs = save.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
+
+    if not isinstance(fighters, list) or not isinstance(chr_chrs, list):
+        return
+
+    cid_to_chr = {c.get("cid"): c for c in chr_chrs if isinstance(c, dict) and "cid" in c}
+
+    for f in fighters:
+        if not isinstance(f, dict):
+            continue
+        # Enforce canonical 0 for rage across all fighters to prevent rage gauge init crash
+        f["rage"] = 0
+
+        cid = f.get("cid")
+        c = cid_to_chr.get(cid)
+        c_grade = c.get("grade", 1) if (c and isinstance(c, dict)) else 1
+        c_lb = c.get("limit_break", 0) if (c and isinstance(c, dict)) else 0
+
+        # For Grade 6 limit break 4, skill and bag must be 0 to prevent Mingo Head slot desync (45/30, 8/6)
+        if c_grade == 6 and c_lb == 4:
+            f["skill"] = 0
+            f["bag"] = 0
+        else:
+            # For non-LB4 fighters, clamp bag to engine maximum of 3 (BagAddMax)
+            if "bag" in f:
+                f["bag"] = min(3, max(0, int(f.get("bag", 0))))
+            else:
+                f["bag"] = 0
+            f["skill"] = 0
+
+        if c and isinstance(c, dict):
+            c_type = str(c.get("type", "COL")).upper()
+            
+            # 1. Level synchronization between bodyuser and chr
+            target_lvl = f.get("lvl") if f.get("lvl") is not None else c.get("lvl", 247 if (c_grade == 6 and c_lb == 4) else 140)
+            target_lvl = max(1, int(target_lvl))
+            if c_grade == 6 and c_lb == 4 and target_lvl > 247:
+                target_lvl = 247
+            elif c_grade < 6:
+                grade_max_lvls = {1: 25, 2: 50, 3: 75, 4: 100, 5: 125}
+                target_lvl = min(grade_max_lvls.get(c_grade, 25), target_lvl)
+                
+            f["lvl"] = target_lvl
+            c["lvl"] = target_lvl
+            
+            # 2. EXP synchronization (prevents DistributeBodyLvlParam crash on level up)
+            cum_exps = {1: 2746, 2: 10750, 3: 26055, 4: 50370, 5: 78540, 6: 139875}
+            base_req_exp = 482191 if (c_grade == 6 and target_lvl >= 247) else cum_exps.get(c_grade, 2746)
+            c["total_exp"] = max(int(c.get("total_exp", 0)), base_req_exp)
+            c["rest_exp"] = max(int(c.get("rest_exp", 0)), 9999999 if (c_grade == 6 and c_lb == 4) else 5000000)
+
+            # 3. Canonical HP and stat clamping
+            if c_grade == 6 and c_lb == 4:
+                canonical_hp = GRADE6_MAX_HP_BY_CLASS.get(c_type, 32600)
+                if c.get("hp", 0) == 20000 or c.get("hp", 0) <= 0:
+                    c["hp"] = canonical_hp
+                for stat in ["hp", "str", "dex", "vit", "stm", "luk"]:
+                    if f.get(stat, 0) > 45:
+                        f[stat] = 45
+            else:
+                grade_param_max = {1: 5, 2: 9, 3: 13, 4: 17, 5: 21, 6: 25}
+                p_max = grade_param_max.get(c_grade, 25)
+                for stat in ["hp", "str", "dex", "vit", "stm", "luk"]:
+                    if f.get(stat, 0) > p_max:
+                        f[stat] = p_max
+
+            # Fix weapon arm_slots and select_arm_slots
+            c["select_arm_slots"] = "0,0"
+
+            # Check fighter deathbag for weapon arm_slots and armor sites
+            db = save.get("soul", {}).get("deathbag", {}).get(uid, {}).get(cid, [])
+            user_pts = save.get("part", {}).get("pts", {}).get(uid, [])
+            eid_to_ptid = {p.get("eid"): p.get("ptid", "") for p in user_pts if isinstance(p, dict) and "eid" in p}
+
+            for it in db:
+                if not isinstance(it, dict):
+                    continue
+                if it.get("type") != 0 or not it.get("eid"):
+                    continue
+                eid = it.get("eid")
+                ptid = eid_to_ptid.get(eid, "")
+
+                if "HEAD" in ptid or it.get("site") == "EQSITE_HEAD":
+                    it["site"] = "EQSITE_HEAD"
+                    it["arm_slot"] = -1
+                elif "TOPS" in ptid or "BODY" in ptid or it.get("site") == "EQSITE_BODY":
+                    it["site"] = "EQSITE_BODY"
+                    it["arm_slot"] = -1
+                elif "BTM" in ptid or "LEGS" in ptid or it.get("site") == "EQSITE_LEGS":
+                    it["site"] = "EQSITE_LEGS"
+                    it["arm_slot"] = -1
+                elif it.get("site") in ["EQSITE_ARMR", "EQSITE_ARML"]:
+                    slot = it.get("arm_slot", 0)
+                    if it.get("site") == "EQSITE_ARMR" and not (0 <= slot <= 2):
+                        it["arm_slot"] = 0
+                    elif it.get("site") == "EQSITE_ARML" and not (3 <= slot <= 5):
+                        it["arm_slot"] = 3
+
 
 
 

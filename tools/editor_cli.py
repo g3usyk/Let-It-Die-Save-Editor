@@ -1,6 +1,11 @@
 import os
 import sys
 import json
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from save_io import get_default_save_path, decompress_save, save_to_file, create_backup
 import modifiers
 
@@ -15,7 +20,7 @@ def print_banner():
 def main():
     save_path = get_default_save_path()
     if not save_path or not os.path.exists(save_path):
-        local_cur = os.path.join(os.path.dirname(os.path.abspath(__file__)), "CurrentSave")
+        local_cur = os.path.join(PROJECT_ROOT, "CurrentSave")
         if os.path.isdir(local_cur):
             local_savs = [os.path.join(local_cur, f) for f in os.listdir(local_cur) if f.endswith(".sav")]
             if local_savs:

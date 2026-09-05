@@ -133,7 +133,7 @@ class DecalsTabMixin:
         
         decal_card_container = ttk.LabelFrame(paned, text=t("decal_card_title"), padding=4)
         paned.add(decal_card_container, weight=2)
-        scroll_decal = ScrollableFrame(decal_card_container)
+        self.decals_scroll = scroll_decal = ScrollableFrame(decal_card_container)
         scroll_decal.pack(fill="both", expand=True)
         self.decal_card = scroll_decal.content
         

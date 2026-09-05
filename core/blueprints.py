@@ -1,32 +1,40 @@
 # -*- coding: utf-8 -*-
 import os
+import shutil
 import json
 import time
 import uuid
 import sqlite3
 from collections import Counter
-from core.helpers import get_player_uid, get_masters_db_path, get_equipment_meta, load_all_equipment
+from core.helpers import get_player_uid, get_masters_db_path, get_equipment_meta, load_all_equipment, get_authentic_uncap_ptids, get_firearms_capacity
 from core.storage import _assign_to_coin_locker, analyze_storage_stock
 
 DUMMY_OR_CLOSED_PARTS = {'PT_ARM_FirstAid', 'PT_ARM_Food', 'PT_ARM_Sand', 'PT_ARM_WP000_001', 'PT_ARM_WP011_0C1', 'PT_ARM_WP023_001', 'PT_ARM_WP025_0A4', 'PT_GAS_HEAD_001', 'PT_GAS_HEAD_002', 'PT_GAS_HEAD_003', 'PT_GAS_HEAD_004', 'PT_GAS_HEAD_005', 'PT_GAS_HEAD_006', 'PT_GAS_HEAD_007', 'PT_GAS_HEAD_008', 'PT_MASK_001', 'PT_MASK_002', 'PT_MIL_BTM_1003', 'PT_MIL_HEAD_1003', 'PT_MIL_TOPS_1003', 'PT_NONE_BTM_001', 'PT_NONE_HEAD_001', 'PT_NONE_MASK_001', 'PT_NONE_PANTS_001', 'PT_NONE_TOPS_001', 'PT_PANTS_001', 'PT_PANTS_002'}
 
 ENDGAME_SETS = {'white_steel': {'name': '44CE White Steel (D.O.D. Arms)', 'parts': [('PT_ARM_WP055_001', 'Masajeador Estático 44CE (Static Massager)', 5), ('PT_ARM_WP002_001', 'Bate de Púas +4 (Spike Bat)', 5), ('PT_DIY_HEAD_4F_01', 'Casco White Steel 44CE', 5), ('PT_DIY_TOPS_4F_01', 'Peto White Steel 44CE', 5), ('PT_DIY_BTM_4F_01', 'Pantalones White Steel 44CE', 5)]}, 'red_napalm': {'name': '44CE Red Napalm (War Ensemble)', 'parts': [('PT_ARM_WP056_001', 'Lanzador M2G-87 Red Napalm (Spike Launcher)', 5), ('PT_MIL_HEAD_4F_01', 'Casco Red Napalm 44CE', 5), ('PT_MIL_TOPS_4F_01', 'Peto Red Napalm 44CE', 5), ('PT_MIL_BTM_4F_01', 'Pantalones Red Napalm 44CE', 5)]}, 'black_thunder': {'name': '44CE Black Thunder (Candle Wolf)', 'parts': [('PT_ARM_WP057_001', 'Espada de Energía 44CE (Energy Sword)', 5), ('PT_FAN_HEAD_4F_01', 'Casco Black Thunder 44CE', 5), ('PT_FAN_TOPS_4F_01', 'Peto Black Thunder 44CE', 5), ('PT_FAN_BTM_4F_01', 'Pantalones Black Thunder 44CE', 5)]}, 'pale_wind': {'name': '44CE Pale Wind (M.I.L.K.)', 'parts': [('PT_ARM_WP058_001', 'Vara de Fuerza 44CE (Force Wand)', 5), ('PT_SPO_HEAD_4F_01', 'Casco Pale Wind 44CE', 5), ('PT_SPO_TOPS_4F_01', 'Peto Pale Wind 44CE', 5), ('PT_SPO_BTM_4F_01', 'Pantalones Pale Wind 44CE', 5)]}, 'jackals_gear': {'name': 'Sets Jackals v1 / v2 / v3', 'parts': [('PT_ARM_WP001_JAC_11', 'Espada Jackal X', 5), ('PT_ARM_WP016_JAC_11', 'Pistola Jackal Y (Blaster)', 5), ('PT_ARM_WP027_JAC_11', 'Yo-Yo Jackal Z', 5), ('PT_JAC_HEAD_101', 'Casco Jackal X', 5), ('PT_JAC_TOPS_101', 'Traje Jackal X', 5), ('PT_JAC_BTM_101', 'Pantalón Jackal X', 5), ('PT_JAC_HEAD_102', 'Casco Jackal Y', 5), ('PT_JAC_TOPS_102', 'Traje Jackal Y', 5), ('PT_JAC_BTM_102', 'Pantalón Jackal Y', 5), ('PT_JAC_HEAD_103', 'Casco Jackal Z', 5), ('PT_JAC_TOPS_103', 'Traje Jackal Z', 5), ('PT_JAC_BTM_103', 'Pantalón Jackal Z', 5)]}, 'tengoku_weapons': {'name': 'Armas Legendarias de Tengoku (51F+)', 'parts': [('PT_ARM_WP060_001', 'Muspelheim (Ballesta de Fuego Tengoku)', 5), ('PT_ARM_WP061_001', 'Judgement Day (Francotirador Tengoku)', 5), ('PT_ARM_WP062_001', 'Predator (Machete Tengoku)', 5), ('PT_ARM_WP063_001', 'Emperor (Lanzagranadas Tengoku)', 5), ('PT_ARM_WP064_001', 'Lethal Weapon (KAMAS Tengoku)', 5)]}}
 
-def repair_and_sanitize_blueprints(save):
-    soul = save.setdefault("soul", {})
-    pr_dict = soul.setdefault("partresearch", {})
-    pr_list = pr_dict.setdefault("user", [])
-    
-    # Connect to master_part to query authentic evolution links
+def get_evolution_mappings(db_path=None):
+    """
+    Returns (next_map, parent_map) mapping ptid <-> next tier ptid.
+    Safely resolves from master_part whether the shop tier suppression mod is active or inactive.
+    """
     next_map = {}
     parent_map = {}
-    db_path = get_masters_db_path()
-    if os.path.exists(db_path):
+    target_db = get_masters_db_path(db_path)
+    if os.path.exists(target_db):
         try:
-            import sqlite3
-            conn = sqlite3.connect(db_path)
+            conn = sqlite3.connect(target_db)
             cur = conn.cursor()
-            cur.execute("SELECT id, nextptid FROM master_part WHERE nextptid != '';")
+            cur.execute("PRAGMA table_info(master_part)")
+            cols = [c[1] for c in cur.fetchall()]
+            if "_orig_nextptid" in cols:
+                cur.execute("""
+                    SELECT id, CASE WHEN _orig_nextptid IS NOT NULL AND _orig_nextptid != '' THEN _orig_nextptid ELSE nextptid END
+                    FROM master_part
+                    WHERE nextptid != '' OR (_orig_nextptid IS NOT NULL AND _orig_nextptid != '');
+                """)
+            else:
+                cur.execute("SELECT id, nextptid FROM master_part WHERE nextptid != '';")
             for p, nxt in cur.fetchall():
                 if nxt:
                     next_map[p] = nxt
@@ -34,6 +42,16 @@ def repair_and_sanitize_blueprints(save):
             conn.close()
         except Exception:
             pass
+    return next_map, parent_map
+
+def repair_and_sanitize_blueprints(save):
+    soul = save.setdefault("soul", {})
+    pr_dict = soul.setdefault("partresearch", {})
+    pr_list = pr_dict.setdefault("user", [])
+    
+    # Connect to master_part to query authentic evolution links
+    db_path = get_masters_db_path()
+    next_map, parent_map = get_evolution_mappings(db_path)
             
     by_ptid = {}
     for e in pr_list:
@@ -63,10 +81,12 @@ def repair_and_sanitize_blueprints(save):
     repaired_count = 0
 
     
-    # 2. Rebuild clean FINISHED entries for each researched piece (levels 1-4 + level 5 CHARGE if evolves)
-    # This completely eliminates any corrupted or duplicate REMODEL entries for pieces already researched!
+    # 2. Rebuild clean FINISHED entries for each researched piece (levels 1-4 + level 5 CHARGE if canonical)
+    # Canonical gear (Tiers 1-4 and standalone gear) gets Level 5 with CHARGE so it's sold in shop with authentic 2D icon.
+    # Uncap gear (_G / _005) gets FINISHED (never CHARGE), preventing missing UPK blank shop cards!
+    uncap_ids = get_authentic_uncap_ptids()
     for ptid in sorted(researched_ptids):
-        has_next = (ptid in next_map)
+        is_uncap = (ptid in uncap_ids) or str(ptid).endswith("_G") or str(ptid).endswith("_005")
         parent = parent_map.get(ptid, "")
         
         repaired_list.append({
@@ -92,7 +112,7 @@ def repair_and_sanitize_blueprints(save):
                 "before_lvl": lvl - 1
             })
             
-        if has_next:
+        if not is_uncap:
             repaired_list.append({
                 "ptid": ptid,
                 "lvl": 5,
@@ -102,6 +122,32 @@ def repair_and_sanitize_blueprints(save):
                 "is_checked": 1,
                 "before_ptid": ptid,
                 "before_lvl": 4
+            })
+        else:
+            existing_lvls = [e.get("lvl", 1) for e in by_ptid.get(ptid, []) if e.get("research_type") == "FINISHED"]
+            max_uncap_lvl = max(existing_lvls, default=20)
+            if max_uncap_lvl < 5 or max_uncap_lvl >= 14:
+                max_uncap_lvl = 20
+            for lvl in range(5, max_uncap_lvl):
+                repaired_list.append({
+                    "ptid": ptid,
+                    "lvl": lvl,
+                    "research_type": "FINISHED",
+                    "receive_type": "FINISHED",
+                    "is_announced": 1,
+                    "is_checked": 1,
+                    "before_ptid": ptid,
+                    "before_lvl": lvl - 1
+                })
+            repaired_list.append({
+                "ptid": ptid,
+                "lvl": max_uncap_lvl,
+                "research_type": "FINISHED",
+                "receive_type": "CHARGE",
+                "is_announced": 1,
+                "is_checked": 3,
+                "before_ptid": ptid,
+                "before_lvl": max_uncap_lvl - 1
             })
         repaired_count += 1
         
@@ -132,6 +178,7 @@ def repair_and_sanitize_blueprints(save):
                     repaired_list.append(e)
                     
     pr_dict["user"] = repaired_list
+    clamp_all_equipment_authentic_levels(save)
     return repaired_count, len(repaired_list)
 
 
@@ -151,6 +198,9 @@ def unlock_blueprints(save, category="all", max_level=4):
         if isinstance(e, dict) and "ptid" in e:
             by_ptid.setdefault(e.get("ptid"), []).append(e)
             
+    next_map, parent_map = get_evolution_mappings()
+    uncap_ids = get_authentic_uncap_ptids()
+
     added = 0
     for bp_id in target_ids:
         if bp_id in DUMMY_OR_CLOSED_PARTS:
@@ -158,18 +208,17 @@ def unlock_blueprints(save, category="all", max_level=4):
         if bp_id not in by_ptid:
             added += 1
         meta = get_equipment_meta(bp_id)
-        can_uncap = meta.get("can_uncap", False)
-        if max_level == 19:
-            target_engine_lvl = 19 if can_uncap else 5
-        elif max_level in (20, 24, 25):
-            target_engine_lvl = 20 if can_uncap else 5
+        is_uncap = (bp_id in uncap_ids) or bp_id.endswith("_G")
+        if max_level in (19, 20, 24, 25):
+            target_engine_lvl = 20 if is_uncap else 5
         elif max_level in (4, 5):
-            target_engine_lvl = 5
+            target_engine_lvl = 1 if is_uncap else 5
         elif max_level in (1, 2, 3):
             target_engine_lvl = max_level + 1
         else:
-            target_engine_lvl = 5
+            target_engine_lvl = 20 if is_uncap else 5
 
+        parent = parent_map.get(bp_id, "")
         bp_entries = [
             {
                 "ptid": bp_id,
@@ -178,8 +227,8 @@ def unlock_blueprints(save, category="all", max_level=4):
                 "receive_type": "FINISHED",
                 "is_announced": 1,
                 "is_checked": 1,
-                "before_ptid": bp_id if lvl > 1 else "",
-                "before_lvl": lvl - 1 if lvl > 1 else 0
+                "before_ptid": parent if lvl == 1 and parent else (bp_id if lvl > 1 else ""),
+                "before_lvl": 5 if lvl == 1 and parent else (lvl - 1 if lvl > 1 else 0)
             }
             for lvl in range(1, target_engine_lvl)
         ]
@@ -191,8 +240,8 @@ def unlock_blueprints(save, category="all", max_level=4):
             "receive_type": "CHARGE",
             "is_announced": 1,
             "is_checked": 3,
-            "before_ptid": bp_id if target_engine_lvl > 1 else "",
-            "before_lvl": target_engine_lvl - 1 if target_engine_lvl > 1 else 0
+            "before_ptid": parent if target_engine_lvl == 1 and parent else (bp_id if target_engine_lvl > 1 else ""),
+            "before_lvl": 5 if target_engine_lvl == 1 and parent else (target_engine_lvl - 1 if target_engine_lvl > 1 else 0)
         })
         by_ptid[bp_id] = bp_entries
         
@@ -200,6 +249,7 @@ def unlock_blueprints(save, category="all", max_level=4):
     for ptid, entries in by_ptid.items():
         if ptid in DUMMY_OR_CLOSED_PARTS:
             continue
+        parent = parent_map.get(ptid, "")
         entries_by_lvl = {e.get("lvl"): e for e in entries}
         max_l = max(entries_by_lvl.keys(), default=1)
         for lvl in range(1, max_l + 1):
@@ -213,8 +263,8 @@ def unlock_blueprints(save, category="all", max_level=4):
                     "receive_type": "FINISHED",
                     "is_announced": 1,
                     "is_checked": 1,
-                    "before_ptid": ptid if lvl > 1 else "",
-                    "before_lvl": lvl - 1 if lvl > 1 else 0
+                    "before_ptid": parent if lvl == 1 and parent else (ptid if lvl > 1 else ""),
+                    "before_lvl": 5 if lvl == 1 and parent else (lvl - 1 if lvl > 1 else 0)
                 })
             
     pr_dict["user"] = clean_list
@@ -231,14 +281,21 @@ def repair_all_storage_equipment(save):
 
 def add_equipment_to_storage(save, ptid, count=1, lvl=5, dur=50000):
     meta = get_equipment_meta(ptid)
-    can_uncap = meta.get("can_uncap", True)
+    uncap_ids = get_authentic_uncap_ptids()
+    is_uncap = (ptid in uncap_ids) or str(ptid).endswith("_G")
     lvl = int(lvl)
-    if lvl in (19, 24):
-        lvl = 20
-    # Intermediate tiers that evolve into next tiers cap at Level 5 (+4)
-    if not can_uncap and lvl > 5:
-        lvl = 5
-    if lvl >= 20 and dur == 50000:
+    if is_uncap:
+        if lvl in (19, 20, 24, 25):
+            lvl = 20  # Authentic uncap cap: displays as +19 (reflvllmt = 20)
+        elif lvl > 5:
+            lvl = max(1, min(lvl, 20))
+        else:
+            lvl = max(1, min(lvl, 20))
+    else:
+        # Standard equipment caps at Level 5 (+4)
+        if lvl > 5:
+            lvl = 5
+    if (is_uncap or lvl >= 5) and dur == 50000:
         dur = 999999
     uid_str = get_player_uid(save)
     try:
@@ -404,19 +461,7 @@ def get_equipment_ancestors(ptid, parent_map=None):
     Example for Katana 3: ['PT_ARM_WP007_001', 'PT_ARM_WP007_003']
     """
     if parent_map is None:
-        db_path = get_masters_db_path()
-        parent_map = {}
-        if os.path.exists(db_path):
-            try:
-                import sqlite3
-                conn = sqlite3.connect(db_path)
-                c = conn.cursor()
-                c.execute("SELECT id, nextptid FROM master_part WHERE nextptid IS NOT NULL AND nextptid != '';")
-                for p, nxt in c.fetchall():
-                    parent_map[nxt] = p
-                conn.close()
-            except Exception:
-                pass
+        _, parent_map = get_evolution_mappings()
                 
     ancestors = []
     curr = ptid
@@ -456,19 +501,19 @@ def get_blueprints_unlock_map(save):
         elif rtype in ("REMODEL", "MAP"):
             special_types[ptid] = (rtype, lvl)
             
+    uncap_ids = get_authentic_uncap_ptids()
     unlock_map = {}
     for ptid, lvl in max_finished_lvl.items():
-        meta = get_equipment_meta(ptid)
-        can_uncap = meta.get("can_uncap", True)
-        max_limit = 20 if can_uncap else 5
+        is_uncap = (ptid in uncap_ids) or str(ptid).endswith("_G")
+        max_limit = 20 if is_uncap else 5
         
         if lvl >= max_limit:
-            if can_uncap:
+            if is_uncap:
                 unlock_map[ptid] = {"status": "STORE_UNCAPPED", "lvl": lvl, "label": f"⭐ Tienda (+{lvl-1} Destope)"}
             else:
                 unlock_map[ptid] = {"status": "STORE_PLUS4", "lvl": lvl, "label": "⭐ Tienda (+4)"}
         else:
-            status_code = "RND_UNCAPPED" if (can_uncap and lvl >= 5) else "FINISHED_LVL"
+            status_code = "RND_UNCAPPED" if (is_uncap and lvl >= 5) else "FINISHED_LVL"
             unlock_map[ptid] = {
                 "status": status_code,
                 "lvl": lvl,
@@ -512,20 +557,8 @@ def send_blueprint_to_rnd(save, ptid, target_level=0, auto_unlock_ancestors=True
             if not has_lvl5:
                 unlock_single_blueprint(save, anc, level=4, unlock_next_tier=False, auto_unlock_ancestors=False)
     
-    parent = ""
-    db_path = get_masters_db_path()
-    if os.path.exists(db_path):
-        try:
-            import sqlite3
-            conn = sqlite3.connect(db_path)
-            c = conn.cursor()
-            c.execute("SELECT id FROM master_part WHERE nextptid = ?;", (ptid,))
-            row = c.fetchone()
-            if row:
-                parent = row[0]
-            conn.close()
-        except Exception:
-            pass
+    _, parent_map = get_evolution_mappings()
+    parent = parent_map.get(ptid, "")
 
     # Remove all existing entries for this ptid
     pr_list[:] = [e for e in pr_list if e.get("ptid") != ptid]
@@ -546,31 +579,37 @@ def send_blueprint_to_rnd(save, ptid, target_level=0, auto_unlock_ancestors=True
     else:
         # Researched up to target_level in shop, next level actively waiting in R&D
         meta = get_equipment_meta(ptid)
-        can_uncap = meta.get("can_uncap", True)
+        uncap_ids = get_authentic_uncap_ptids()
+        is_uncap = (ptid in uncap_ids) or ptid.endswith("_G")
         if target_level in (19, 20, 24, 25):
-            engine_lvl = 19 if can_uncap else 4
+            # Previous tier is +18 (engine level 19), with level 20 (+19) ready in R&D!
+            engine_lvl = 19 if is_uncap else 4
         elif target_level == 4:
-            engine_lvl = 4
-        elif target_level > 5:
-            engine_lvl = min(target_level, 19) if can_uncap else 4
+            engine_lvl = 1 if is_uncap else 4
+        elif target_level > 5 and is_uncap:
+            engine_lvl = max(1, min(target_level, 19))
         else:
-            engine_lvl = target_level
-
-        if not can_uncap and engine_lvl > 5:
-            engine_lvl = 4
+            engine_lvl = min(target_level, 4) if not is_uncap else 19
             
         for l in range(1, engine_lvl + 1):
             is_highest = (l == engine_lvl)
+            rcv_type = "CHARGE" if is_highest else "FINISHED"
             pr_list.append({
                 "ptid": ptid,
                 "lvl": l,
                 "research_type": "FINISHED",
-                "receive_type": "CHARGE" if is_highest else "FINISHED",
+                "receive_type": rcv_type,
                 "is_announced": 1,
                 "is_checked": 1,
                 "before_ptid": (parent if l == 1 and parent else (ptid if l > 1 else "")),
                 "before_lvl": (5 if l == 1 and parent else (l - 1 if l > 1 else 0))
             })
+            
+        if is_uncap and parent:
+            parent_entries = [e for e in pr_list if e.get("ptid") == parent]
+            parent_charge = any(e.get("lvl") == 5 and e.get("receive_type") == "CHARGE" for e in parent_entries)
+            if not parent_charge:
+                unlock_single_blueprint(save, parent, level=4, unlock_next_tier=False, auto_unlock_ancestors=False)
             
     return get_blueprints_unlock_map(save).get(ptid, {})
 
@@ -593,42 +632,31 @@ def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True, auto_unl
     
     meta = get_equipment_meta(ptid)
     can_uncap = meta.get("can_uncap", True)
-    nextptid = meta.get("nextptid", "")
-    parent = ""
-    
-    db_path = get_masters_db_path()
-    if os.path.exists(db_path):
-        try:
-            import sqlite3
-            conn = sqlite3.connect(db_path)
-            c = conn.cursor()
-            c.execute("SELECT id FROM master_part WHERE nextptid = ?;", (ptid,))
-            row = c.fetchone()
-            if row:
-                parent = row[0]
-            conn.close()
-        except Exception:
-            pass
+    next_map, parent_map = get_evolution_mappings()
+    nextptid = next_map.get(ptid) or meta.get("nextptid", "")
+    parent = parent_map.get(ptid, "")
     
     # Resolve target engine level:
     # level=19, 20, 24, 25 -> engine level 20 (+19 Uncapped, reflvllmt=20)
     # level=4, 5 -> engine level 5 (+4, reflvllmt=5)
     # level=1, 2, 3 -> engine level 2, 3, 4
     # level=0 -> engine level 1 (+0)
+    uncap_ids = get_authentic_uncap_ptids()
+    is_uncap = (ptid in uncap_ids) or ptid.endswith("_G")
     level = int(level)
-    if level == 19:
-        target_engine_lvl = 19 if can_uncap else 4
-    elif level in (20, 24, 25):
-        target_engine_lvl = 20 if can_uncap else 5
+    if level in (19, 20, 24, 25):
+        target_engine_lvl = 20 if is_uncap else 5
     elif level in (4, 5):
         target_engine_lvl = 5
     elif 0 < level < 19:
-        target_engine_lvl = min(level + 1, 20 if can_uncap else 5)
-    else:
+        target_engine_lvl = min(level + 1, 20 if is_uncap else 5)
+    elif level == 0:
         target_engine_lvl = 1
+    else:
+        target_engine_lvl = 20 if is_uncap else 5
 
     # If this tier cannot uncap, its maximum research level is 5 (+4)
-    if not can_uncap and target_engine_lvl > 5:
+    if not is_uncap and target_engine_lvl > 5:
         target_engine_lvl = 5
         
     # Remove existing entries for this ptid
@@ -658,6 +686,12 @@ def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True, auto_unl
         "before_lvl": (5 if target_engine_lvl == 1 and parent else (target_engine_lvl - 1 if target_engine_lvl > 1 else 0))
     })
 
+    if is_uncap and parent:
+        parent_entries = [e for e in pr_list if e.get("ptid") == parent]
+        parent_charge = any(e.get("lvl") == 5 and e.get("receive_type") == "CHARGE" for e in parent_entries)
+        if not parent_charge:
+            unlock_single_blueprint(save, parent, level=4, unlock_next_tier=False, auto_unlock_ancestors=False)
+
     # If this tier evolves into a next tier at level 5 (+4), unlock next tier in Chokufunsha R&D (REMODEL)!
     if target_engine_lvl >= 5 and unlock_next_tier and nextptid:
         existing_next = [e for e in pr_list if e.get("ptid") == nextptid]
@@ -678,8 +712,158 @@ def unlock_single_blueprint(save, ptid, level=4, unlock_next_tier=True, auto_unl
 
 
 
-def unlock_all_blueprints(save, level=4):
-    unlock_blueprints(save, category="all", max_level=level)
+def enable_all_shop_tiers(db_path=None, save_path=None):
+    """
+    Enables all equipment tiers (Tier 1, Tier 2, Tier 3, Tier 4, and Uncap) to appear simultaneously
+    in Chokufunsha Shop (Comprar Equipamiento / Atuendos).
+    
+    Why this is required:
+    LET IT DIE's C++ shop logic checks if an item's evolution (nextptid) is researched in partresearch.
+    If nextptid is researched, the engine hides the parent tier to declutter the store.
+    When 'Unlock All' is used, all higher tiers are researched, causing Tier 1-3 to disappear.
+    
+    This modifier backs up nextptid into an authentic hidden column `_orig_nextptid` in master_part,
+    and sets nextptid = ''. This completely disables tier suppression in the game engine with zero side effects,
+    allowing every single tier to be bought directly from Chokufunsha.
+    100% reversible at any time via restore_shop_tier_progression().
+    """
+    target_db = get_masters_db_path(db_path, save_path)
+    if not os.path.exists(target_db):
+        return {"success": False, "reason": f"Database not found at {target_db}"}
+
+    bak_file = target_db + ".original.bak"
+    if not os.path.exists(bak_file):
+        try:
+            shutil.copy2(target_db, bak_file)
+        except Exception:
+            pass
+
+    conn = sqlite3.connect(target_db)
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(master_part)")
+    cols = [c[1] for c in cur.fetchall()]
+    if "_orig_nextptid" not in cols:
+        cur.execute("ALTER TABLE master_part ADD COLUMN _orig_nextptid CHARACTER(64) NULL DEFAULT ''")
+        cur.execute("UPDATE master_part SET _orig_nextptid = nextptid")
+        conn.commit()
+    else:
+        cur.execute("UPDATE master_part SET _orig_nextptid = nextptid WHERE (_orig_nextptid IS NULL OR _orig_nextptid = '') AND nextptid != ''")
+        conn.commit()
+
+    cur.execute("SELECT count(*) FROM master_part WHERE nextptid != ''")
+    mod_count = cur.fetchone()[0]
+
+    cur.execute("UPDATE master_part SET nextptid = '' WHERE nextptid != ''")
+    conn.commit()
+    conn.close()
+
+    # Also apply to local masters.db if exists and different
+    local_db = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "masters.db")
+    if os.path.exists(local_db) and os.path.abspath(local_db).lower() != os.path.abspath(target_db).lower():
+        try:
+            conn_loc = sqlite3.connect(local_db)
+            cur_loc = conn_loc.cursor()
+            cur_loc.execute("PRAGMA table_info(master_part)")
+            loc_cols = [c[1] for c in cur_loc.fetchall()]
+            if "_orig_nextptid" not in loc_cols:
+                cur_loc.execute("ALTER TABLE master_part ADD COLUMN _orig_nextptid CHARACTER(64) NULL DEFAULT ''")
+                cur_loc.execute("UPDATE master_part SET _orig_nextptid = nextptid")
+                conn_loc.commit()
+            else:
+                cur_loc.execute("UPDATE master_part SET _orig_nextptid = nextptid WHERE (_orig_nextptid IS NULL OR _orig_nextptid = '') AND nextptid != ''")
+                conn_loc.commit()
+            cur_loc.execute("UPDATE master_part SET nextptid = '' WHERE nextptid != ''")
+            conn_loc.commit()
+            conn_loc.close()
+        except Exception:
+            pass
+
+    return {
+        "success": True,
+        "modified_count": mod_count,
+        "db_path": target_db
+    }
+
+def restore_shop_tier_progression(db_path=None, save_path=None):
+    """
+    Restores default LET IT DIE tier progression in Chokufunsha Shop.
+    Copies authentic values from _orig_nextptid back to nextptid.
+    """
+    target_db = get_masters_db_path(db_path, save_path)
+    if not os.path.exists(target_db):
+        return {"success": False, "reason": f"Database not found at {target_db}"}
+
+    restored_count = 0
+    conn = sqlite3.connect(target_db)
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(master_part)")
+    cols = [c[1] for c in cur.fetchall()]
+    if "_orig_nextptid" in cols:
+        cur.execute("UPDATE master_part SET nextptid = _orig_nextptid WHERE _orig_nextptid IS NOT NULL AND _orig_nextptid != ''")
+        restored_count = cur.rowcount
+        conn.commit()
+    conn.close()
+
+    # Also apply to local masters.db if exists and different
+    local_db = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "masters.db")
+    if os.path.exists(local_db) and os.path.abspath(local_db).lower() != os.path.abspath(target_db).lower():
+        try:
+            conn_loc = sqlite3.connect(local_db)
+            cur_loc = conn_loc.cursor()
+            cur_loc.execute("PRAGMA table_info(master_part)")
+            loc_cols = [c[1] for c in cur_loc.fetchall()]
+            if "_orig_nextptid" in loc_cols:
+                cur_loc.execute("UPDATE master_part SET nextptid = _orig_nextptid WHERE _orig_nextptid IS NOT NULL AND _orig_nextptid != ''")
+                conn_loc.commit()
+            conn_loc.close()
+        except Exception:
+            pass
+
+    return {
+        "success": True,
+        "restored_count": restored_count,
+        "db_path": target_db
+    }
+
+def get_shop_tier_mod_status(db_path=None, save_path=None):
+    """
+    Checks if all shop tiers are currently unlocked in masters.db.
+    """
+    target_db = get_masters_db_path(db_path, save_path)
+    if not os.path.exists(target_db):
+        return {"active": False, "db_path": target_db, "available": False, "reason": "Database file not found"}
+    try:
+        conn = sqlite3.connect(target_db)
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(master_part)")
+        cols = [c[1] for c in cur.fetchall()]
+        if "_orig_nextptid" not in cols:
+            conn.close()
+            return {"active": False, "db_path": target_db, "available": True, "modified_count": 0}
+        
+        cur.execute("SELECT count(*) FROM master_part WHERE _orig_nextptid IS NOT NULL AND _orig_nextptid != '' AND (nextptid IS NULL OR nextptid = '')")
+        active_count = cur.fetchone()[0]
+        cur.execute("SELECT count(*) FROM master_part WHERE _orig_nextptid IS NOT NULL AND _orig_nextptid != ''")
+        total_tiers = cur.fetchone()[0]
+        conn.close()
+        return {
+            "active": active_count > 0,
+            "db_path": target_db,
+            "available": True,
+            "modified_count": active_count,
+            "total_tiers": total_tiers
+        }
+    except Exception as e:
+        return {"active": False, "db_path": target_db, "available": False, "reason": str(e)}
+
+def unlock_all_blueprints(save, level=4, enable_shop_tiers=True):
+    total, added = unlock_blueprints(save, category="all", max_level=level)
+    if enable_shop_tiers:
+        try:
+            enable_all_shop_tiers()
+        except Exception:
+            pass
+    return total, added
 
 def repair_unlocked_blueprints_states(save):
     rep_cnt, _ = repair_and_sanitize_blueprints(save)
@@ -696,9 +880,10 @@ def get_bag_equipment_counts(save):
     _, bg = get_equipment_inventory_counts(save)
     return bg
 
-def set_infinite_durability_all_equipment(save, target_dur=999999):
+def set_infinite_durability_all_equipment(save, target_dur=50000):
     """
-    Sets extreme durability on all equipment stored in Coin Locker and fighters' bags.
+    Sets 100% authentic durability on all equipment stored in Coin Locker and fighters' bags.
+    Defaults to authentic 50,000 durability (full durability for max uncapped gear).
     """
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
     pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
@@ -723,10 +908,13 @@ def set_infinite_durability_all_equipment(save, target_dur=999999):
                         
     return modified_count
 
-def set_massive_ammo_all_weapons(save, ammo=9999):
+def set_massive_ammo_all_weapons(save, ammo=None):
     """
-    Sets magazine capacity (rest) and spare reserve ammo (spare) on all ranged weapons.
+    Refills authentic magazine capacity (rest) and spare reserve ammo (spare)
+    on all genuine ranged firearms and launchers.
+    Strictly purges erroneous ammo counts from melee weapons and armor.
     """
+    firearms_cap = get_firearms_capacity()
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
     pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
     
@@ -736,21 +924,48 @@ def set_massive_ammo_all_weapons(save, ammo=9999):
             for p in pts_list:
                 if isinstance(p, dict):
                     ptid = str(p.get("ptid", ""))
-                    # Any weapon (PT_ARM_) gets massive capacity and reserve ammo
-                    if ptid.startswith("PT_ARM_") or "rest" in p or "spare" in p:
-                        p["rest"] = int(ammo)
-                        p["spare"] = int(ammo)
+                    if ptid in firearms_cap:
+                        cap, spr = firearms_cap[ptid]
+                        p["rest"] = int(ammo) if ammo is not None else cap
+                        p["spare"] = int(ammo) if ammo is not None else spr
                         modified_count += 1
+                    else:
+                        # Clean up stray ammo on melee weapons or armor pieces
+                        if "rest" in p and p["rest"] > 0:
+                            p["rest"] = 0
+                        if "spare" in p and p["spare"] > 0:
+                            p["spare"] = 0
+
+    # Also update any firearms in fighters' deathbags
+    deathbags = save.get("soul", {}).get("deathbag", {})
+    if isinstance(deathbags, dict):
+        for bag_items in deathbags.values():
+            if isinstance(bag_items, list):
+                for b_item in bag_items:
+                    if isinstance(b_item, dict):
+                        b_ptid = str(b_item.get("ptid", ""))
+                        if b_ptid in firearms_cap:
+                            cap, spr = firearms_cap[b_ptid]
+                            b_item["rest"] = int(ammo) if ammo is not None else cap
+                            b_item["spare"] = int(ammo) if ammo is not None else spr
+                            modified_count += 1
+                        else:
+                            if "rest" in b_item and b_item["rest"] > 0:
+                                b_item["rest"] = 0
+                            if "spare" in b_item and b_item["spare"] > 0:
+                                b_item["spare"] = 0
+
     return modified_count
 
 def upgrade_all_equipment_max_level(save, target_lvl=19):
     """
     Upgrades all equipment in storage, fighter inventories, and Chokufunsha Shop.
-    Final tier items (can_uncap) are upgraded to target_lvl (e.g. 20 for +19, 25 for +24).
+    Final tier items (can_uncap) are upgraded to target_lvl (e.g. 20 for authentic +19 max).
     Intermediate tier items (Tier 1/2/3 that evolve at +4) are safely capped at Level 5 (+4).
     """
     target_lvl = int(target_lvl)
-    uncap_internal = 20 if target_lvl in (19, 20, 24, 25) else target_lvl
+    uncap_ids = get_authentic_uncap_ptids()
+    uncap_internal = 20 if target_lvl in (19, 20, 24, 25) else 15
     
     pts_dict = save.setdefault("part", {}).setdefault("pts", {})
     pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
@@ -761,12 +976,11 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
             for p in pts_list:
                 if isinstance(p, dict):
                     ptid = str(p.get("ptid", ""))
-                    meta = get_equipment_meta(ptid)
-                    can_uncap = meta.get("can_uncap", True)
-                    target_p_lvl = uncap_internal if can_uncap else min(5, uncap_internal)
+                    is_uncap = (ptid in uncap_ids) or ptid.endswith("_G")
+                    target_p_lvl = uncap_internal if is_uncap else min(5, target_lvl)
                     p["lvl"] = target_p_lvl
-                    if target_p_lvl >= 20:
-                        p["dur"] = max(p.get("dur", 50000), 999999)
+                    if target_p_lvl >= 15:
+                        p["dur"] = max(p.get("dur", 50000), 50000)
                     modified_count += 1
 
     # Also update any equipment in fighters' deathbags
@@ -777,12 +991,11 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
                 for b_item in bag_items:
                     if isinstance(b_item, dict) and "lvl" in b_item:
                         ptid = str(b_item.get("ptid", ""))
-                        meta = get_equipment_meta(ptid)
-                        can_uncap = meta.get("can_uncap", True)
-                        target_b_lvl = uncap_internal if can_uncap else min(5, uncap_internal)
+                        is_uncap = (ptid in uncap_ids) or ptid.endswith("_G")
+                        target_b_lvl = uncap_internal if is_uncap else min(5, target_lvl)
                         b_item["lvl"] = target_b_lvl
-                        if target_b_lvl >= 20:
-                            b_item["dur"] = max(b_item.get("dur", 50000), 999999)
+                        if target_b_lvl >= 15:
+                            b_item["dur"] = max(b_item.get("dur", 50000), 50000)
                         modified_count += 1
 
     # Upgrade and send all uncapped blueprints in Chokufunsha to R&D (or Shop Max)
@@ -791,31 +1004,18 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
     pr_list = pr_dict.setdefault("user", [])
     
     # Pre-cache parent map from database for fast ancestor resolution
-    parent_map = {}
-    db_path = get_masters_db_path()
-    if os.path.exists(db_path):
-        try:
-            import sqlite3
-            conn = sqlite3.connect(db_path)
-            cur = conn.cursor()
-            cur.execute("SELECT id, nextptid FROM master_part WHERE nextptid != '';")
-            for p, nxt in cur.fetchall():
-                if nxt:
-                    parent_map[nxt] = p
-            conn.close()
-        except Exception:
-            pass
+    _, parent_map = get_evolution_mappings()
 
     eq = load_all_equipment()
     all_ptids = eq.get("all", [])
-    uncapped_targets = [p for p in all_ptids if p not in DUMMY_OR_CLOSED_PARTS and get_equipment_meta(p).get("can_uncap")]
+    uncapped_targets = [p for p in all_ptids if p not in DUMMY_OR_CLOSED_PARTS and ((p in uncap_ids) or p.endswith("_G"))]
 
     # Also include any existing ptids in pr_list that have CHARGE
     for e in pr_list:
         if isinstance(e, dict) and e.get("receive_type") == "CHARGE":
             p = e.get("ptid")
             if p and p not in uncapped_targets and p not in DUMMY_OR_CLOSED_PARTS:
-                if get_equipment_meta(p).get("can_uncap"):
+                if (p in uncap_ids) or str(p).endswith("_G"):
                     uncapped_targets.append(p)
 
     for ptid in uncapped_targets:
@@ -826,8 +1026,8 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
             if not has_lvl5:
                 unlock_single_blueprint(save, anc, level=4, unlock_next_tier=False, auto_unlock_ancestors=False)
 
-        # For target_lvl=19: sets shop to +18 (de fabrica max) and R&D ready for +19!
-        # For target_lvl in (20, 24): sets shop to +19 fully finished!
+        # For target_lvl=19: sets shop to +18 (level 19) and R&D ready for +19!
+        # For target_lvl in (20, 24, 25): sets shop to +19 (level 20) fully finished!
         if target_lvl == 19:
             send_blueprint_to_rnd(save, ptid, target_level=19, auto_unlock_ancestors=False)
         else:
@@ -835,9 +1035,111 @@ def upgrade_all_equipment_max_level(save, target_lvl=19):
                         
     return modified_count
 
+
+def clamp_all_equipment_authentic_levels(save):
+    """
+    Audits and clamps all equipment in the save file to authentic game engine caps:
+    - Uncapped pieces (is_limitbreak == 5 / _G): max research/storage level 20 (reflvllmt = 20, displays as +19 / +24).
+    - Standard pieces (is_limitbreak == 0): max research/storage level 5 (displays as +4).
+    Returns (clamped_blueprints, clamped_storage).
+    """
+    uncap_ids = get_authentic_uncap_ptids()
+    
+    # 1. Clamp research levels in partresearch.user
+    soul = save.setdefault("soul", {})
+    pr_dict = soul.setdefault("partresearch", {})
+    pr_list = pr_dict.setdefault("user", [])
+    
+    by_ptid = {}
+    for e in pr_list:
+        if isinstance(e, dict) and "ptid" in e:
+            by_ptid.setdefault(e.get("ptid"), []).append(e)
+            
+    _, parent_map = get_evolution_mappings()
+    clamped_bp = 0
+    clean_pr_list = []
+    
+    for ptid, entries in by_ptid.items():
+        if ptid in DUMMY_OR_CLOSED_PARTS:
+            continue
+        is_uncap = (ptid in uncap_ids) or str(ptid).endswith("_G") or str(ptid).endswith("_005")
+        max_allowed = 20 if is_uncap else 5
+        parent = parent_map.get(ptid, "")
+        
+        entries_by_lvl = {e.get("lvl"): e for e in entries if isinstance(e.get("lvl"), int)}
+        cur_max = max(entries_by_lvl.keys(), default=1)
+        
+        if cur_max > max_allowed:
+            clamped_bp += 1
+            cur_max = max_allowed
+            
+        for lvl in range(1, cur_max + 1):
+            if lvl == cur_max:
+                clean_pr_list.append({
+                    "ptid": ptid,
+                    "lvl": lvl,
+                    "research_type": "FINISHED",
+                    "receive_type": "CHARGE",
+                    "is_announced": 1,
+                    "is_checked": 3,
+                    "before_ptid": parent if lvl == 1 and parent else (ptid if lvl > 1 else ""),
+                    "before_lvl": 5 if lvl == 1 and parent else (lvl - 1 if lvl > 1 else 0)
+                })
+            else:
+                existing = entries_by_lvl.get(lvl)
+                if existing and existing.get("research_type") == "FINISHED":
+                    existing["receive_type"] = "FINISHED"
+                    existing["is_checked"] = 1
+                    clean_pr_list.append(existing)
+                else:
+                    clean_pr_list.append({
+                        "ptid": ptid,
+                        "lvl": lvl,
+                        "research_type": "FINISHED",
+                        "receive_type": "FINISHED",
+                        "is_announced": 1,
+                        "is_checked": 1,
+                        "before_ptid": parent if lvl == 1 and parent else (ptid if lvl > 1 else ""),
+                        "before_lvl": 5 if lvl == 1 and parent else (lvl - 1 if lvl > 1 else 0)
+                    })
+                    
+    pr_dict["user"] = clean_pr_list
+    
+    # 2. Clamp storage items in part.pts
+    clamped_storage = 0
+    pts_dict = save.setdefault("part", {}).setdefault("pts", {})
+    pts_lists = list(pts_dict.values()) if isinstance(pts_dict, dict) else [pts_dict]
+    for pts_list in pts_lists:
+        if isinstance(pts_list, list):
+            for p in pts_list:
+                if isinstance(p, dict) and "ptid" in p and "lvl" in p:
+                    p_id = str(p.get("ptid", ""))
+                    is_uncap = (p_id in uncap_ids) or p_id.endswith("_G")
+                    max_allowed = 20 if is_uncap else 5
+                    if p.get("lvl", 1) > max_allowed:
+                        p["lvl"] = max_allowed
+                        clamped_storage += 1
+                        
+    # 3. Clamp deathbag items on all fighters
+    deathbags = save.get("soul", {}).get("deathbag", {})
+    if isinstance(deathbags, dict):
+        for bag_items in deathbags.values():
+            if isinstance(bag_items, list):
+                for b_item in bag_items:
+                    if isinstance(b_item, dict) and "ptid" in b_item and "lvl" in b_item:
+                        b_id = str(b_item.get("ptid", ""))
+                        is_uncap = (b_id in uncap_ids) or b_id.endswith("_G")
+                        max_allowed = 20 if is_uncap else 5
+                        if b_item.get("lvl", 1) > max_allowed:
+                            b_item["lvl"] = max_allowed
+                            clamped_storage += 1
+
+    return clamped_bp, clamped_storage
+
+
 # ================= META DECAL PRESETS FOR FIGHTERS =================
 
-def inject_endgame_set(save, set_key="white_steel", count=1, dur=999999, lvl=5):
+def inject_endgame_set(save, set_key="white_steel", count=1, dur=50000, lvl=20):
     if set_key not in ENDGAME_SETS:
         set_key = "white_steel"
     set_info = ENDGAME_SETS[set_key]
@@ -845,7 +1147,7 @@ def inject_endgame_set(save, set_key="white_steel", count=1, dur=999999, lvl=5):
     for ptid, name, def_lvl in set_info["parts"]:
         target_lvl = lvl if lvl else def_lvl
         add_equipment_to_storage(save, ptid, count=count, lvl=target_lvl, dur=dur)
-        unlock_single_blueprint(save, ptid, level=min(4, target_lvl))
+        unlock_single_blueprint(save, ptid, level=min(20, target_lvl))
         added += count
     return set_info["name"], added
 

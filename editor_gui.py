@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-LET IT DIE (Offline) - Deep Save Editor Pro v3.5 (Master Cyberpunk Encyclopedia Edition)
+LET IT DIE (Offline) - Deep Save Editor Pro v4.0.0 (Master Cyberpunk Encyclopedia Edition)
 Complete Visual Redesign matching ArmorSetViewerDialog quality standard across all tabs.
 Modular architecture with tab mixins in ui/tabs.
 """
@@ -51,6 +51,7 @@ from ui.dialogs import (
     ArmorSetViewerDialog,
     CreateFighterDialog
 )
+from ui.components import setup_mousewheel_dispatcher
 from game_data import SPECIAL_MUSHROOMS, SPECIAL_BEASTS, WEAPON_CATEGORIES, FIGHTER_CLASSES
 
 # Tab Mixins
@@ -81,7 +82,7 @@ class CompleteSaveEditorGUI(
 
     def __init__(self):
         super().__init__()
-        self.title("LET IT DIE (Offline) - Deep Save Editor Pro v3.5 (Master Cyberpunk Edition)")
+        self.title("LET IT DIE (Offline) - Deep Save Editor Pro v4.0.0 (Master Cyberpunk Edition)")
         self.geometry("1240x820")
         self.minsize(1040, 700)
         self.configure(bg=BG_DARK)
@@ -117,6 +118,7 @@ class CompleteSaveEditorGUI(
         self.current_mat_selection = None
         
         self._build_ui()
+        setup_mousewheel_dispatcher(self)
         
         # Check for GitHub updates in the background (starts 1.5s after launch)
         self.after(1500, lambda: updater.check_updates_background(self, silent=True))
@@ -436,9 +438,9 @@ class CompleteSaveEditorGUI(
         self.hud_bp_lbl = tk.Label(curr_subframe, text="📋 0/1370 (0%)", font=("Segoe UI", 9, "bold"), fg=ACCENT_GOLD, bg=BG_CARD, compound="left", image=self.get_photo("blueprint", (20, 20)) or "")
         self.hud_bp_lbl.pack(side="left", padx=8)
 
-        # 3. Main Notebook (Tabs)
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True, padx=10, pady=4)
+        self.notebook.bind("<<NotebookTabChanged>>", self._on_notebook_tab_changed)
         
         # TAB 1: CURRENCIES
         self.tab_currencies = ttk.Frame(self.notebook, padding=12)
@@ -506,6 +508,10 @@ class CompleteSaveEditorGUI(
 
     def _check_app_updates(self):
         updater.check_updates_background(self, silent=False)
+
+    def _on_notebook_tab_changed(self, event=None):
+        # Notebook tab changed - mousewheel routing is handled cleanly by the global dispatcher
+        pass
 
     # ================= LANGUAGE HANDLING =================
     def _on_language_changed(self, event=None):
@@ -600,6 +606,12 @@ class CompleteSaveEditorGUI(
             self.save_json = data
             self.version = ver
             self.save_path = path
+
+            # Auto-sanitize currencies and facilities against C++ out-of-bounds corruption (> level 99)
+            repaired_curr, fixes_curr = modifiers.repair_and_sanitize_currencies(self.save_json)
+            if repaired_curr:
+                print(f"[Auto-Repair] Currencies sanitized: {fixes_curr}")
+
             self.refresh_all_views()
             self.status_var.set(f"Save loaded: {os.path.basename(path)}" if i18n.get_language() == "en" else f"Partida cargada con éxito: {os.path.basename(path)}")
         except Exception as e:
@@ -700,7 +712,11 @@ class CompleteSaveEditorGUI(
             
             cls_code = f.get("class", "BAL")
             cls_icon_filename = FIGHTER_CLASSES.get(cls_code, ("", "all-rounder.png"))[1]
-            thumb = self.get_photo(cls_icon_filename, (36, 36), preserve_aspect=True) or self.get_photo("all-rounder", (36, 36), preserve_aspect=True)
+            body_val = f.get("body", "BODY_FEMALE_001")
+            model_art = f"all_official/{body_val.lower()}.png"
+            thumb = self.get_photo(model_art, (32, 36), preserve_aspect=True) or \
+                    self.get_photo(cls_icon_filename, (36, 36), preserve_aspect=True) or \
+                    self.get_photo("all-rounder", (36, 36), preserve_aspect=True)
             node_id = self.fighters_tree.insert("", "end", text=f" {name} ({cls_name})", image=thumb or "", values=(slot_num, lvl_str, state))
             self.tree_images[node_id] = thumb
             self._tree_node_to_save_idx[node_id] = idx
@@ -737,9 +753,9 @@ class CompleteSaveEditorGUI(
         # Storage Capacity gauge in Materials tab
         if hasattr(self, "mat_cap_indicator_lbl"):
             st_info = modifiers.analyze_storage_stock(self.save_json)
-            cap = st_info.get("capacity", 2000)
-            used = st_info.get("total_items", 0)
-            self.mat_cap_indicator_lbl.config(text=t("mat_locker_status", used=used, cap=cap, free=cap - used))
+            cap = st_info.get("total_slots", st_info.get("capacity", 2000))
+            used = st_info.get("used_slots", st_info.get("total_items", 0))
+            self.mat_cap_indicator_lbl.config(text=t("mat_locker_status", used=used, cap=cap, free=max(0, cap - used)))
 
     def create_manual_backup(self):
         if not self.save_path or not os.path.exists(self.save_path):

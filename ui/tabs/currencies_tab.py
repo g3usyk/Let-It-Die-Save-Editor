@@ -61,7 +61,7 @@ class CurrenciesTabMixin:
             r = ttk.Frame(box_wr)
             r.pack(fill="x", pady=4)
             ttk.Label(r, text=lbl_t, font=("Segoe UI", 9)).pack(side="left")
-            v = tk.StringVar(value="100")
+            v = tk.StringVar(value="99" if var_n != "rank_var" else "100")
             setattr(self, var_n, v)
             ttk.Entry(r, textvariable=v, width=8, justify="center").pack(side="right")
             
@@ -143,11 +143,11 @@ class CurrenciesTabMixin:
         if not self.save_json:
             return
         try:
-            b_lvl = max(1, min(int(self.safe_lvl_var.get().strip() or 1), 100))
-            t_lvl = max(1, min(int(self.tank_lvl_var.get().strip() or 1), 100))
+            b_lvl = max(1, min(int(self.safe_lvl_var.get().strip() or 1), 99))
+            t_lvl = max(1, min(int(self.tank_lvl_var.get().strip() or 1), 99))
             p_rnk = max(1, min(int(self.rank_var.get().strip() or 1), 130))
         except ValueError:
-            b_lvl, t_lvl, p_rnk = 100, 100, 100
+            b_lvl, t_lvl, p_rnk = 99, 99, 100
             
         self.safe_lvl_var.set(str(b_lvl))
         self.tank_lvl_var.set(str(t_lvl))
@@ -165,19 +165,19 @@ class CurrenciesTabMixin:
         )
 
     def _max_waiting_room_facilities(self):
-        self.safe_lvl_var.set("100")
-        self.tank_lvl_var.set("100")
+        self.safe_lvl_var.set("99")
+        self.tank_lvl_var.set("99")
         self.rank_var.set("100")
         if self.save_json:
-            modifiers.upgrade_waiting_room(self.save_json, bank_level=100, tank_level=100)
+            modifiers.upgrade_waiting_room(self.save_json, bank_level=99, tank_level=99)
             modifiers.set_player_rank(self.save_json, rank=100)
             pts = modifiers.get_rank_points_for_rank(100)
             self._auto_save()
             self.refresh_all_views()
             self._notify(
                 "Facilities Maximized", "Instalaciones Maximizadas",
-                f"KC Bank and SPL Tank upgraded to Max Level 100!\nPlayer Rank set to 100 ({pts:,} points synchronized)!",
-                f"¡Banco de KC y Tanque de SPL mejorados al Nivel Máximo 100!\n¡Rango de Jugador establecido a 100 ({pts:,} puntos sincronizados)!"
+                f"KC Bank and SPL Tank upgraded to Max Level 99 (2,560,000 Cap)!\nPlayer Rank set to 100 ({pts:,} points synchronized)!",
+                f"¡Banco de KC y Tanque de SPL mejorados al Nivel Máximo 99 (2,560,000 Cap)!\n¡Rango de Jugador establecido a 100 ({pts:,} puntos sincronizados)!"
             )
 
     def _max_login_streak_action(self):
@@ -233,6 +233,6 @@ class CurrenciesTabMixin:
         self.refresh_all_views()
         self._notify(
             "Currencies Maximized", "Divisas Maximizadas",
-            "Death Metals (99,999), Kill Coins, SPLithium, Bloodnium, and RE Points maxed out!",
-            "¡Se han establecido Death Metals (99,999), Kill Coins, SPLithium, Sangrenio y Puntos RE al límite máximo!"
+            "Death Metals (9,999), Kill Coins (2.56M), SPLithium (2.56M), Bloodnium, and RE Points maxed to Level 99 official cap!",
+            "¡Se han establecido Death Metals (9,999), Kill Coins (2.56M), SPLithium (2.56M), Sangrenio y Puntos RE al tope oficial de Nivel 99!"
         )

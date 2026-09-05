@@ -108,10 +108,30 @@ class TestFighters(unittest.TestCase):
         f = self.save["bodyuser"]["443455"][0]
         self.assertEqual(c["grade"], 6)
         self.assertEqual(c["limit_break"], 4)
-        self.assertEqual(f["skill"], 3)
-        self.assertEqual(f["rage"], 1)
+        self.assertEqual(f["skill"], 0)
+        self.assertEqual(f["bag"], 0)
+        self.assertEqual(f["rage"], 0)
         self.assertEqual(f["hp_bonus"], 20)
         self.assertEqual(f["str_bonus"], 20)
+        self.assertEqual(c["hp"], 26670)
+
+    def test_sanitize_fighters_repairs_rage_and_mingo_desync(self):
+        f = self.save["bodyuser"]["443455"][0]
+        c = self.save["soul"]["chr"]["chrs"]["443455"][0]
+        f["rage"] = 1
+        f["skill"] = 3
+        f["bag"] = 3
+        c["grade"] = 6
+        c["limit_break"] = 4
+        c["type"] = "COL"
+        c["hp"] = 20000
+
+        modifiers.sanitize_fighters(self.save)
+
+        self.assertEqual(f["rage"], 0)
+        self.assertEqual(f["skill"], 0)
+        self.assertEqual(f["bag"], 0)
+        self.assertEqual(c["hp"], 32600)
 
     def test_update_fighter_character_model(self):
         # Update character model to Female 3

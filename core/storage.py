@@ -363,6 +363,8 @@ def analyze_storage_stock(save):
         "total_slots": total_slots,
         "used_slots": used_slots,
         "free_slots": free_slots,
+        "capacity": total_slots,
+        "total_items": used_slots,
         "stock_by_id": stock_by_id
     }
 
@@ -428,6 +430,8 @@ def smart_top_up_materials(save, target_qty=10, materials_list=None):
         for b in ["IRON", "COPPER", "ALUMI", "OIL", "WOOD", "FIBER"]:
             for t in range(1, 6):
                 materials_list.append(f"ITMT_{b}_{t}")
+        for s in range(1, 7):
+            materials_list.append(f"ITMT_STEROID_{s}")
                 
     added_types = 0
     total_units = 0
@@ -568,4 +572,33 @@ def instant_open_deathboxes(save):
                 b["opentime"] = now - 10
                 count += 1
     return count
+
+def ensure_death_roids(save, count_each=50):
+    """
+    Guarantees that the player's Coin Locker has an ample stockpile of Death 'Roids
+    (ITMT_STEROID_1 through 6), expanding Coin Locker capacity to 1500 if necessary.
+    This completely prevents Mingo Head crashes (Array.h:635 assertion) when
+    players uncap stats, decal slots, deathbag slots, or rage.
+    """
+    soul = save.setdefault("soul", {})
+    cl = soul.setdefault("cl", [])
+    if len(cl) < 1000:
+        expand_storage_capacity(save, 1500)
+        
+    items_list = save.setdefault("item", {}).setdefault("items", [])
+    from collections import Counter
+    existing_counts = Counter(it.get("itemid") for it in items_list if isinstance(it, dict) and it.get("owner") == "COIN_LOCKER")
+    
+    added_any = False
+    for s in range(1, 7):
+        st_id = f"ITMT_STEROID_{s}"
+        deficit = max(0, count_each - existing_counts.get(st_id, 0))
+        if deficit > 0:
+            add_materials_to_storage(save, st_id, count=deficit)
+            added_any = True
+            
+    if added_any:
+        sync_storage_slots(save)
+    return True
+
 

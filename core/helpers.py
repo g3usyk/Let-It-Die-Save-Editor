@@ -94,6 +94,27 @@ def repair_save_list_structures(save, uid=None):
     if isinstance(vip, dict) and vip.get("friendship", 0) > 1:
         vip["friendship"] = 1
 
+    # Auto-repair weapon mastery corruption: ensure expert entries are authentic and ABP is valid
+    try:
+        from core.mastery import repair_and_sanitize_mastery
+        repair_and_sanitize_mastery(save)
+    except Exception:
+        pass
+
+    # Auto-repair fighters corruption: ensure rage/skill/bag are 0 and HP is authentic
+    try:
+        from core.fighters import sanitize_fighters
+        sanitize_fighters(save)
+    except Exception:
+        pass
+
+    # Auto-repair Tokyo Death Metro corruption: season reset loop & invasion matchmaking hang
+    try:
+        from core.tdm import repair_and_sanitize_tdm
+        repair_and_sanitize_tdm(save)
+    except Exception:
+        pass
+
 def get_equipment_meta(ptid):
     global _EQUIPMENT_META_CACHE
     if _EQUIPMENT_META_CACHE is None:
@@ -115,6 +136,77 @@ def get_equipment_meta(ptid):
                 except Exception:
                     pass
     return _EQUIPMENT_META_CACHE.get(ptid, {})
+
+_AUTHENTIC_UNCAP_CACHE = None
+
+def get_authentic_uncap_ptids(db_path=None):
+    """
+    Returns a set of all equipment ptids that authentically uncap in LET IT DIE.
+    In the game engine (master_part), uncap items have is_limitbreak == 5,
+    reflvllmt == 20, or end with '_G'.
+    For these pieces, in-game displayed level is: 4 + research_level.
+    Hence, engine level 15 displays as +19 (authentic uncap cap), and engine level 20 displays as +24.
+    """
+    global _AUTHENTIC_UNCAP_CACHE
+    if _AUTHENTIC_UNCAP_CACHE is not None and db_path is None:
+        return _AUTHENTIC_UNCAP_CACHE
+
+    uncap_set = set()
+    target_db = get_masters_db_path(db_path)
+    if os.path.exists(target_db):
+        try:
+            conn = sqlite3.connect(target_db)
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM master_part WHERE is_limitbreak = 5 OR reflvllmt = 20 OR id LIKE '%_G'")
+            for r in cur.fetchall():
+                if r[0]:
+                    uncap_set.add(r[0])
+            conn.close()
+        except Exception:
+            pass
+
+    # Fallback from encyclopedia if database cannot be reached
+    if not uncap_set:
+        global _EQUIPMENT_META_CACHE
+        if _EQUIPMENT_META_CACHE is None:
+            get_equipment_meta("")
+        if _EQUIPMENT_META_CACHE:
+            for pid, meta in _EQUIPMENT_META_CACHE.items():
+                if pid.endswith("_G"):
+                    uncap_set.add(pid)
+
+    if db_path is None and uncap_set:
+        _AUTHENTIC_UNCAP_CACHE = uncap_set
+    return uncap_set
+
+_FIREARMS_CAPACITY_CACHE = None
+
+def get_firearms_capacity(db_path=None):
+    """
+    Returns a dict of {ptid: (capacity, spare)} for all authentic ranged firearms,
+    launchers, and bows in LET IT DIE from master_part.
+    """
+    global _FIREARMS_CAPACITY_CACHE
+    if _FIREARMS_CAPACITY_CACHE is not None and db_path is None:
+        return _FIREARMS_CAPACITY_CACHE
+
+    firearms_dict = {}
+    target_db = get_masters_db_path(db_path)
+    if os.path.exists(target_db):
+        try:
+            conn = sqlite3.connect(target_db)
+            cur = conn.cursor()
+            cur.execute("SELECT id, capacity, spare FROM master_part WHERE id LIKE 'PT_ARM_%' AND capacity > 0")
+            for r in cur.fetchall():
+                if r[0]:
+                    firearms_dict[r[0]] = (int(r[1] or 0), int(r[2] or 0))
+            conn.close()
+        except Exception:
+            pass
+
+    if db_path is None and firearms_dict:
+        _FIREARMS_CAPACITY_CACHE = firearms_dict
+    return firearms_dict
 
 def get_tower_map_data():
     global _TOWER_MAP_DATA_CACHE
@@ -185,6 +277,9 @@ def get_masters_db_path(custom_path=None, save_path=None):
                 return candidate
     except Exception:
         pass
+    local_db = os.path.join(PROJECT_ROOT, "masters.db")
+    if _is_valid_db(local_db):
+        return local_db
     local_bak = os.path.join(PROJECT_ROOT, "masters.db.original.bak")
     if _is_valid_db(local_bak):
         return local_bak

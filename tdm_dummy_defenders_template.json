@@ -1,0 +1,1936 @@
+{
+  "user": [
+    {
+      "edid": "8fd960cb-4da2-4f1c-b7e7-3e0a82856f69",
+      "did": "DUMMY_HVN_02_28",
+      "name": "Dominic",
+      "money": 278408,
+      "spirit": 254796,
+      "created": 1788606503,
+      "tid": 15,
+      "uid": -1,
+      "rank": 84,
+      "tdm_point": 84
+    },
+    {
+      "edid": "f4587893-e3f8-4e1d-935e-16491af63a3d",
+      "did": "DUMMY_HVN_02_14",
+      "name": "Taboo",
+      "money": 259435,
+      "spirit": 262502,
+      "created": 1788606503,
+      "tid": 121,
+      "uid": -2,
+      "rank": 80,
+      "tdm_point": 90
+    },
+    {
+      "edid": "3817c859-7733-4721-afdc-79045d0d34ea",
+      "did": "DUMMY_HVN_02_1",
+      "name": "Terror",
+      "money": 262616,
+      "spirit": 276313,
+      "created": 1788606503,
+      "tid": 25,
+      "uid": -3,
+      "rank": 82,
+      "tdm_point": 46
+    },
+    {
+      "edid": "993519b4-2fec-454f-9ee4-c1b820c0e343",
+      "did": "DUMMY_HVN_02_12",
+      "name": "Prism",
+      "money": 273614,
+      "spirit": 276315,
+      "created": 1788606503,
+      "tid": 126,
+      "uid": -4,
+      "rank": 80,
+      "tdm_point": 80
+    },
+    {
+      "edid": "cad43672-f8dd-4897-a392-46106b15b464",
+      "did": "DUMMY_HVN_01_002",
+      "name": "Trial",
+      "money": 264638,
+      "spirit": 277248,
+      "created": 1788606503,
+      "tid": 86,
+      "uid": -5,
+      "rank": 79,
+      "tdm_point": 88
+    },
+    {
+      "edid": "a8e13291-99a6-4148-b2ac-0f3112f4a561",
+      "did": "DUMMY_HVN_01_019",
+      "name": "WizardofOz",
+      "money": 255819,
+      "spirit": 258374,
+      "created": 1788606503,
+      "tid": 78,
+      "uid": -6,
+      "rank": 80,
+      "tdm_point": 39
+    },
+    {
+      "edid": "fc0c601f-ee92-4099-b240-6eca02d802dc",
+      "did": "DUMMY_HVN_01_016",
+      "name": "Cyclone",
+      "money": 259004,
+      "spirit": 266140,
+      "created": 1788606503,
+      "tid": 134,
+      "uid": -7,
+      "rank": 81,
+      "tdm_point": 49
+    },
+    {
+      "edid": "610cd52e-0cea-4fc7-8a5b-314b93c0022b",
+      "did": "DUMMY_HVN_01_002",
+      "name": "Mitchell",
+      "money": 251822,
+      "spirit": 253777,
+      "created": 1788606503,
+      "tid": 15,
+      "uid": -8,
+      "rank": 84,
+      "tdm_point": 5
+    },
+    {
+      "edid": "a9fccf40-4d57-4fd1-b2b5-33d1d716ee02",
+      "did": "DUMMY_HVN_01_015",
+      "name": "Metal",
+      "money": 264571,
+      "spirit": 254049,
+      "created": 1788606503,
+      "tid": 80,
+      "uid": -9,
+      "rank": 80,
+      "tdm_point": 49
+    },
+    {
+      "edid": "b790d55e-c5d0-41ee-9a77-9b49a7a9dd55",
+      "did": "DUMMY_HVN_01_008",
+      "name": "Liar",
+      "money": 258813,
+      "spirit": 257428,
+      "created": 1788606503,
+      "tid": 31,
+      "uid": -10,
+      "rank": 84,
+      "tdm_point": 10
+    },
+    {
+      "edid": "f4f3c3bf-3197-48eb-ac80-1ba059cba966",
+      "did": "DUMMY_HVN_01_021",
+      "name": "Warren",
+      "money": 270907,
+      "spirit": 252380,
+      "created": 1788606503,
+      "tid": 44,
+      "uid": -11,
+      "rank": 79,
+      "tdm_point": 32
+    },
+    {
+      "edid": "cfc9a86c-a304-4c6a-8f85-9d46b638620e",
+      "did": "DUMMY_HVN_01_008",
+      "name": "BaaSheep",
+      "money": 265340,
+      "spirit": 267481,
+      "created": 1788606503,
+      "tid": 102,
+      "uid": -12,
+      "rank": 79,
+      "tdm_point": 8
+    },
+    {
+      "edid": "89f7b7d0-0474-4dba-8467-c644dbfecf6b",
+      "did": "DUMMY_HVN_01_020",
+      "name": "13thRacing",
+      "money": 264190,
+      "spirit": 263716,
+      "created": 1788606503,
+      "tid": 9,
+      "uid": -13,
+      "rank": 83,
+      "tdm_point": 14
+    }
+  ],
+  "bodyuser": {
+    "-1": [
+      {
+        "uid": -1,
+        "cid": "fe9f8483-6f43-43b4-913c-e67d1d680024",
+        "lvl": 172,
+        "hp": 30,
+        "str": 30,
+        "dex": 30,
+        "vit": 30,
+        "stm": 29,
+        "luk": 28,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-2": [
+      {
+        "uid": -2,
+        "cid": "9a559952-6a2a-464d-aae2-2420ca52702c",
+        "lvl": 171,
+        "hp": 30,
+        "str": 30,
+        "dex": 30,
+        "vit": 30,
+        "stm": 28,
+        "luk": 28,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-3": [
+      {
+        "uid": -3,
+        "cid": "1a72059b-30e7-4f8c-b5cc-165d07c942a3",
+        "lvl": 154,
+        "hp": 27,
+        "str": 27,
+        "dex": 27,
+        "vit": 27,
+        "stm": 26,
+        "luk": 25,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-4": [
+      {
+        "uid": -4,
+        "cid": "86259cde-d977-46ad-a63c-76caae09214e",
+        "lvl": 175,
+        "hp": 30,
+        "str": 30,
+        "dex": 30,
+        "vit": 30,
+        "stm": 30,
+        "luk": 30,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-5": [
+      {
+        "uid": -5,
+        "cid": "53c8d984-8554-48cb-ac5e-2723da7abb36",
+        "lvl": 140,
+        "hp": 25,
+        "str": 25,
+        "dex": 25,
+        "vit": 24,
+        "stm": 23,
+        "luk": 23,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-6": [
+      {
+        "uid": -6,
+        "cid": "1b65cfbf-15a6-467e-b17b-4e2e66feaca1",
+        "lvl": 141,
+        "hp": 25,
+        "str": 25,
+        "dex": 25,
+        "vit": 25,
+        "stm": 23,
+        "luk": 23,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-7": [
+      {
+        "uid": -7,
+        "cid": "b83853e8-bf0e-413b-9183-026c64c54ec4",
+        "lvl": 143,
+        "hp": 25,
+        "str": 25,
+        "dex": 25,
+        "vit": 25,
+        "stm": 24,
+        "luk": 24,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-8": [
+      {
+        "uid": -8,
+        "cid": "93fe2155-56e7-4db6-9924-efd5b86a1066",
+        "lvl": 131,
+        "hp": 23,
+        "str": 23,
+        "dex": 23,
+        "vit": 23,
+        "stm": 22,
+        "luk": 22,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-9": [
+      {
+        "uid": -9,
+        "cid": "ac3fe16a-424c-40fa-81c4-14b2eaa64dc6",
+        "lvl": 132,
+        "hp": 24,
+        "str": 23,
+        "dex": 23,
+        "vit": 23,
+        "stm": 22,
+        "luk": 22,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-10": [
+      {
+        "uid": -10,
+        "cid": "314737f4-0564-4a6f-ba5c-339f158330d9",
+        "lvl": 134,
+        "hp": 24,
+        "str": 24,
+        "dex": 24,
+        "vit": 23,
+        "stm": 22,
+        "luk": 22,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-11": [
+      {
+        "uid": -11,
+        "cid": "4c36056e-e089-4012-b07c-1f0fb09eaf20",
+        "lvl": 137,
+        "hp": 24,
+        "str": 24,
+        "dex": 24,
+        "vit": 24,
+        "stm": 23,
+        "luk": 23,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-12": [
+      {
+        "uid": -12,
+        "cid": "cb269b95-16dc-43e7-8200-6d2dc3877bdf",
+        "lvl": 134,
+        "hp": 24,
+        "str": 24,
+        "dex": 24,
+        "vit": 23,
+        "stm": 22,
+        "luk": 22,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ],
+    "-13": [
+      {
+        "uid": -13,
+        "cid": "d7eeacc1-7de5-4ee3-b6e4-f97633e19374",
+        "lvl": 143,
+        "hp": 25,
+        "str": 25,
+        "dex": 25,
+        "vit": 25,
+        "stm": 24,
+        "luk": 24,
+        "skill": 0,
+        "bag": 0,
+        "rage": 0,
+        "hp_bonus": 0,
+        "str_bonus": 0,
+        "dex_bonus": 0,
+        "vit_bonus": 0,
+        "stm_bonus": 0,
+        "luk_bonus": 0
+      }
+    ]
+  },
+  "chr_chrs": {
+    "-1": [
+      {
+        "uid": -1,
+        "cid": "fe9f8483-6f43-43b4-913c-e67d1d680024",
+        "body": "BODY_MALE_002",
+        "gasmask": "ASSET_NM_GAS_HEAD_002",
+        "type": "SHT",
+        "grade": 6,
+        "limit_break": 1,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 11145,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Zac",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-2": [
+      {
+        "uid": -2,
+        "cid": "9a559952-6a2a-464d-aae2-2420ca52702c",
+        "body": "BODY_MALE_007",
+        "gasmask": "ASSET_NM_GAS_HEAD_007",
+        "type": "BAL",
+        "grade": 6,
+        "limit_break": 1,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 11790,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Reynold",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-3": [
+      {
+        "uid": -3,
+        "cid": "1a72059b-30e7-4f8c-b5cc-165d07c942a3",
+        "body": "BODY_FEMALE_003",
+        "gasmask": "ASSET_NF_GAS_HEAD_002",
+        "type": "SKI",
+        "grade": 6,
+        "limit_break": 1,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 9000,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Dolly",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-4": [
+      {
+        "uid": -4,
+        "cid": "86259cde-d977-46ad-a63c-76caae09214e",
+        "body": "BODY_FEMALE_005",
+        "gasmask": "ASSET_NF_GAS_HEAD_004",
+        "type": "DEF",
+        "grade": 6,
+        "limit_break": 1,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 16310,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Yvette",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-5": [
+      {
+        "uid": -5,
+        "cid": "53c8d984-8554-48cb-ac5e-2723da7abb36",
+        "body": "BODY_MALE_006",
+        "gasmask": "ASSET_NM_GAS_HEAD_001",
+        "type": "SHT",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 9620,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Lucian",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-6": [
+      {
+        "uid": -6,
+        "cid": "1b65cfbf-15a6-467e-b17b-4e2e66feaca1",
+        "body": "BODY_MALE_007",
+        "gasmask": "ASSET_NM_GAS_HEAD_007",
+        "type": "SHT",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 9620,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Denis",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-7": [
+      {
+        "uid": -7,
+        "cid": "b83853e8-bf0e-413b-9183-026c64c54ec4",
+        "body": "BODY_MALE_002",
+        "gasmask": "ASSET_NM_GAS_HEAD_006",
+        "type": "BAL",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 10240,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Raphael",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-8": [
+      {
+        "uid": -8,
+        "cid": "93fe2155-56e7-4db6-9924-efd5b86a1066",
+        "body": "BODY_FEMALE_004",
+        "gasmask": "ASSET_NF_GAS_HEAD_008",
+        "type": "BAL",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 9620,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Kyla",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-9": [
+      {
+        "uid": -9,
+        "cid": "ac3fe16a-424c-40fa-81c4-14b2eaa64dc6",
+        "body": "BODY_MALE_002",
+        "gasmask": "ASSET_NM_GAS_HEAD_005",
+        "type": "BRE",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 11525,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Gerard",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-10": [
+      {
+        "uid": -10,
+        "cid": "314737f4-0564-4a6f-ba5c-339f158330d9",
+        "body": "BODY_MALE_003",
+        "gasmask": "ASSET_NM_GAS_HEAD_002",
+        "type": "BRE",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 11525,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Jairus",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-11": [
+      {
+        "uid": -11,
+        "cid": "4c36056e-e089-4012-b07c-1f0fb09eaf20",
+        "body": "BODY_FEMALE_004",
+        "gasmask": "ASSET_NF_GAS_HEAD_002",
+        "type": "DEF",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 13670,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Margery",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-12": [
+      {
+        "uid": -12,
+        "cid": "cb269b95-16dc-43e7-8200-6d2dc3877bdf",
+        "body": "BODY_FEMALE_005",
+        "gasmask": "ASSET_NF_GAS_HEAD_001",
+        "type": "BRE",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 11525,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Noelle",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ],
+    "-13": [
+      {
+        "uid": -13,
+        "cid": "d7eeacc1-7de5-4ee3-b6e4-f97633e19374",
+        "body": "BODY_FEMALE_001",
+        "gasmask": "ASSET_NF_GAS_HEAD_008",
+        "type": "BRE",
+        "grade": 6,
+        "limit_break": 0,
+        "money": 0,
+        "spirit": 0,
+        "bloodnium": 0,
+        "bloodnium_result": "",
+        "hp": 11900,
+        "escdie": 0,
+        "total_exp": 0,
+        "rest_exp": 0,
+        "gain_exp": 0,
+        "start_exp": 0,
+        "sklgauge": 0,
+        "pause": "",
+        "abid": "",
+        "name": "Aimee",
+        "state": "USE",
+        "select_arm_slots": "",
+        "hunter_win": -1,
+        "hunter_lose": -1,
+        "hunter_draw": -1
+      }
+    ]
+  },
+  "part_pts": {
+    "-1": [
+      {
+        "uid": -1,
+        "eid": "65ad8ed8-3650-4ce2-b3e5-4f0af7fccbc1",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP045_005",
+        "rest": 4,
+        "spare": 16,
+        "grade": 0,
+        "dur": 4900,
+        "lvl": 2
+      },
+      {
+        "uid": -1,
+        "eid": "d54c0e0b-4ffa-4a3a-9433-06a73e23a3b5",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_TOPS_132_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 3718,
+        "lvl": 2
+      },
+      {
+        "uid": -1,
+        "eid": "e94ef96b-4242-40c1-a9d6-f4a77277b1fc",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_HEAD_032",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 269,
+        "lvl": 2
+      },
+      {
+        "uid": -1,
+        "eid": "dffd7427-e4d0-4f14-966a-ebe40755141f",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_BTM_114_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 3435,
+        "lvl": 2
+      }
+    ],
+    "-2": [
+      {
+        "uid": -2,
+        "eid": "393c918d-e9f9-47a0-a0c8-75a0a8daf20c",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP047_005",
+        "rest": 2000,
+        "spare": 0,
+        "grade": 0,
+        "dur": 5949,
+        "lvl": 1
+      },
+      {
+        "uid": -2,
+        "eid": "efeb3211-07c7-4d6e-abdb-6ba14daea3f8",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP029_005",
+        "rest": 400,
+        "spare": 0,
+        "grade": 0,
+        "dur": 4340,
+        "lvl": 1
+      },
+      {
+        "uid": -2,
+        "eid": "06e05d6c-f139-460a-b662-1aebfacf9aac",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_TOPS_118_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 3368,
+        "lvl": 1
+      },
+      {
+        "uid": -2,
+        "eid": "c96cc74e-dcad-4ff5-b759-26b3494c7763",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_HEAD_118_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2325,
+        "lvl": 1
+      },
+      {
+        "uid": -2,
+        "eid": "9fe40381-bd3d-4caf-8922-4d38309b3a05",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_BTM_118_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 1580,
+        "lvl": 1
+      }
+    ],
+    "-3": [
+      {
+        "uid": -3,
+        "eid": "c2ffccb2-9f5a-42d3-b106-2030a4c49ba1",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP018_005",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 5040,
+        "lvl": 1
+      },
+      {
+        "uid": -3,
+        "eid": "da9dd264-4229-4dcd-a710-1589bf28ab25",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP038_005",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 6300,
+        "lvl": 1
+      },
+      {
+        "uid": -3,
+        "eid": "21007ea3-1b12-40f5-bfe6-bb74b6910b41",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_TOPS_104_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 4200,
+        "lvl": 1
+      },
+      {
+        "uid": -3,
+        "eid": "13c5aefb-3a1a-47df-b4f4-95bf9c8c2091",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_HEAD_104_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2450,
+        "lvl": 1
+      },
+      {
+        "uid": -3,
+        "eid": "83b8df2b-0812-40cf-9b92-5fbd974c55e2",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_BTM_104_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2301,
+        "lvl": 1
+      }
+    ],
+    "-4": [
+      {
+        "uid": -4,
+        "eid": "4b9abb2b-ff5c-4779-a160-452722a5de9b",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP024_005",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 3920,
+        "lvl": 2
+      },
+      {
+        "uid": -4,
+        "eid": "a1be1725-849f-4176-9123-2bb1236aa691",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP024_005",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 5460,
+        "lvl": 2
+      },
+      {
+        "uid": -4,
+        "eid": "4515966e-282f-4ce8-8b5a-b78143f64ea7",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_TOPS_116_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 3762,
+        "lvl": 2
+      },
+      {
+        "uid": -4,
+        "eid": "72cb0203-c1a9-4130-a2ff-025acf6686dc",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_HEAD_116_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2400,
+        "lvl": 2
+      },
+      {
+        "uid": -4,
+        "eid": "ec58e0f1-030c-4a32-b384-2349edbf5fc4",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_BTM_116_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2164,
+        "lvl": 2
+      }
+    ],
+    "-5": [
+      {
+        "uid": -5,
+        "eid": "f64e32dd-0a27-447d-95d3-7fd2fb1b26f4",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP003_004",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 588,
+        "lvl": 3
+      },
+      {
+        "uid": -5,
+        "eid": "052a4aaf-de87-4d5d-847e-facb47dd1f6b",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_TOPS_112",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 630,
+        "lvl": 3
+      },
+      {
+        "uid": -5,
+        "eid": "099db8e9-2d8c-4429-a045-27a844d59918",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_HEAD_112",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 454,
+        "lvl": 3
+      },
+      {
+        "uid": -5,
+        "eid": "427a66a9-97f0-439c-b9df-0e7e10e9d3e5",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_BTM_112",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 522,
+        "lvl": 3
+      }
+    ],
+    "-6": [
+      {
+        "uid": -6,
+        "eid": "6069bad2-ae19-4f19-aa16-8af631e086e0",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP030_004",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 1232,
+        "lvl": 2
+      },
+      {
+        "uid": -6,
+        "eid": "6a928842-3f45-444c-968e-f2d7e82f2756",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP018_005",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 6090,
+        "lvl": 2
+      },
+      {
+        "uid": -6,
+        "eid": "878e85da-2cc5-4020-90af-568f5d9d300b",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_TOPS_112_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 918,
+        "lvl": 2
+      },
+      {
+        "uid": -6,
+        "eid": "681f9373-6b61-4016-adea-3697660602fb",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_HEAD_112_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2375,
+        "lvl": 2
+      },
+      {
+        "uid": -6,
+        "eid": "47baed6c-0a22-497d-9b8e-fb6c4eb5624f",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_BTM_112_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 3228,
+        "lvl": 2
+      }
+    ],
+    "-7": [
+      {
+        "uid": -7,
+        "eid": "2cf4b9b2-210e-467c-bb61-09bd1bc68655",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP045_004",
+        "rest": 4,
+        "spare": 0,
+        "grade": 0,
+        "dur": 1092,
+        "lvl": 3
+      },
+      {
+        "uid": -7,
+        "eid": "a23ee282-f745-4307-b0d6-e8cd7f34377a",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_TOPS_108",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 227,
+        "lvl": 3
+      },
+      {
+        "uid": -7,
+        "eid": "f38f5510-0753-4091-b052-4b21665c4058",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_HEAD_112",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 480,
+        "lvl": 3
+      },
+      {
+        "uid": -7,
+        "eid": "b3165165-c43f-4028-b881-be3bc65587d0",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_BTM_120",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 487,
+        "lvl": 3
+      }
+    ],
+    "-8": [
+      {
+        "uid": -8,
+        "eid": "6ef78fb8-ecd8-4c8f-bd82-c1b1aeb1fe27",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP012_004",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 1218,
+        "lvl": 1
+      },
+      {
+        "uid": -8,
+        "eid": "cd9d98e7-91cf-4e88-ad83-99fe29c8f10d",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_TOPS_118",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 656,
+        "lvl": 1
+      },
+      {
+        "uid": -8,
+        "eid": "899460ca-bdfb-4bbf-ae4a-b856d05dbfab",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_HEAD_118",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 175,
+        "lvl": 1
+      },
+      {
+        "uid": -8,
+        "eid": "9a5b733d-cd70-44a2-a686-a14a8e9494ea",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_BTM_118",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 577,
+        "lvl": 1
+      }
+    ],
+    "-9": [
+      {
+        "uid": -9,
+        "eid": "924b73e5-b513-43d7-9aaa-d8dc8fb9a6ca",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP004_004",
+        "rest": 10,
+        "spare": 150,
+        "grade": 0,
+        "dur": 1050,
+        "lvl": 4
+      },
+      {
+        "uid": -9,
+        "eid": "e3e9dd14-657d-4fec-88e3-bcacc9bc4ac3",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP044_004",
+        "rest": 15,
+        "spare": 45,
+        "grade": 0,
+        "dur": 994,
+        "lvl": 4
+      },
+      {
+        "uid": -9,
+        "eid": "6c6141a9-7faf-4051-98f9-dc167a62e023",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_TOPS_118",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 638,
+        "lvl": 4
+      },
+      {
+        "uid": -9,
+        "eid": "ee533535-04cd-48e0-8800-9b44bee1c345",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_HEAD_132",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 244,
+        "lvl": 4
+      },
+      {
+        "uid": -9,
+        "eid": "dc612004-31c7-4429-a7ae-34d3ed3d0456",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_FAN_BTM_112",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 254,
+        "lvl": 4
+      }
+    ],
+    "-10": [
+      {
+        "uid": -10,
+        "eid": "13421745-cb6f-46ad-88a5-8aaec4bb80eb",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP007_004",
+        "rest": 40,
+        "spare": 520,
+        "grade": 0,
+        "dur": 1007,
+        "lvl": 4
+      },
+      {
+        "uid": -10,
+        "eid": "bfbfd0f7-cb77-4c4c-a3b0-e5092075ea8a",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP020_004",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 937,
+        "lvl": 4
+      },
+      {
+        "uid": -10,
+        "eid": "00cc6843-c800-4742-b794-07ede4950fd1",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_TOPS_118",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 682,
+        "lvl": 4
+      },
+      {
+        "uid": -10,
+        "eid": "2bdcf05c-f3ed-4762-a193-46289f8e3e8e",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_HEAD_112",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 480,
+        "lvl": 4
+      },
+      {
+        "uid": -10,
+        "eid": "854fda95-734e-4f91-a725-1d72a148068d",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_BTM_118",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 666,
+        "lvl": 4
+      }
+    ],
+    "-11": [
+      {
+        "uid": -11,
+        "eid": "61e2e748-81b1-4ebd-8f08-242d782b2ced",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP041_004",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 952,
+        "lvl": 4
+      },
+      {
+        "uid": -11,
+        "eid": "5485e4e6-9f23-4a8d-a0c5-32611ff4589d",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP033_005",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 5670,
+        "lvl": 4
+      },
+      {
+        "uid": -11,
+        "eid": "c39bda5d-9aea-40d6-b9bb-99d93891c861",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_TOPS_116_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2756,
+        "lvl": 4
+      },
+      {
+        "uid": -11,
+        "eid": "3db7b051-053f-4510-84f2-5dfec7dba1f5",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_HEAD_116_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 1999,
+        "lvl": 4
+      },
+      {
+        "uid": -11,
+        "eid": "86f3f385-f516-4042-8a37-0b1495aa31c9",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_BTM_116_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 996,
+        "lvl": 4
+      }
+    ],
+    "-12": [
+      {
+        "uid": -12,
+        "eid": "bc21325a-ac04-4b3a-b7fe-8ba2c20b1543",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP041_004",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 686,
+        "lvl": 5
+      },
+      {
+        "uid": -12,
+        "eid": "46a42f96-2d6b-48ec-bfbf-1e5028d321e2",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP018_004",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 868,
+        "lvl": 5
+      },
+      {
+        "uid": -12,
+        "eid": "966001d2-4290-475f-8b0d-cbf5d6fcded0",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_DIY_TOPS_114",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 735,
+        "lvl": 5
+      },
+      {
+        "uid": -12,
+        "eid": "d5a4208e-5aa9-414a-a197-5019901a1e93",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_HEAD_114",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 229,
+        "lvl": 5
+      },
+      {
+        "uid": -12,
+        "eid": "42e5656a-ad2d-415e-b895-5c03a243e678",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_MIL_BTM_110",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 467,
+        "lvl": 5
+      }
+    ],
+    "-13": [
+      {
+        "uid": -13,
+        "eid": "5d1eae13-a5bb-4063-bf6f-3463c17fdd0a",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_ARM_WP046_005",
+        "rest": 1,
+        "spare": 119,
+        "grade": 0,
+        "dur": 5320,
+        "lvl": 4
+      },
+      {
+        "uid": -13,
+        "eid": "b78db593-44a4-4127-8e15-ce95c929c48a",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_TOPS_108_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 1706,
+        "lvl": 4
+      },
+      {
+        "uid": -13,
+        "eid": "49216b1c-3fff-491f-b623-7e573ee9366e",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_HEAD_108_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 1075,
+        "lvl": 4
+      },
+      {
+        "uid": -13,
+        "eid": "9a2028d4-66a5-4f2c-907e-a0e916295ca3",
+        "gettime": 0,
+        "owner": "USER",
+        "created": 1788606503,
+        "modified": 1788606503,
+        "ptid": "PT_SPO_BTM_108_G",
+        "rest": 0,
+        "spare": 0,
+        "grade": 0,
+        "dur": 2438,
+        "lvl": 4
+      }
+    ]
+  },
+  "eqskl": {
+    "-1": [
+      {
+        "cid": "fe9f8483-6f43-43b4-913c-e67d1d680024",
+        "sklid": "SKL_RESISTUP_ELEC_01_P",
+        "slot": 0
+      },
+      {
+        "cid": "fe9f8483-6f43-43b4-913c-e67d1d680024",
+        "sklid": "SKL_ATKUP_ANTI_HIGHLV_P",
+        "slot": 1
+      },
+      {
+        "cid": "fe9f8483-6f43-43b4-913c-e67d1d680024",
+        "sklid": "SKL_SUPER_ALLOY_P",
+        "slot": 2
+      },
+      {
+        "cid": "fe9f8483-6f43-43b4-913c-e67d1d680024",
+        "sklid": "SKL_RESISTUP_POISON_01_P",
+        "slot": 3
+      }
+    ],
+    "-2": [
+      {
+        "cid": "9a559952-6a2a-464d-aae2-2420ca52702c",
+        "sklid": "SKL_RESISTUP_ELEC_01_P",
+        "slot": 0
+      },
+      {
+        "cid": "9a559952-6a2a-464d-aae2-2420ca52702c",
+        "sklid": "SKL_FIREROD_ABILITY_UP_P",
+        "slot": 1
+      },
+      {
+        "cid": "9a559952-6a2a-464d-aae2-2420ca52702c",
+        "sklid": "SKL_PHOENIX_P",
+        "slot": 2
+      },
+      {
+        "cid": "9a559952-6a2a-464d-aae2-2420ca52702c",
+        "sklid": "SKL_RESISTUP_FIRE_01_P",
+        "slot": 3
+      }
+    ],
+    "-3": [
+      {
+        "cid": "1a72059b-30e7-4f8c-b5cc-165d07c942a3",
+        "sklid": "SKL_ARRNG_STATUP_MIL_P",
+        "slot": 0
+      },
+      {
+        "cid": "1a72059b-30e7-4f8c-b5cc-165d07c942a3",
+        "sklid": "SKL_SHOVEL_ABILITY_UP_P",
+        "slot": 1
+      },
+      {
+        "cid": "1a72059b-30e7-4f8c-b5cc-165d07c942a3",
+        "sklid": "SKL_RESISTUP_SHOOT_01_P",
+        "slot": 2
+      }
+    ],
+    "-4": [
+      {
+        "cid": "86259cde-d977-46ad-a63c-76caae09214e",
+        "sklid": "SKL_ATKDEFUP_HPLOW_02_P",
+        "slot": 0
+      },
+      {
+        "cid": "86259cde-d977-46ad-a63c-76caae09214e",
+        "sklid": "SKL_MSTAR_ABILITY_UP_P",
+        "slot": 1
+      },
+      {
+        "cid": "86259cde-d977-46ad-a63c-76caae09214e",
+        "sklid": "SKL_CRIUP_02_P",
+        "slot": 2
+      }
+    ],
+    "-5": [
+      {
+        "cid": "53c8d984-8554-48cb-ac5e-2723da7abb36",
+        "sklid": "SKL_ATKDEFUP_HPMAX_01",
+        "slot": 0
+      },
+      {
+        "cid": "53c8d984-8554-48cb-ac5e-2723da7abb36",
+        "sklid": "SKL_DEFUP_02",
+        "slot": 1
+      },
+      {
+        "cid": "53c8d984-8554-48cb-ac5e-2723da7abb36",
+        "sklid": "SKL_CRIUP_02",
+        "slot": 2
+      },
+      {
+        "cid": "53c8d984-8554-48cb-ac5e-2723da7abb36",
+        "sklid": "SKL_HPUP_02",
+        "slot": 3
+      },
+      {
+        "cid": "53c8d984-8554-48cb-ac5e-2723da7abb36",
+        "sklid": "SKL_CRIUP_01",
+        "slot": 4
+      }
+    ],
+    "-6": [
+      {
+        "cid": "1b65cfbf-15a6-467e-b17b-4e2e66feaca1",
+        "sklid": "SKL_SANDBAG_01_P",
+        "slot": 0
+      }
+    ],
+    "-7": [
+      {
+        "cid": "b83853e8-bf0e-413b-9183-026c64c54ec4",
+        "sklid": "SKL_CRIUP_01_P",
+        "slot": 0
+      },
+      {
+        "cid": "b83853e8-bf0e-413b-9183-026c64c54ec4",
+        "sklid": "SKL_SUPER_ALLOY_P",
+        "slot": 1
+      },
+      {
+        "cid": "b83853e8-bf0e-413b-9183-026c64c54ec4",
+        "sklid": "SKL_HEADSHOTUP_P",
+        "slot": 2
+      },
+      {
+        "cid": "b83853e8-bf0e-413b-9183-026c64c54ec4",
+        "sklid": "SKL_ATKUP_02_P",
+        "slot": 3
+      }
+    ],
+    "-8": [
+      {
+        "cid": "93fe2155-56e7-4db6-9924-efd5b86a1066",
+        "sklid": "SKL_CRIUP_01",
+        "slot": 0
+      },
+      {
+        "cid": "93fe2155-56e7-4db6-9924-efd5b86a1066",
+        "sklid": "SKL_CRIUP_02",
+        "slot": 1
+      },
+      {
+        "cid": "93fe2155-56e7-4db6-9924-efd5b86a1066",
+        "sklid": "SKL_DEFUP_01",
+        "slot": 2
+      },
+      {
+        "cid": "93fe2155-56e7-4db6-9924-efd5b86a1066",
+        "sklid": "SKL_ATKUP_01",
+        "slot": 3
+      },
+      {
+        "cid": "93fe2155-56e7-4db6-9924-efd5b86a1066",
+        "sklid": "SKL_ATKDEFUP_HPMAX_01",
+        "slot": 4
+      }
+    ],
+    "-9": [
+      {
+        "cid": "ac3fe16a-424c-40fa-81c4-14b2eaa64dc6",
+        "sklid": "SKL_ATKUP_01_P",
+        "slot": 0
+      },
+      {
+        "cid": "ac3fe16a-424c-40fa-81c4-14b2eaa64dc6",
+        "sklid": "SKL_ATKDEFUP_HPLOW_02_P",
+        "slot": 1
+      }
+    ],
+    "-10": [
+      {
+        "cid": "314737f4-0564-4a6f-ba5c-339f158330d9",
+        "sklid": "SKL_FAN_UP_01_P",
+        "slot": 0
+      },
+      {
+        "cid": "314737f4-0564-4a6f-ba5c-339f158330d9",
+        "sklid": "SKL_SNOWWHITE_P",
+        "slot": 1
+      },
+      {
+        "cid": "314737f4-0564-4a6f-ba5c-339f158330d9",
+        "sklid": "SKL_ATKUP_02_P",
+        "slot": 2
+      }
+    ],
+    "-11": [
+      {
+        "cid": "4c36056e-e089-4012-b07c-1f0fb09eaf20",
+        "sklid": "SKL_ATKUP_ANTI_HIGHLV_P",
+        "slot": 0
+      }
+    ],
+    "-12": [
+      {
+        "cid": "cb269b95-16dc-43e7-8200-6d2dc3877bdf",
+        "sklid": "SKL_FAN_UP_01_P",
+        "slot": 0
+      },
+      {
+        "cid": "cb269b95-16dc-43e7-8200-6d2dc3877bdf",
+        "sklid": "SKL_ATKUP_02_P",
+        "slot": 1
+      },
+      {
+        "cid": "cb269b95-16dc-43e7-8200-6d2dc3877bdf",
+        "sklid": "SKL_STMNUP_02_P",
+        "slot": 2
+      }
+    ],
+    "-13": [
+      {
+        "cid": "d7eeacc1-7de5-4ee3-b6e4-f97633e19374",
+        "sklid": "SKL_NOEYEDMG_FORTGUARD_P",
+        "slot": 0
+      },
+      {
+        "cid": "d7eeacc1-7de5-4ee3-b6e4-f97633e19374",
+        "sklid": "SKL_RESISTUP_ELEC_01_P",
+        "slot": 1
+      }
+    ]
+  }
+}

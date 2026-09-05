@@ -262,7 +262,7 @@ class BlueprintsTabMixin:
         # Right Equipment Blueprint Card (Wiki Showcase)
         bp_card_container = ttk.LabelFrame(paned, text=t("bp_card_title"), padding=4)
         paned.add(bp_card_container, weight=2)
-        scroll_bp = ScrollableFrame(bp_card_container)
+        self.blueprints_scroll = scroll_bp = ScrollableFrame(bp_card_container)
         scroll_bp.pack(fill="both", expand=True)
         self.bp_card = scroll_bp.content
         
@@ -292,7 +292,7 @@ class BlueprintsTabMixin:
         act_r1.pack(fill="x", pady=2)
         ttk.Label(act_r1, text=t("bp_lvl_lbl")).pack(side="left", padx=2)
         self.bp_single_lvl_var = tk.StringVar(value="+4")
-        cb_slvl = ttk.Combobox(act_r1, textvariable=self.bp_single_lvl_var, values=["+4", "+3", "+2", "+1", "+0 (Plano)", "+19", "+24"], width=9, state="readonly")
+        cb_slvl = ttk.Combobox(act_r1, textvariable=self.bp_single_lvl_var, values=["+4", "+3", "+2", "+1", "+0 (Plano)", "+19"], width=9, state="readonly")
         cb_slvl.pack(side="left", padx=2)
         self.cb_single_lvl = cb_slvl
         self.btn_unlock_shop = ttk.Button(act_r1, text=t("bp_unlock_shop_btn"), style="Accent.TButton", command=self._unlock_single_bp_shop)
@@ -341,21 +341,46 @@ class BlueprintsTabMixin:
         ttk.Button(global_gear_box, text=t("bp_inf_dur_btn"), command=self._set_infinite_durability_action).pack(fill="x", pady=2)
         ttk.Button(global_gear_box, text=t("bp_inf_ammo_btn"), command=self._set_massive_ammo_action).pack(fill="x", pady=2)
         ttk.Button(global_gear_box, text=t("bp_upg_all19_btn"), command=lambda: self._upgrade_all_gear_max_lvl_action(19)).pack(fill="x", pady=2)
-        ttk.Button(global_gear_box, text=t("bp_upg_all24_btn"), command=lambda: self._upgrade_all_gear_max_lvl_action(24)).pack(fill="x", pady=2)
+        ttk.Button(global_gear_box, text=t("bp_upg_all24_btn"), command=lambda: self._upgrade_all_gear_max_lvl_action(20)).pack(fill="x", pady=2)
+
+        # Chokufunsha Shop Tier Suppression Mod Box
+        shop_tiers_box = ttk.LabelFrame(self.bp_card, text=t("bp_shop_tiers_mod_title"), padding=8)
+        shop_tiers_box.pack(fill="x", pady=4)
+
+        ttk.Label(shop_tiers_box, text=t("bp_shop_tiers_mod_desc"), wraplength=260, justify="left", foreground=FG_MUTED, font=("Segoe UI", 8)).pack(fill="x", pady=(0, 4))
+        self.bp_shop_tiers_status_lbl = ttk.Label(shop_tiers_box, text=t("bp_shop_tiers_inactive_status"), font=("Segoe UI", 9, "bold"), foreground=FG_MUTED, wraplength=260)
+        self.bp_shop_tiers_status_lbl.pack(fill="x", pady=(0, 4))
+
+        st_btn_row = ttk.Frame(shop_tiers_box)
+        st_btn_row.pack(fill="x", pady=2)
+        ttk.Button(st_btn_row, text=t("bp_shop_tiers_enable_btn"), style="Accent.TButton", command=self._enable_all_shop_tiers_action).pack(fill="x", pady=1)
+        ttk.Button(st_btn_row, text=t("bp_shop_tiers_restore_btn"), command=self._restore_shop_tiers_action).pack(fill="x", pady=1)
+
+        self._refresh_shop_tiers_status()
 
     def _find_equipment_art(self, ptid):
         if hasattr(self, "icon_map"):
-            if "gear_icons" in self.icon_map and ptid in self.icon_map["gear_icons"]:
-                return self.icon_map["gear_icons"][ptid]
+            if "gear_icons" in self.icon_map:
+                if ptid in self.icon_map["gear_icons"]:
+                    return self.icon_map["gear_icons"][ptid]
+                if ptid.endswith("_G") and ptid[:-2] in self.icon_map["gear_icons"]:
+                    return self.icon_map["gear_icons"][ptid[:-2]]
             if "gear_cards" in self.icon_map and ptid in self.icon_map["gear_cards"]:
                 return self.icon_map["gear_cards"][ptid]
             if "equipment_thumbs" in self.icon_map and ptid in self.icon_map["equipment_thumbs"]:
                 return self.icon_map["equipment_thumbs"][ptid]
         clean = ptid.lower().replace("pt_", "").replace("_001", "").replace("_01", "")
-        for folder in ["weapons", "armor", "cards", "sets", "all_official", "gear"]:
+        for folder in ["all_official", "weapons", "armor", "cards", "sets", "gear", "thumbs"]:
             p = os.path.join(ICONS_DIR, folder, f"{ptid.lower()}.png")
             if os.path.exists(p):
                 return f"{folder}/{ptid.lower()}.png"
+            if ptid.lower().endswith("_g"):
+                p_base = os.path.join(ICONS_DIR, folder, f"{ptid.lower()[:-2]}.png")
+                if os.path.exists(p_base):
+                    return f"{folder}/{ptid.lower()[:-2]}.png"
+            p_thumb = os.path.join(ICONS_DIR, folder, f"thumb_{ptid.lower()}.png")
+            if os.path.exists(p_thumb):
+                return f"{folder}/thumb_{ptid.lower()}.png"
             p_clean = os.path.join(ICONS_DIR, folder, f"{clean}.png")
             if os.path.exists(p_clean):
                 return f"{folder}/{clean}.png"
@@ -429,20 +454,28 @@ class BlueprintsTabMixin:
                 self.cb_single_lvl.config(values=evolve_vals)
                 self.bp_single_lvl_var.set("+4 (In R&D)" if is_en else "+4 (En I+D)")
 
-                nxt_meta = next((item for item in self.equipment_db if item["id"] == nextptid), None)
-                nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) or nextptid
-                self.bp_evolve_lbl.config(
-                    text=f"🔄 Evolves at +4 to: {nxt_name}" if is_en else f"🔄 Evoluciona a Nvl +4 a: {nxt_name}",
-                    foreground=ACCENT_CYAN
-                )
-                if hasattr(self, "btn_evolve_tier"):
-                    is_nxt_uncap = nxt_meta.get("can_uncap", False) if nxt_meta else False
-                    if is_nxt_uncap:
-                        btn_txt = f"⚡ Desbloquear {nxt_name} (+19 en I+D)" if not is_en else f"⚡ Unlock {nxt_name} (+19 in R&D)"
-                    else:
-                        btn_txt = f"🔄 Evolucionar a {nxt_name} (+4)" if not is_en else f"🔄 Evolve to {nxt_name} (+4)"
-                    self.btn_evolve_tier.config(text=btn_txt)
-                    self.btn_evolve_tier.pack(fill="x", pady=(2, 4))
+                if nextptid:
+                    nxt_meta = next((item for item in self.equipment_db if item["id"] == nextptid), None)
+                    nxt_name = ((nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else "") or nextptid
+                    self.bp_evolve_lbl.config(
+                        text=f"🔄 Evolves at +4 to: {nxt_name}" if is_en else f"🔄 Evoluciona a Nvl +4 a: {nxt_name}",
+                        foreground=ACCENT_CYAN
+                    )
+                    if hasattr(self, "btn_evolve_tier"):
+                        is_nxt_uncap = nxt_meta.get("can_uncap", False) if nxt_meta else False
+                        if is_nxt_uncap:
+                            btn_txt = f"⚡ Desbloquear {nxt_name} (+19 en I+D)" if not is_en else f"⚡ Unlock {nxt_name} (+19 in R&D)"
+                        else:
+                            btn_txt = f"🔄 Evolucionar a {nxt_name} (+4)" if not is_en else f"🔄 Evolve to {nxt_name} (+4)"
+                        self.btn_evolve_tier.config(text=btn_txt)
+                        self.btn_evolve_tier.pack(fill="x", pady=(2, 4))
+                else:
+                    self.bp_evolve_lbl.config(
+                        text="⭐ Max Tier: +4" if is_en else "⭐ Tier Máximo: +4",
+                        foreground=ACCENT_CYAN
+                    )
+                    if hasattr(self, "btn_evolve_tier"):
+                        self.btn_evolve_tier.pack_forget()
             
         card_art = None
         if hasattr(self, "icon_map") and "gear_cards" in self.icon_map:
@@ -671,6 +704,47 @@ class BlueprintsTabMixin:
         self.status_var.set(t("mb_craft_kit_status", tier=tier_num, name=name_lbl))
         messagebox.showinfo(t("mb_craft_kit_title"), t("mb_craft_kit_msg", tier=tier_num, name=name_lbl))
 
+    def _refresh_shop_tiers_status(self):
+        if not hasattr(self, "bp_shop_tiers_status_lbl"):
+            return
+        status = modifiers.get_shop_tier_mod_status()
+        if status.get("active"):
+            count = status.get("modified_count", 0)
+            self.bp_shop_tiers_status_lbl.config(
+                text=t("bp_shop_tiers_active_status", count=count),
+                foreground=ACCENT_GOLD
+            )
+        else:
+            self.bp_shop_tiers_status_lbl.config(
+                text=t("bp_shop_tiers_inactive_status"),
+                foreground=FG_MUTED
+            )
+
+    def _enable_all_shop_tiers_action(self):
+        res = modifiers.enable_all_shop_tiers()
+        self._refresh_shop_tiers_status()
+        if res.get("success"):
+            cnt = res.get("modified_count", 0)
+            self._notify(
+                "Shop Mod Active!", "¡Mod Tienda Activado!",
+                f"All {cnt} equipment evolution tiers (Tiers 1 to 4) unlocked in Chokufunsha Shop!\nYou can now purchase any tier directly from the store.",
+                f"¡Los {cnt} tiers de evolución (Tiers 1 al 4) ahora están desbloqueados en la Tienda Chokufunsha!\nPuedes comprar cualquier tier directamente en la tienda."
+            )
+        else:
+            messagebox.showerror(t("notice"), f"Error: {res.get('reason')}")
+
+    def _restore_shop_tiers_action(self):
+        res = modifiers.restore_shop_tier_progression()
+        self._refresh_shop_tiers_status()
+        if res.get("success"):
+            self._notify(
+                "Progression Restored", "Progresión Restaurada",
+                "Standard Chokufunsha tier progression restored.\nOnly the latest researched tier will be displayed in the store.",
+                "Progresión estándar de Chokufunsha restaurada.\nSólo se mostrará el último tier investigado en la tienda."
+            )
+        else:
+            messagebox.showerror(t("notice"), f"Error: {res.get('reason')}")
+
     def unlock_all_blueprints_preset(self):
         if not self.save_json:
             return
@@ -682,25 +756,27 @@ class BlueprintsTabMixin:
             lvl = lvl_num
         else:
             lvl = 19
-        modifiers.unlock_all_blueprints(self.save_json, level=lvl)
+        modifiers.unlock_all_blueprints(self.save_json, level=lvl, enable_shop_tiers=False)
+        self._refresh_shop_tiers_status()
         self._auto_save()
         self.filter_blueprints_list()
         self._notify(
             "Blueprints Unlocked", "Planos Desbloqueados",
-            f"All weapon and armor blueprints unlocked at Level +{lvl} in Chokufunsha!",
-            f"¡Todos los planos de armas y armaduras han sido desbloqueados al Nivel +{lvl} en Chokufunsha!"
+            f"All weapon and armor blueprints unlocked at Level +{lvl} in Chokufunsha!\nAll lower tiers (Tier 1-4) are available in the store.",
+            f"¡Todos los planos de armas y armaduras han sido desbloqueados al Nivel +{lvl} en Chokufunsha!\nTodos los tiers inferiores (Tier 1 al 4) están disponibles en la tienda."
         )
 
     def _repair_blueprints_action(self):
         if not self.save_json:
             return
         fixed = modifiers.repair_unlocked_blueprints_states(self.save_json)
+        clamped_bp, clamped_st = modifiers.clamp_all_equipment_authentic_levels(self.save_json)
         self._auto_save()
         self.filter_blueprints_list()
         self._notify(
             "Blueprints Verified", "Planos Reparados",
-            f"Verified and fixed {fixed} blueprints in Chokufunsha to ensure shop availability!",
-            f"¡Se han reparado {fixed} planos para asegurar que estén listos para fabricar y comprar en Chokufunsha!"
+            f"Verified and fixed {fixed} blueprints in Chokufunsha!\nAudited and clamped {clamped_bp} uncap blueprints to authentic +19 (level 15) and {clamped_st} storage items.",
+            f"¡Se han verificado {fixed} planos en Chokufunsha!\nSe auditaron y ajustaron {clamped_bp} planos de destope al auténtico +19 (nivel 15) y {clamped_st} objetos del alijo."
         )
 
     def _inject_endgame_set_action(self):
@@ -714,38 +790,38 @@ class BlueprintsTabMixin:
         elif "Jackal" in sel: key = "jackals_gear"
         elif "Tengoku" in sel: key = "tengoku_weapons"
         
-        name, added = modifiers.inject_endgame_set(self.save_json, set_key=key, count=1, dur=999999, lvl=20)
+        name, added = modifiers.inject_endgame_set(self.save_json, set_key=key, count=1, dur=50000, lvl=20)
         self._auto_save()
         self.filter_blueprints_list()
         self.refresh_all_views()
         self._notify(
             "Endgame Set Injected", "Set Endgame Inyectado",
-            f"Added {added} pieces of {name} (+19 Uncapped, 999,999 Durability) to Coin Locker & Shop!",
-            f"¡Se han añadido las {added} piezas del set {name} (Nivel +19 Uncapped, Dur 999,999) a tu Almacén y Tienda!"
+            f"Added {added} pieces of {name} (+19 Uncapped, 100% Durability) to Coin Locker & Shop!",
+            f"¡Se han añadido las {added} piezas del set {name} (Nivel +19 Uncapped, Durabilidad 100%) a tu Almacén y Tienda!"
         )
 
     def _set_infinite_durability_action(self):
         if not self.save_json:
             return
-        cnt = modifiers.set_infinite_durability_all_equipment(self.save_json, target_dur=999999)
+        cnt = modifiers.set_infinite_durability_all_equipment(self.save_json, target_dur=50000)
         self._auto_save()
         self.refresh_all_views()
         self._notify(
-            "Infinite Durability", "Durabilidad Infinita",
-            f"Set 999,999 durability on {cnt} weapons and armors across Storage and Bags!\n\nYour equipment will never break.",
-            f"¡Se ha establecido durabilidad de 999,999 en {cnt} piezas de armas y armaduras en tu Almacén y Bolsas!\n\n¡Tu equipo nunca se romperá!"
+            "100% Durability Restored", "Durabilidad al 100% Restaurada",
+            f"Restored 100% authentic durability on {cnt} weapons and armors across Storage and Bags!\n\nYour equipment is in factory-fresh condition.",
+            f"¡Se ha restaurado la durabilidad al 100% auténtico en {cnt} piezas de armas y armaduras en tu Almacén y Bolsas!\n\n¡Tu equipo está en estado impecable!"
         )
 
     def _set_massive_ammo_action(self):
         if not self.save_json:
             return
-        cnt = modifiers.set_massive_ammo_all_weapons(self.save_json, ammo=9999)
+        cnt = modifiers.set_massive_ammo_all_weapons(self.save_json, ammo=None)
         self._auto_save()
         self.refresh_all_views()
         self._notify(
-            "Massive Ammo", "Munición Masiva",
-            f"Set 9,999 direct magazine and spare reserve ammo for {cnt} ranged firearms in Storage!",
-            f"¡Se han configurado 9,999 balas directas en cargador y reserva para {cnt} armas a distancia en tu Almacén!"
+            "Max Ammo Refilled", "Munición al Máximo Recargada",
+            f"Refilled authentic full magazine and reserve ammo for {cnt} ranged firearms in Storage and Bags!\nCleaned any erroneous ammo on melee weapons.",
+            f"¡Se ha recargado el cargador y la reserva máxima auténtica para {cnt} armas de fuego en Almacén y Bolsas!\nSe limpió cualquier munición errónea en armas cuerpo a cuerpo."
         )
 
     def _upgrade_all_gear_max_lvl_action(self, target_lvl=19):
@@ -764,9 +840,9 @@ class BlueprintsTabMixin:
             )
         else:
             self._notify(
-                "All Uncapped Gear Maxed!", "¡Todo el Equipo al Máximo Absoluto!",
-                f"Updated {cnt} items! All uncapped gear set to Level +19 in Shop & Storage!\nSaved automatically.",
-                f"¡Se han actualizado {cnt} piezas! ¡Todo el equipo destopado se estableció al Máximo en Tienda y Almacén!\nGuardado automáticamente."
+                "All Uncapped Gear in Shop (+19)!", "¡Todo el Equipo Destopado en Tienda (+19)!",
+                f"Updated {cnt} items! All uncapped gear unlocked at Level +19 directly in Chokufunsha Shop & Storage!\nSaved automatically.",
+                f"¡Se han actualizado {cnt} piezas! ¡Todo el equipo destopado se desbloqueó al Nivel +19 directamente en la Tienda Chokufunsha y Almacén!\nGuardado automáticamente."
             )
 
     def filter_blueprints_list(self):

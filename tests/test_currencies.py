@@ -44,7 +44,38 @@ class TestCurrencies(unittest.TestCase):
         modifiers.max_all_currencies(self.save)
         curr = modifiers.get_player_currencies(self.save)
         self.assertGreaterEqual(curr["dm"], 9999)
-        self.assertGreaterEqual(curr["kc"], 9999999)
+        self.assertEqual(curr["kc"], 2560000)
+        self.assertEqual(curr["spl"], 2560000)
+        self.assertEqual(self.save["soul"]["safe_level"], 99)
+        self.assertEqual(self.save["soul"]["spirit_tank_level"], 99)
+
+    def test_facility_levels_clamped_to_99(self):
+        # Level 100 causes negative -1,696,979,938 bank capacity bug in game HUD
+        modifiers.upgrade_waiting_room(self.save, bank_level=100, tank_level=150)
+        self.assertEqual(self.save["soul"]["safe_level"], 99)
+        self.assertEqual(self.save["soul"]["spirit_tank_level"], 99)
+
+        modifiers.set_currencies(self.save, safe_lvl=120, tank_lvl=100)
+        self.assertEqual(self.save["soul"]["safe_level"], 99)
+        self.assertEqual(self.save["soul"]["spirit_tank_level"], 99)
+
+    def test_repair_and_sanitize_currencies(self):
+        corrupted_save = {
+            "soul": {
+                "safe_level": 100,  # Corrupted by v2.7.0
+                "spirit_tank_level": 105,
+                "free_money": -500,
+                "spirit": -200,
+                "rank": 200
+            }
+        }
+        repaired, fixes = modifiers.repair_and_sanitize_currencies(corrupted_save)
+        self.assertTrue(repaired)
+        self.assertEqual(corrupted_save["soul"]["safe_level"], 99)
+        self.assertEqual(corrupted_save["soul"]["spirit_tank_level"], 99)
+        self.assertEqual(corrupted_save["soul"]["free_money"], 0)
+        self.assertEqual(corrupted_save["soul"]["spirit"], 0)
+        self.assertEqual(corrupted_save["soul"]["rank"], 130)
 
     def test_vip_pass_activation(self):
         modifiers.activate_vip_express_pass(self.save, days=30)
@@ -55,3 +86,4 @@ class TestCurrencies(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

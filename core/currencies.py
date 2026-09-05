@@ -21,9 +21,9 @@ def set_currencies(save, dm=None, kc=None, spl=None, bloodnium=None, re_points=N
     if re_points is not None:
         soul["recycle_point"] = int(re_points)
     if safe_lvl is not None:
-        soul["safe_level"] = int(safe_lvl)
+        soul["safe_level"] = max(1, min(int(safe_lvl), 99))
     if tank_lvl is not None:
-        soul["spirit_tank_level"] = int(tank_lvl)
+        soul["spirit_tank_level"] = max(1, min(int(tank_lvl), 99))
 
 def set_death_metals(save, amount):
     user = save.setdefault("user", {})
@@ -62,10 +62,16 @@ def set_player_rank(save, rank=None, rank_point=None):
     if rank_point is not None:
         soul["rank_point"] = int(rank_point)
 
-def upgrade_waiting_room(save, bank_level=100, tank_level=100):
+def upgrade_waiting_room(save, bank_level=99, tank_level=99):
+    """
+    Upgrades KC Bank and SPL Tank facilities.
+    CRITICAL: Maximum level supported by master_safe_level and master_spirit_tank_level is strictly 99!
+    Setting level 100 causes the game's C++ database query to fail, reading uninitialized memory
+    and producing negative bank capacities (-1,696,979,938) that clamp coins to 0!
+    """
     soul = save.setdefault("soul", {})
-    soul["safe_level"] = max(1, min(int(bank_level), 100))
-    soul["spirit_tank_level"] = max(1, min(int(tank_level), 100))
+    soul["safe_level"] = max(1, min(int(bank_level), 99))
+    soul["spirit_tank_level"] = max(1, min(int(tank_level), 99))
 
 def set_vip_pass(save, days=30, passes=99, oneday_passes=99):
     soul = save.setdefault("soul", {})
@@ -133,9 +139,9 @@ def get_player_currencies(save):
 def get_waiting_room_info(save):
     soul = save.get("soul", {})
     return {
-        "bank_level": soul.get("safe_level", 100),
-        "tank_level": soul.get("spirit_tank_level", 100),
-        "rank": soul.get("rank", 100),
+        "bank_level": max(1, min(int(soul.get("safe_level", 99)), 99)),
+        "tank_level": max(1, min(int(soul.get("spirit_tank_level", 99)), 99)),
+        "rank": max(1, min(int(soul.get("rank", 100)), 130)),
     }
 
 def get_vip_status(save):
@@ -153,8 +159,82 @@ def get_vip_status(save):
     }
 
 def max_all_currencies(save):
-    set_currencies(save, dm=9999, kc=10000000, spl=10000000, bloodnium=999999, re_points=999999, safe_lvl=100, tank_lvl=100)
-    upgrade_waiting_room(save, bank_level=100, tank_level=100)
+    """
+    Maxes all resources up to the official Level 99 bank/tank capacity (2,560,000 KC and SPL).
+    Avoids database out-of-bounds corruption caused by level 100.
+    """
+    set_currencies(save, dm=9999, kc=2560000, spl=2560000, bloodnium=999999, re_points=999999, safe_lvl=99, tank_lvl=99)
+    upgrade_waiting_room(save, bank_level=99, tank_level=99)
+
+def repair_and_sanitize_currencies(save):
+    """
+    Auto-detects and repairs currency and facility corruption in save files.
+    Specifically heals the 'level 100' bug where safe_level/tank_level > 99
+    leads to negative bank capacities (-1,696,979,938) and zeroed currencies.
+    Returns: (bool repaired, list of str fixes)
+    """
+    repaired = False
+    fixes = []
+    soul = save.setdefault("soul", {})
+
+    # 1. Bank Level (master_safe_level has strictly levels 1 to 99)
+    safe_lvl = soul.get("safe_level")
+    if safe_lvl is not None:
+        if safe_lvl > 99:
+            soul["safe_level"] = 99
+            repaired = True
+            fixes.append(f"KC Bank level corrected from {safe_lvl} to official max 99 (fixed negative -1.69B HUD bug)")
+        elif safe_lvl < 1:
+            soul["safe_level"] = 1
+            repaired = True
+            fixes.append(f"KC Bank level corrected from {safe_lvl} to 1")
+
+    # 2. Tank Level (master_spirit_tank_level has strictly levels 1 to 99)
+    tank_lvl = soul.get("spirit_tank_level")
+    if tank_lvl is not None:
+        if tank_lvl > 99:
+            soul["spirit_tank_level"] = 99
+            repaired = True
+            fixes.append(f"SPL Tank level corrected from {tank_lvl} to official max 99 (fixed uninitialized memory bug)")
+        elif tank_lvl < 1:
+            soul["spirit_tank_level"] = 1
+            repaired = True
+            fixes.append(f"SPL Tank level corrected from {tank_lvl} to 1")
+
+    # 3. Negative values sanity check
+    if soul.get("free_money", 0) < 0:
+        soul["free_money"] = 0
+        repaired = True
+        fixes.append("Negative Kill Coins reset to 0")
+
+    if soul.get("spirit", 0) < 0:
+        soul["spirit"] = 0
+        repaired = True
+        fixes.append("Negative SPLithium reset to 0")
+
+    if soul.get("bloodnium_point", 0) < 0:
+        soul["bloodnium_point"] = 0
+        repaired = True
+        fixes.append("Negative Bloodnium reset to 0")
+
+    if soul.get("recycle_point", 0) < 0:
+        soul["recycle_point"] = 0
+        repaired = True
+        fixes.append("Negative RE Points reset to 0")
+
+    # 4. Player rank (1..130)
+    rank = soul.get("rank")
+    if rank is not None:
+        if rank > 130:
+            soul["rank"] = 130
+            repaired = True
+            fixes.append(f"Player Rank corrected from {rank} to 130")
+        elif rank < 1:
+            soul["rank"] = 1
+            repaired = True
+            fixes.append(f"Player Rank corrected from {rank} to 1")
+
+    return repaired, fixes
 
 def activate_vip_express_pass(save, days=30):
     set_vip_pass(save, days=days)
@@ -167,4 +247,5 @@ def max_login_streak(save, streak=365):
     user = save.setdefault("user", {})
     user["login_keep"] = int(streak)
     return int(streak)
+
 

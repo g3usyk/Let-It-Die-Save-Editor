@@ -238,3 +238,160 @@ Primary language is **English** with **Spanish** provided as secondary reference
 
 ---
 
+### Verified Fighter Rage Move & Grade 8 Canonical Integrity (`bodyuser` & `master_bodylvl_status_value`)
+
+* **Rage Gauge Level 0 & Special Attack Freeze Bug**:
+  * In `BrgGame-Steam.exe` (`BrgOsBodyUser.cpp`), when `f["rage"] != 0`, the C++ engine runs:
+    `SELECT ... FROM master_bodylvl_status_value WHERE type='%s' AND grade=%d AND rage=%d`
+  * For Grade 6 (`grade=6`), `rage` in the SQLite database is strictly `0` at level 45 and `5` at base levels. Setting `f["rage"] = 1` yields 0 rows (`cannot lot type='%s' and grade=%d and rage=%d`), causing the engine to abort Rage Gauge initialization entirely.
+  * The Rage Gauge stays dead at **Level 0** next to the health bar, making it impossible to accumulate rage or perform Rage Moves (Ataque Especial).
+  * In authentic saves, `f["skill"] = 0`, `f["bag"] = 0`, and `f["rage"] = 0`.
+  * Extra decal slots (9), death bag slots (54), and rage bars (5) are loaded dynamically by `master_body_detail` based on `limit_break: 4`. Setting `skill: 3` and `bag: 3` causes text desync in Mingo Head (`45 / 30 MÁX.` and `HAB 8 / 6 MÁX.`).
+
+* **Canonical Max HP Table by Class for Grade 8 (Grade 6, Limit Break 4, Lvl 45)**:
+  * `COL` (Collector): 32,600 HP
+  * `BAL` (All-Rounder): 26,670 HP
+  * `BRE` (Striker): 31,775 HP
+  * `DEF` (Defender): 37,430 HP
+  * `LUK` (Lucky Star): 22,220 HP
+  * `SHT` (Shooter): 25,785 HP
+  * `SKI` (Skill Master): 21,750 HP
+  * `TEC` (Attacker): 15,475 HP
+
+---
+
+### Verified Tokyo Death Metro (TDM) Architecture & Integrity (`soul` & `fortmatch`)
+
+* **Season Settlement Card Loop ("Último rango TDM" Popup Loop)**:
+  * When `soul["last_tdm_reset_time"] <= current_time`, the game client triggers the weekly/season settlement settlement card granting Bronze III rewards (100 KC, 100 SPL).
+  * If `last_tdm_reset_time` is `0`, the condition is evaluated true on every visit to the TDM terminal.
+  * **Fix**: Maintain `last_tdm_reset_time = current_time + (30 * 86400)` and synchronize `last_tdm_rank = soul["tdm_rank"]`.
+
+* **Invasion / Raid Search Infinite Loading Hang**:
+  * **Missing Team ID**: `soul["team_id"]` must belong to an active regional team (e.g., `52` for Team Mexico, `5` for California, `152` for Tokyo). Without a team, opposing raid brackets cannot be loaded.
+  * **Fortress Readiness**: `soul["is_fort_ready"]` must be `1`. Value `0` indicates waiting room defense is uninitialized.
+  * **JSON Array vs Object Types**: In the Unreal Engine client, `fortmatch[uid]`, `teamhate`, `fortzmbsetting`, `fortresult`, and `shpprd` are typed as `TArray`. If serialized as an empty dictionary `{}` instead of `[]`, the engine hangs or crashes during matchmaking iteration.
+  * **Player Rank Mathematical Bounds**:
+    * Formula: `[(Highest Fighter Grade - 1) * 15] + (Number of fighters of that grade)`
+    * Maximum possible legitimate rank with 10 Grade 8 fighters is **115** (or **78** with 3 Grade 6/Tier 8 fighters).
+    * Setting out-of-bounds ranks (such as Rank 123 with 54 billion points) queries a non-existent matchmaking server bracket, causing the raid search to hang indefinitely.
+
+---
+
+### Verified TDM Invasion Black Screen Hang & Opponent Base Spawning (`fort`, `dummy.user`, `deathbag`)
+
+* **Root Cause of Black Screen with Music During Raid Loading**:
+  * When initiating a raid, the game client sets `fort` (`auid: 1`, `ouid: opponent_uid`, `deffending_lock: 1`), sets `soul["pause"] = "CRASH"`, and begins loading the opponent waiting room level. The music thread starts immediately, but the level streaming hangs if any of the following occur:
+    1. **Equipped Weapon Socket Desync (`deathbag` & `select_arm_slots`)**:
+       * Canonical weapon socket indices in UE3:
+         * Left Hand 1: `site: "EQSITE_ARML"`, `arm_slot: 3`.
+         * Right Hand 1 (holstered): `site: ""`, `arm_slot: 0` (or `site: "EQSITE_ARMR"` when actively drawn).
+       * If equipped weapons have mismatched sockets (e.g. `site: ""` on a drawn weapon) or if `arm_slot: 0` is incorrectly paired with `EQSITE_ARML`, character attachment fails.
+       * If `select_arm_slots: "0,1"` attempts to simultaneously draw two two-handed heavy weapons (e.g. Kamas RE and Pitching Machine), the animation state machine locks up. Two-handed weapons must have `select_arm_slots: "0,0"`.
+    2. **Phantom Captive Defense Bug (`fortorder` with `isabduct: 1`)**:
+       * When high-ranking Diamond bots generate defensive waves, order entries can have `"isabduct": 1` (captive in toilet stall) with `"cid": ""` and no corresponding body in `bodyuser`.
+       * When the raid level attempts to spawn the captive in the restroom stall, the engine fails to find the body actor, causing the level streaming to hang indefinitely on a black screen.
+    3. **Fighter Level Desync**: If `f["lvl"]` in `bodyuser` is outside Grade 6 bounds (e.g., 281) or if `c["lvl"]` in `soul.chr.chrs` is missing (`None`), the actor initialization fails. Max level for Grade 6 limit break 4 is **247**.
+    4. **Corrupted Matchmaking Keys (`fortmatch`)**: If `fortmatch` contains foreign opponent keys serialized as empty dicts `{}` (e.g., `"-1": {}`, `"-3": {}`), the C++ TDM manager throws an unhandled deserialization error. `fortmatch` must strictly have one key: the player's own `uid`.
+    5. **Foreign UID Pollution (`bodyuser` & `part.pts`)**: In authentic saves, `bodyuser` and `part.pts` must ONLY contain the player's UID `['1']`. If dummy UIDs (`-1`, `-3`, etc.) are injected into `bodyuser`, the game attempts to treat them as local players.
+    6. **Tengoku Haters vs TDM Dummies**: In `dummy.user`, targets must be authentic TDM dummies (`DUMMY_G1_001`, `DUMMY_Bronze_*`), NEVER Tower Haters (`DUMMY_HVN_*`) or out-of-bracket Diamond dummies.
+    7. **Stuck Fort Crash Lock**: If a previous raid crashed, `fort.deffending_lock = 1` and `soul.pause = "CRASH"` remain active in the save, blocking all future raids.
+    8. **Team ID Deserialization & NULL Dereference CTD (`0x12dbbf5` Access Violation)**:
+       * **Disassembly & Call Trace in `BrgGame-Steam.exe`**:
+         * At `0xf023ab` and `0xf02471`, the game deserializes the team configuration:
+           ```cpp
+           JsonObject->GetStringField(TEXT("team_id"), &team_id_str);
+           JsonObject->GetStringField(TEXT("favorite_team"), &fav_team_str);
+           ```
+         * Unreal Engine's `GetStringField` requires the underlying JSON token to be `EJson::String`. When `team_id` is an integer (`52` instead of `"52"`), the call fails and the string defaults to `"NONE"`.
+         * At `0x12dba10`, during Waiting Room Defense Simulation and Subway Raid generation, the engine executes:
+           ```cpp
+           int team_num = _wtoi(team_id_str.c_str()); // _wtoi(L"NONE") returns 0
+           ITeamData* pTeam = GetTeam(team_num);      // 0x14133d8a0: GetTeam(0) returns NULL (teams are 1-164)
+           ```
+         * At `0x12dbbf5`:
+           ```assembly
+           mov rdi, [rsi + 0x48]  ; rsi is NULL (pTeam == 0) -> rdi = 0x48
+           mov eax, [rdi + 8]     ; Dereferences [0x48 + 8] = [0x50] -> ACCESS VIOLATION 0xc0000005!
+           ```
+       * **Teammember Table Requirement**: In the root save table `teammember`, `tid` must simultaneously be an **integer** (`52`), matching `soul["team_id"]` (`"52"`).
+       * **Fighter From Scratch (From 0) Protections**:
+         * When creating a fighter from scratch (`create_new_fighter`), `new_ch` must include `"lvl": lvl`, `"select_arm_slots": "0,0"`, canonical class HP (e.g. 32600), `bodyuser` must have `skill: 0, bag: 0, rage: 0`, and `soul.deathbag[uid][cid]` must be initialized as `[]`.
+         * Every save write automatically executes `repair_save_list_structures`, `sanitize_fighters`, and `repair_and_sanitize_tdm` via `save_io.py`, permanently guaranteeing immunity against this crash.
+
+* **Complete Automated Recovery Architecture**:
+  * `core/tdm.py` ensures `soul["team_id"] = str(team_id)` and `soul["favorite_team"] = str(team_id)` (string type) and `teammember["tid"] = int(team_id)`.
+  * `core/tdm.py` automatically resets stuck raid state: `fort` cleared to 0s, `soul.pause = ""`, `soul.relief_point = ""`.
+  * `core/tdm.py` preserves authentic base defenders in `fortorder` and `zombie`, sanitizing only unlinked `isabduct: 1` entries, and guarantees order indices in each wave are contiguous `0, 1, 2...`.
+  * `core/tdm.py` preserves defender equipment in `part.pts` so `zombie.eqpts` references remain valid.
+  * `core/tdm.py` normalizes `abduct = []` and `prison = {}` to eliminate phantom captive crashes.
+  * `core/tdm.py` loads authentic verified Bronze/G1 dummies from `tdm_dummy_template.json` and syncs `fortmatch[uid]`.
+  * `core/tdm.py` clamps Player Rank to authentic formula bounds based on actual roster grades and counts.
+  * `core/fighters.py` guarantees `arm_slot: 3` for left weapon, `arm_slot: 0` for holstered right weapon, `select_arm_slots: "0,0"`, `rage: 0`, and authentic canonical HP.
+
+---
+
+### Verified Waiting Room CTD: Abducted Fighters (`abduct` & `soul.prison` Desync)
+
+* **Engine Error Log**:
+  * `Log: cannot search and destory body. uid:-8 cid:952a5c2e-b6e9-43df-8f5b-566710c895c2`
+* **Root Cause of Crash on Game Startup (Loading Screen Skateboard Uncle Death CTD)**:
+  * When a player abducts a fighter during a raid, records are created in:
+    1. `save["abduct"]` (abduction transaction details).
+    2. `soul["prison"][opponent_uid]` (restroom stall holding cell).
+    3. `soul["chr"]["chrs"][opponent_uid]` and `soul["deathbag"][opponent_uid]`.
+    4. `save["bodyuser"][opponent_uid]` (body stats for the captive).
+  * If `bodyuser` is cleaned or lacks the abducted fighter's record while `save["abduct"]` or `soul["prison"]` still reference that captive:
+    The Waiting Room level loader attempts to spawn the captive in the restroom toilet stall. Failing to locate the body record in `bodyuser`, the C++ engine immediately aborts with `cannot search and destory body` and crashes to desktop (CTD) on the Uncle Death skateboard loading screen.
+* **Fix & Automated Protection**:
+  * In `core/tdm.py`, `save["abduct"]` is normalized to `[]` and `soul["prison"]` to `{}`.
+  * All player containers (`soul.chr.chrs`, `soul.deathbag`, `soul.skl.eqskl`, `soul.relationship.revenge`, `bodyuser`, `part.pts`) are strictly purged of foreign opponent keys, retaining solely the legitimate player UID.
+
+---
+
+### Verified Mingo Head Level-Up & Uncap CTD: Death 'Roids & Bloodnium Requirements (`master_bodylvl_limit_break_item`)
+
+* **Engine Error Log**:
+  * `[0134.70] Log: cid b12556b6-7a1c-4106-8aca-155fdc2df84f do not have ITMT_STEROID_3 => 8.`
+* **Root Cause of Crash When Leveling Up / Uncapping in Mingo Head**:
+  * When upgrading attributes or unlocking uncap nodes (decal slots `skill`, death bag slots `bag`, attribute limits `param`) in the Mingo Head machine, the game queries `master_bodylvl_limit_break_item`.
+  * Every uncap transaction requires Bloodnium (`soul["bloodnium_point"]`) and specific quantities of the 6 Death 'Roids:
+    * `ITMT_STEROID_1`: **Death 'Roids Blue** (1★)
+    * `ITMT_STEROID_2`: **Death 'Roids Green** (2★)
+    * `ITMT_STEROID_3`: **Death 'Roids Black** (3★)
+    * `ITMT_STEROID_4`: **Death 'Roids Red** (4★)
+    * `ITMT_STEROID_5`: **Death 'Roids Purple** (5★)
+    * `ITMT_STEROID_6`: **Death 'Roids Orange** (6★)
+  * In offline play, when the player attempts to purchase or complete a node without having the required quantity of Death 'Roids in Coin Locker storage (`item.items`), the client engine throws an unhandled transaction assertion and immediately crashes to desktop (CTD).
+* **Fix & Best Practice**:
+  * Keep the Coin Locker stocked with sufficient quantities of all 6 Death 'Roids (e.g. 200 of each, occupying empty `soul.cl` slots) and max Bloodnium (`999,999`).
+  * With materials in stock, all Mingo Head uncap purchases complete natively with authentic visual feedback and audio, properly updating `f["skill"]` and `f["bag"]` without crashing.
+
+---
+
+### Verified TDM Raid Subway Black Screen: Dummy Defenders Retention Requirement (`BrgOsFort.cpp` & `Fort_PL_LID_KIS.upk`)
+
+* **Engine Error Mechanism**:
+  * `fort generate zombie skip. not found user_chara owner_uid=%d, cid=%s`
+  * `fort generate zombie skip. not found user_bodylvl owner_uid=%d, cid=%s`
+* **Root Cause of Infinite Black Screen on Subway Train During Raids**:
+  * In the offline PC edition, TDM raids load the persistent level `Fort_PL_LID`.
+  * During the subway train ride (`Metro_Start_v03`), `BrgOsFort.cpp` queries `soul.chr.chrs[owner_uid]` and `bodyuser[owner_uid]` to generate the base's defenders.
+  * If negative UIDs (`-1` through `-13`) are stripped from `bodyuser`, `soul.chr.chrs`, `part.pts`, or `soul.skl.eqskl`, `BrgOsFort` skips all zombie generation, spawning **0 defenders**.
+  * The Kismet sequence in `Fort_PL_LID_KIS.upk` (`Beginning of Level` -> `Loaded and Visible` -> `ArrivalTrain_ToFort_Finished`) enters an infinite wait loop waiting for defenders to be placed, causing the subway train to run forever with music playing and doors never opening.
+* **Distinction between Startup Crash and Raid Defense**:
+  * The startup crash (`cannot search and destory body`) was caused exclusively by `save["abduct"]` and `soul["prison"]` containing captive references without bodies. Normalizing `abduct = []` and `prison = {}` completely resolves the startup crash.
+  * **Negative dummy UIDs (`-1` to `-13`) MUST be preserved** in `bodyuser`, `soul.chr.chrs`, `part.pts`, and `soul.skl.eqskl` so the raid engine can spawn opponents.
+* **TDM Rank & Points Synchronization**:
+  * `master_tdm_rank` specifies:
+    * `TDM_RANK_01_01` (Bronze III): `point_min: 0, point_max: 100`
+    * `TDM_RANK_02_01` (Silver III): `point_min: 400, point_max: 600`
+    * `TDM_RANK_05_03` (Diamond I): `point_min: 4400, point_max: 10000`
+  * Setting `TDM_RANK_01_01` requires points $\le 100$ (e.g. 50). Mismatching rank with points throws `not found TdmRank point:%d` -> `ERR_CODE_FORT_IS_NOT_READY`.
+* **Engine State Machine Reset via Defense Simulation**:
+  * If a raid transaction was previously aborted mid-flight, navigating to **TDM Terminal > Defense Settings > Simulate Defense** (Simulación / Image Training) and letting your own defenders defeat you runs `BrgOsApiAssaultfortresult` natively, resetting the Unreal streaming state machine.
+
+
+
+
+

@@ -106,12 +106,12 @@ TRANSLATIONS = {
         "re_lbl": "Puntos de Reciclaje (RE):",
         "max_all_curr_btn": "⭐ MAXIMIZAR TODAS LAS DIVISAS AL TOPE",
         "wr_box_title": "🏦 Mejoras de Instalaciones de la Sala de Espera",
-        "bank_lvl_lbl": "Nivel del Banco de KC (1-100):",
-        "tank_lvl_lbl": "Nivel del Tanque de SPL (1-100):",
-        "player_rank_lbl": "Rango de Jugador (1-100):",
+        "bank_lvl_lbl": "Nivel del Banco de KC (1-99):",
+        "tank_lvl_lbl": "Nivel del Tanque de SPL (1-99):",
+        "player_rank_lbl": "Rango de Jugador (1-130):",
         "apply_wr_btn": "💾 Guardar Mejoras",
-        "max_wr_btn": "⭐ Maximizar al Nivel 100",
-        "wr_hint": "ℹ️ El Rango y sus puntos oficiales se calculan y sincronizan automáticamente.",
+        "max_wr_btn": "⭐ Maximizar al Nivel 99",
+        "wr_hint": "ℹ️ Nivel 99 es el máximo oficial del juego (2,560,000 capacidad). El Rango (hasta 130) y puntos se sincronizan automáticamente.",
         "vip_box_title": "👑 Pase Expreso Royal VIP",
         "vip_active": "Estado: ACTIVO • Expira en: {days} días ({date})",
         "vip_inactive": "Estado: Inactivo",
@@ -327,15 +327,21 @@ TRANSLATIONS = {
         "bp_send_storage_btn": "📦 Enviar 1 u. al Almacén",
         "bp_deposit_kit_btn": "🛠️ Depositar Kit de Forja (+10 u.)",
         "bp_mass_actions_title": "Modificadores y Mejoras Masivas",
-        "bp_inf_dur_btn": "✨ Durabilidad Infinita (999,999) en Todo",
-        "bp_inf_ammo_btn": "🎯 Munición Máxima (9,999) en Armas",
-        "bp_upg_all19_btn": "⚡ Mejorar Todo a Nivel +19 (Uncapped)",
-        "bp_upg_all24_btn": "🔥 Mejorar Todo a Nivel +24 (Máximo Uncapped)",
+        "bp_inf_dur_btn": "✨ Reparar Todo al 100% de Durabilidad (Legítimo)",
+        "bp_inf_ammo_btn": "🎯 Recargar Munición al Máximo (Armas de Fuego)",
+        "bp_upg_all19_btn": "⚡ Preparar Todo a Nivel +19 en I+D (Para Fabricar)",
+        "bp_upg_all24_btn": "🔥 Desbloquear Todo a Nivel +19 en Tienda (Directo)",
         "bp_unlock_all_btn": "🌟 DESBLOQUEAR TODO",
         "bp_evolve_tier_btn": "🔄 Desbloquear Sig. Tier (+4)",
         "bp_endgame_box_title": "🛡️ Inyector de Sets Endgame",
         "bp_inject_set_btn": "🛡️ Inyectar Set Completo al Almacén",
         "bp_status_uncapped": "⭐ Tienda (+{lvl} Destope)",
+        "bp_shop_tiers_mod_title": "🏬 Mod Tienda Chokufunsha: Todos los Tiers (1 al 4)",
+        "bp_shop_tiers_mod_desc": "Permite comprar cualquier tier en la tienda (Tier 1, 2, 3, 4 y Destope) sin ocultar los anteriores.",
+        "bp_shop_tiers_enable_btn": "🔓 Desbloquear Todos los Tiers en Tienda",
+        "bp_shop_tiers_restore_btn": "🔒 Restaurar Progresión Normal",
+        "bp_shop_tiers_active_status": "Mod Tienda: ✅ ACTIVO ({count} tiers disponibles para compra)",
+        "bp_shop_tiers_inactive_status": "Mod Tienda: ⏸️ Estándar (Sólo se muestra el último tier)",
 
         # Tab 6: Weapon Masteries
         "wm_target_lvl_lbl": "Nivel Deseado:",
@@ -504,7 +510,22 @@ TRANSLATIONS = {
         "inv_loc_bag": "🎒 Mochila",
         "inv_loc_equipped": "⚔️ Equipado",
         "inv_cooked": " (Cocinada / Asada)",
-        "inv_unit_str": "{qty} u."
+        "inv_unit_str": "{qty} u.",
+
+        # Updater
+        "updater_avail_title": "⚡ Actualización Disponible - Let It Die Save Editor",
+        "updater_avail_header": "¡Nueva versión disponible para descargar!",
+        "updater_current_vs_new": "Versión actual: v{current}  ➔  Nueva versión: v{remote}",
+        "updater_changelog_title": "Registro de Cambios (Novedades):",
+        "updater_safe_notice": "La actualización preserva todas tus partidas, copias de seguridad y configuraciones.",
+        "updater_btn_now": "⚡ Actualizar Ahora",
+        "updater_btn_download": "🌐 Descargar Actualización",
+        "updater_btn_later": "Más Tarde",
+        "updater_success": "¡Editor actualizado con éxito!\nPor favor reinicia la aplicación para disfrutar de los cambios.",
+        "updater_browser_opened": "Se ha abierto la página de descargas de GitHub en tu navegador web para obtener el instalador más reciente.",
+        "updater_error": "No se pudo completar la actualización automática:\n\n{error}",
+        "updater_check_err": "No se pudo verificar si hay actualizaciones:\n{error}",
+        "updater_up_to_date": "Tu editor ya está en la versión más reciente (v{version})."
     },
 
     "en": {
@@ -547,12 +568,12 @@ TRANSLATIONS = {
         "re_lbl": "Recycle Points (RE):",
         "max_all_curr_btn": "⭐ MAX ALL CURRENCIES & RESOURCES",
         "wr_box_title": "🏦 Waiting Room Facilities & Capacities",
-        "bank_lvl_lbl": "KC Bank Level (1-100):",
-        "tank_lvl_lbl": "SPL Tank Level (1-100):",
-        "player_rank_lbl": "Player Rank (1-100):",
+        "bank_lvl_lbl": "KC Bank Level (1-99):",
+        "tank_lvl_lbl": "SPL Tank Level (1-99):",
+        "player_rank_lbl": "Player Rank (1-130):",
         "apply_wr_btn": "💾 Save Upgrades",
-        "max_wr_btn": "⭐ Max All to Level 100",
-        "wr_hint": "ℹ️ Player Rank and official points are calculated and synced automatically.",
+        "max_wr_btn": "⭐ Max All to Level 99",
+        "wr_hint": "ℹ️ Level 99 is the official game maximum (2,560,000 capacity). Player Rank (up to 130) and points are synced automatically.",
         "vip_box_title": "👑 Royal Express VIP Pass",
         "vip_active": "Status: ACTIVE • Expires in: {days} days ({date})",
         "vip_inactive": "Status: Inactive",
@@ -768,15 +789,21 @@ TRANSLATIONS = {
         "bp_send_storage_btn": "📦 Send 1 to Storage",
         "bp_deposit_kit_btn": "🛠️ Deposit Forge Kit (+10 pcs)",
         "bp_mass_actions_title": "Bulk Gear Modifiers",
-        "bp_inf_dur_btn": "✨ Infinite Durability (999,999) on All",
-        "bp_inf_ammo_btn": "🎯 Max Ammo (9,999) on Firearms",
-        "bp_upg_all19_btn": "⚡ Upgrade All to Level +19 (Uncapped)",
-        "bp_upg_all24_btn": "🔥 Upgrade All to Level +24 (Max Uncapped)",
+        "bp_inf_dur_btn": "✨ Repair All to 100% Durability (Authentic)",
+        "bp_inf_ammo_btn": "🎯 Refill All Firearms Ammo to Max",
+        "bp_upg_all19_btn": "⚡ Send All Uncapped Gear to R&D (+19)",
+        "bp_upg_all24_btn": "🔥 Unlock All Gear at Level +19 in Shop (Direct)",
         "bp_unlock_all_btn": "🌟 UNLOCK ALL",
         "bp_evolve_tier_btn": "🔄 Unlock Next Tier (+4)",
         "bp_endgame_box_title": "🛡️ Endgame Sets Injector",
         "bp_inject_set_btn": "🛡️ Inject Full Set to Storage",
         "bp_status_uncapped": "⭐ In Shop (+{lvl} Uncapped)",
+        "bp_shop_tiers_mod_title": "🏬 Chokufunsha Shop Mod: All Tiers (1 to 4)",
+        "bp_shop_tiers_mod_desc": "Allows buying any tier in the store (Tier 1, 2, 3, 4 and Uncapped) without suppressing previous ones.",
+        "bp_shop_tiers_enable_btn": "🔓 Unlock All Tiers in Shop",
+        "bp_shop_tiers_restore_btn": "🔒 Restore Standard Progression",
+        "bp_shop_tiers_active_status": "Shop Mod: ✅ ACTIVE ({count} tiers available for purchase)",
+        "bp_shop_tiers_inactive_status": "Shop Mod: ⏸️ Standard (Only last tier shown)",
 
         # Tab 6: Weapon Masteries
         "wm_target_lvl_lbl": "Desired Level:",
@@ -945,7 +972,22 @@ TRANSLATIONS = {
         "inv_loc_bag": "🎒 Death Bag",
         "inv_loc_equipped": "⚔️ Equipped",
         "inv_cooked": " (Grilled / Cooked)",
-        "inv_unit_str": "{qty} pcs."
+        "inv_unit_str": "{qty} pcs.",
+
+        # Updater
+        "updater_avail_title": "⚡ Update Available - Let It Die Save Editor",
+        "updater_avail_header": "New version available for download!",
+        "updater_current_vs_new": "Current version: v{current}  ➔  New version: v{remote}",
+        "updater_changelog_title": "Changelog (What's New):",
+        "updater_safe_notice": "Updating preserves all your saves, backups, and settings.",
+        "updater_btn_now": "⚡ Update Now",
+        "updater_btn_download": "🌐 Download Update",
+        "updater_btn_later": "Later",
+        "updater_success": "Editor updated successfully!\nPlease restart the application to apply changes.",
+        "updater_browser_opened": "The GitHub release download page has been opened in your browser to get the latest installer.",
+        "updater_error": "Could not complete automatic update:\n\n{error}",
+        "updater_check_err": "Could not check for updates:\n{error}",
+        "updater_up_to_date": "Your editor is already up to date (v{version})."
     }
 }
 
@@ -974,10 +1016,10 @@ def get_item_desc(item):
     if not item:
         return ""
     lang = get_language()
-    if lang == "en":
-        return item.get("desc_en") or item.get("desc_es") or ""
-    else:
-        return item.get("desc_es") or item.get("desc_en") or ""
+    desc = (item.get("desc_en") if lang == "en" else item.get("desc_es")) or item.get("desc_es") or item.get("desc_en") or ""
+    if "//" in desc:
+        desc = desc.replace("//", "\n")
+    return desc
 
 def get_set_name(set_obj):
     if not set_obj:

@@ -58,6 +58,8 @@ class MasteryTabMixin:
         
         for item in expert_list:
             k = item.get("ptarmtp", "PTARMTP_00")
+            if k in ("PTARMTP_08", "PTARMTP_22"):
+                continue  # Skip engine internal dummy slots
             lvl = item.get("lvl", 1)
             pts = item.get("abp", 0)
             
@@ -75,6 +77,8 @@ class MasteryTabMixin:
         node = sel[0]
         vals = self.mastery_tree.item(node, "values")
         arm_type = vals[0]
+        if arm_type in ("PTARMTP_08", "PTARMTP_22"):
+            return
         
         is_en = i18n.get_language() == "en"
         title = "Weapon Mastery Level" if is_en else "Nivel de Maestría"
@@ -102,6 +106,6 @@ class MasteryTabMixin:
         self.filter_mastery_list()
         self._notify(
             "Masteries Maximized", "Maestrías Maximizadas",
-            f"All 57 weapon masteries set to Level {lvl}!\nSaved automatically.",
-            f"¡Todas las 57 maestrías de armas han sido establecidas al Nivel {lvl}!\nGuardado automáticamente."
+            f"All 55 weapon masteries set to Level {lvl} with authentic ABP!\nSaved automatically.",
+            f"¡Todas las 55 maestrías de armas han sido establecidas al Nivel {lvl} con sus PH/ABP auténticos!\nGuardado automáticamente."
         )

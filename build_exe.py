@@ -25,14 +25,20 @@ def build():
         ("version.json", "."),
         ("tower_map_data.json", "."),
         ("all_shrooms_beasts_db.json", "."),
+        ("teamhate_template.json", "."),
+        ("tdm_dummy_template.json", "."),
+        ("tdm_dummy_defenders_template.json", "."),
         ("icons", "icons"),
     ]
+
+    is_onefile = "--onefile" in sys.argv
+    build_mode = "--onefile" if is_onefile else "--onedir"
 
     cmd = [
         sys.executable, "-m", "PyInstaller",
         "--name=LetItDieSaveEditor",
         "--noconsole",
-        "--onefile",
+        build_mode,
         "--clean",
         "--noconfirm",
         "--uac-admin",
@@ -73,9 +79,12 @@ def build():
         "core.tower",
         "core.mastery",
         "core.helpers",
+        "core.tdm",
         "ui",
         "ui.theme",
         "ui.components",
+        "ui.components.image_combobox",
+        "ui.components.scrollable_frame",
         "ui.tabs",
         "ui.tabs.currencies_tab",
         "ui.tabs.fighters_tab",
@@ -87,6 +96,7 @@ def build():
         "ui.tabs.advanced_tab",
         "ui.dialogs",
         "ui.dialogs.create_fighter",
+        "ui.dialogs.fighter_model_gallery",
         "ui.dialogs.smart_analyzer",
         "ui.dialogs.inventory_viewer",
         "ui.dialogs.armor_set_viewer",
@@ -108,8 +118,11 @@ def build():
     if result.returncode == 0:
         print("\n" + "=" * 60)
         print("BUILD SUCCESSFUL!")
-        onefile_exe = os.path.join(DIST_DIR, "LetItDieSaveEditor.exe")
-        print(f"Standalone Executable (.exe): {onefile_exe}")
+        if is_onefile:
+            target_out = os.path.join(DIST_DIR, "LetItDieSaveEditor.exe")
+        else:
+            target_out = os.path.join(DIST_DIR, "LetItDieSaveEditor", "LetItDieSaveEditor.exe")
+        print(f"Compiled Target: {target_out}")
         print("=" * 60)
         return True
 

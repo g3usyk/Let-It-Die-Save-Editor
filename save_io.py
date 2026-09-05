@@ -198,6 +198,18 @@ def save_to_file(arg1, arg2, version=2, make_backup=True):
     except Exception:
         pass
 
+    try:
+        from core.fighters import sanitize_fighters
+        sanitize_fighters(save_json)
+    except Exception:
+        pass
+
+    try:
+        from core.tdm import repair_and_sanitize_tdm
+        repair_and_sanitize_tdm(save_json)
+    except Exception:
+        pass
+
     binary_data = compress_save(save_json, version=version)
     
     # Atomic write to prevent file corruption

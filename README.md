@@ -58,7 +58,7 @@ The graphical user interface is built on Python's native Tkinter and TTK framewo
 
 ### 2. Core Logic Layer (`core/`)
 The business logic of save editing is completely decoupled from the graphical interface. Functions in `core/` receive the loaded Python dictionary (`save_json`) and perform targeted mutations without UI side effects:
-- `currencies.py`: Safe arithmetic adjustments for Kill Coins, Death Metals, SPLithium, Bloodnium, Recycle Points, and bank/tank facility caps up to level 100.
+- `currencies.py`: Safe arithmetic adjustments for Kill Coins, Death Metals, SPLithium, Bloodnium, Recycle Points, and bank/tank facility caps up to official level 99.
 - `fighters.py`: Full character manipulation, stat point allocation, grade 6 limit break/Tier 8 calculations, decal slot expansions, fighter cloning, freezer reordering, and slot synchronization.
 - `storage.py`: Storage locker expansion, dynamic material insertion across all 106 authentic crafting items, stack top-ups, and bag/box distribution.
 - `decals.py`: Skill decal collection management, standard/premium decal differentiation, and preset loadout injection into active fighter rosters.

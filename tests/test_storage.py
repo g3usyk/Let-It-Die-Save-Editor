@@ -34,6 +34,8 @@ class TestStorage(unittest.TestCase):
         
         analysis = modifiers.analyze_storage_stock(self.save)
         self.assertEqual(analysis["used_slots"], 5)
+        self.assertEqual(analysis["total_items"], 5)
+        self.assertEqual(analysis["capacity"], analysis["total_slots"])
         self.assertEqual(analysis["stock_by_id"]["ITMT_IRON_1"], 5)
 
     def test_add_mushrooms_and_beasts(self):

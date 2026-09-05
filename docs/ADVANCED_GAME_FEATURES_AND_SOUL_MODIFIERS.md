@@ -30,6 +30,12 @@
 23. [Full Tower Map Discovery, Escalator Pathways & Gates (soul.areaflag, soul.areaescflag, gameflg.cl)](#23-full-tower-map-discovery-escalator-pathways--gates-soulareaflag-soulareaescflag-gameflgcl)
 24. [Tutorial Progression, Fresh Save Recovery & Waiting Room Facility Flags (gameflg.sv, gameflg.cl)](#24-tutorial-progression-fresh-save-recovery--waiting-room-facility-flags-gameflgsv-gameflgcl)
 25. [Fighter Freezer Architecture & 10-Slot Synchronization (soul.chr.slots, bodyuser, soul.chr.chrs)](#25-fighter-freezer-architecture--10-slot-synchronization-soulchrslots-bodyuser-soulchrchrs)
+26. [Chokufunsha 2D Icon Streaming & Parent-Child Inheritance Architecture (master_part.nextptid, CookedPCConsole)](#26-chokufunsha-2d-icon-streaming--parent-child-inheritance-architecture-master_partnextptid-cookedpcconsole)
+27. [Skill Decal Combat Formula Placeholders & Offline Resolution (master_text, master_skill)](#27-skill-decal-combat-formula-placeholders--offline-resolution-master_text-master_skill)
+28. [Weapon Mastery HUD vs Equipment Research Level Demystification (master_expert_lvl_reward, soul.expert)](#28-weapon-mastery-hud-vs-equipment-research-level-demystification-master_expert_lvl_reward-soulexpert)
+29. [Defense Simulation & Raid Engine Crash Prevention (bodyuser.rage, select_arm_slots, TDM sanitization)](#29-defense-simulation--raid-engine-crash-prevention-bodyuserrage-select_arm_slots-tdm-sanitization)
+30. [Legitimacy Normalization: Removal of Out-of-Bounds Stats & Fictitious Modifiers](#30-legitimacy-normalization-removal-of-out-of-bounds-stats--fictitious-modifiers)
+31. [Level-Up Engine Crash Demystification (DistributeBodyLvlParam & chr.rest_exp)](#31-level-up-engine-crash-demystification-distributebodylvlparam-rva-0x118e9c0--chrrest_exp)
 
 ---
 
@@ -135,7 +141,37 @@ Registering the official `ELV_MAIN_...` and `ELV_SUB...` IDs permanently enables
 ### Save File Paths
 * `save_json["soul"]["tdm_rank"]` -> TDM competitive rank tier ID.
 * `save_json["soul"]["tdm_point"]` -> TDM raid rating points.
-* `save_json["soul"]["team_id"]` -> Assigned team (e.g., "01" Tokyo, "11" California).
+* `save_json["soul"]["team_id"]` -> Assigned team as a **STRING** (e.g., `"52"` Mexico, `"11"` California, `"01"` Tokyo).
+* `save_json["soul"]["favorite_team"]` -> Assigned favorite team as a **STRING** (must match `soul["team_id"]`).
+* `save_json["teammember"]["tid"]` -> Root table team affiliation as an **INTEGER** (e.g., `52`).
+* `save_json["soul"]["rank"]` -> Player rank (**1 to 115**), calculated by the authentic formula.
+* `save_json["soul"]["rank_point"]` -> Rank points corresponding to the current rank.
+
+### The Team ID String Deserialization Trap (`BrgGame-Steam.exe+0x12dbbf5` Crash)
+A critical reverse engineering discovery in `BrgGame-Steam.exe`:
+* At `0xf023ab` and `0xf02471`, the Unreal Engine JSON deserializer parses the team fields:
+  ```cpp
+  JsonObject->GetStringField(TEXT("team_id"), OutTeamIdStr);
+  JsonObject->GetStringField(TEXT("favorite_team"), OutFavTeamStr);
+  ```
+* Because `GetStringField` checks `JsonValue->Type == EJson::String`, if `team_id` or `favorite_team` is saved as a numerical integer (e.g. `52` instead of `"52"`), the type check fails. The engine falls back to the default unassigned string `"NONE"`.
+* Later, during Defense Simulation or Subway Raid loading, `0x12dba10` parses the string:
+  ```cpp
+  int tid = _wtoi(OutTeamIdStr.c_str()); // _wtoi(L"NONE") returns 0
+  ITeamData* pTeam = GetTeam(tid);       // 0x14133d8a0: GetTeam(0) returns NULL (teams are 1-164)
+  ```
+* At `0x12dbbf5`:
+  ```assembly
+  mov rdi, [rsi + 0x48]  ; rsi is NULL (pTeam == 0) -> rdi = 0x48
+  mov eax, [rdi + 8]     ; Dereferences [0x48 + 8] = [0x50] -> ACCESS VIOLATION 0xc0000005!
+  ```
+* **Strict Rule**: `soul["team_id"]` and `soul["favorite_team"]` must **always be string format** (e.g. `"52"`). Root `save["teammember"]["tid"]` must simultaneously be the matching **integer** (`52`).
+
+### Authentic Player Rank Calculation Formula
+The player rank displayed on your TDM license card and evaluated during matchmaking follows this exact formula:
+$$\text{Rank} = \min\left(115, \max\left(1, (\text{Highest Fighter Grade} - 1) \times 15 + \text{Count of Fighters of that Grade}\right)\right)$$
+* Maximum legitimate rank is **115** (10 Grade 6/8 fighters: $(6 - 1) \times 15 + 10 = 85$, plus facility uncap tiers up to 115).
+* If `soul["rank"]` is manually overwritten with an arbitrary number out of sync with your fighter freezer roster, the TDM matchmaking and defense simulation state machine fails validation.
 
 ### TDM Rank Tier IDs
 | Rank Tier | Internal Save ID | Required Points |
@@ -202,12 +238,13 @@ The Save Editor automatically runs `sync_mystery_bags_to_deathbox(save_json)` up
 
 ---
 
-## 6. Waiting Room Facilities (Level 100) & Player Rank Architecture
+## 6. Waiting Room Facilities (Level 99) & Player Rank Architecture
 
 ### 1. KC Bank & SPLithium Tank Expansion (`soul.safe_level` & `soul.spirit_tank_level`)
-* In the game client database table `master_spirit_tank_level`, facility upgrades scale from **Level 1 to Level 100**.
-* Setting `safe_level = 100` and `spirit_tank_level = 100` expands capacity to **2,560,000+** Kill Coins and SPLithium.
-* The Save Editor provides an interactive input allowing any custom level (1-100) as well as a one-click maximum button.
+* In the official game database tables `master_safe_level` and `master_spirit_tank_level`, facility upgrades scale strictly from **Level 1 to Level 99** (99 rows total).
+* **CRITICAL BUG PREVENTION**: Setting `safe_level = 100` causes an out-of-bounds database query in the game's C++ engine, reading uninitialized memory. This corrupts the bank limit to a negative value (**-1,696,979,938**) and the SPL tank limit to **1,763,844,543**. Because the bank limit becomes negative, any in-game transaction or reward collection immediately resets current coins to **0**.
+* Setting `safe_level = 99` and `spirit_tank_level = 99` expands capacity to the official maximum of **2,560,000** Kill Coins and SPLithium with 100% stability.
+* The Save Editor enforces Level 1-99 boundaries and automatically heals any saves corrupted by prior versions.
 
 ### 2. Player Rank Progression & Mathematical Synchronization (`soul.rank` & `soul.rank_point`)
 * In *LET IT DIE*, **Player Rank** is the primary account level displayed on the player profile and in Tokyo Death Metro (TDM).
@@ -303,19 +340,31 @@ In `bodyuser`, values represent level allocation points (range 1 to 45 per stat)
 * `lvl`: Total level (at Tier 8 / G6 Uncapped max: **247**, calculated as sum of allocations minus 5).
 * `hp`, `str`, `dex`, `vit`, `stm`, `luk`: Base level points (maximum: **45** each).
 * `hp_bonus`, `str_bonus`, `dex_bonus`, `vit_bonus`, `stm_bonus`, `luk_bonus`: Death 'Roid uncap bonuses (maximum: **20** each).
-* `skill`: Additional decal slots unlocked via steroids (**3** additional, for a full total of **8 slots**).
-* `bag`: Extra Death Bag capacity slots (safe max: **3**).
-* `rage`: Extra Rage gauge bars (**1** additional bar).
+* `skill`: Additional decal slots. **For Grade 6 Limit Break 4, this MUST be `0`!** Limit Break 4 dynamically grants the 4 extra decal slots (reaching the maximum 8 or 9 slots). If set $\ge 1$, Mingo Head displays a slot desync (`45/30` or `8/6`) and freezes during uncap interactions.
+* `bag`: Extra Death Bag slots from freezer level-up (0-3 for Grades 1-5). **For Grade 6 Limit Break 4, this MUST be `0`!** Total bag capacity (up to 54 slots) is dynamically computed by the engine from `limit_break: 4` and `master_body_detail`.
+* `rage`: Extra Rage gauge bars. **This MUST ALWAYS be `0` across all fighters!** If `rage != 0`, the engine attempts to lot rage status from `master_bodylvl_status_value`, which contains no rows for Grade 6, causing rage gauge initialization to abort and freezing the fighter in combat.
 
 ### 2. Live Combat State: `save["soul"]["chr"]["chrs"][uid]`
 In `chr.chrs`, the actual in-game runtime state is stored:
+* `cid`: Unique UUID string identifying this fighter instance.
 * `name`: Fighter display name.
 * `type`: Engine class archetype code (`"BAL"` All-Rounder, `"BRE"` Striker, `"DEF"` Defender, `"TEC"` Attacker, `"SHT"` Shooter, `"COL"` Collector, `"SKI"` Skill Master, `"LUK"` Lucky Star).
 * `grade`: Base grade (**1 to 6**; internal maximum is **6**).
 * `limit_break`: Uncap stage (**0 to 4**; Grade 6 with Limit Break 4 represents **Tier 8 / G8** in the community).
-* `hp`: Current combat health pool (e.g., **20,000** HP).
-* `state`: Fighter state (`"GUARD"`, `"REST"`, `"DEAD"`).
+* `lvl`: Must match `bodyuser.lvl` (**247** for maxed G6). Missing `lvl` causes desynchronization between fighter sheet and combat loadout.
+* `hp`: Authentic canonical combat health pool determined by class (e.g., **32,600** HP for Collector, **26,670** for All-Rounder/Striker, etc.). Arbitrary values like `20,000` are non-canonical and get normalized by `sanitize_fighters`.
+* `select_arm_slots`: **Must strictly be `"0,0"`**. Setting this to `"1,2"` causes out-of-bounds arm slot lookups when the fighter has fewer than 2 weapons equipped, crashing the game on spawn.
+* `state`: Fighter state (`"GUARD"` in freezer, `"USE"` for currently active fighter in the Waiting Room).
+* `body` & `gasmask`: Authentic model asset IDs (`"BODY_FEMALE_001"` to `"008"`, `"BODY_MALE_001"` to `"008"`, paired with `"ASSET_NF_GAS_HEAD_..."` or `"ASSET_NM_GAS_HEAD_..."`).
 * `escdie`: Rescue flag (0 = alive and ready).
+* `hunter_win`, `hunter_lose`, `hunter_draw`: Must be `-1` for initialized fighters.
+
+### 3. Fighter Creation From Scratch (From 0) Rules & Safeguards
+When creating a brand new fighter from 0 (`create_new_fighter`) or cloning (`clone_fighter`), the following structures are automatically guaranteed:
+1. **Deathbag Initialization**: `soul["deathbag"][uid][cid]` is initialized as an empty list `[]`. If missing, opening the inventory or entering a raid simulation crashes immediately.
+2. **10-Slot Freezer Access**: `sync_fighter_slots(save)` synchronizes `soul["chr"]["slots"]` to allow full access to all 10 freezer slots.
+3. **Tutorial Bypass**: `_ensure_freezer_accessible(save)` automatically completes the Kiwako Seto tutorial flags if the save is fresh, preventing the Waiting Room freezer lockout.
+4. **Automatic TDM & Rank Re-alignment**: Every fighter modification triggers `repair_and_sanitize_tdm(save)`, which recalculates the exact player rank, aligns `soul["team_id"]` (string), `soul["favorite_team"]` (string), `teammember["tid"]` (int), and normalizes `fortorder` into contiguous wave indices.
 
 ---
 
@@ -528,16 +577,21 @@ Players frequently want their equipment at maximum uncapped potential (+19), but
   `{"ptid": "PT_ARM_WP003_005", "lvl": 19, "research_type": "FINISHED", "receive_type": "CHARGE"}`
   Level 20 is intentionally omitted.
   * In-game behavior: The shop sells the item at Level 19 (+18). The R&D development menu presents the active recipe to forge Level 20 (+19).
-* **Shop Max Mode (+19 Completed)**:
+* **Shop Max Mode (+19 Completed, reflvllmt = 20)**:
   Level 20 has:
-  `{"ptid": "PT_ARM_WP003_005", "lvl": 20, "research_type": "FINISHED", "receive_type": "CHARGE"}`
-  * In-game behavior: The shop sells the item at Level 20 (+19). The R&D menu shows the item as 100% completed.
+  `{"ptid": "PT_ARM_WP003_005", "lvl": 20, "research_type": "FINISHED", "receive_type": "CHARGE", "is_checked": 3}`
+  * In-game behavior: The shop sells the item at Level 20 (+19). The R&D menu shows the item as 100% completed with zero pending material requirements.
+
+### The `reflvllmt = 20` Engine Cap vs The Level 15 Anti-Pattern
+In `masters.db` table `master_part`, all 301 limitbreak pieces (`is_limitbreak = 5` and `_G`) specify `reflvllmt = 20`.
+* **The Level 15 Anti-Pattern**: Setting raw `lvl: 15` in the save was an erroneous attempt based on the fact that `15 + 4 = 19`. However, the engine evaluates research progress as `lvl / reflvllmt` (`15 / 20`). This caused the engine to display the item as an unfinished mid-tier upgrade (e.g. displaying material requirements like `50 / 1700`) rather than a completed store product.
+* **The Level 20 Authentic Solution**: Setting `lvl: 20` with `receive_type: "CHARGE"` and `is_checked: 3` satisfies `lvl == reflvllmt`, marking the uncap research as 100% completed in Komoi's Chokufunsha Shop.
 
 ### Bulk Uncap Processing Architecture
 The bulk uncap feature (`⚡ Mejorar Todo a Nivel +19`) iterates across all **377+ authentic uncapped weapons and armors**:
 1. Uses pre-cached SQLite parent mapping from `master_part` (`nextptid` relationships) to resolve ancestors in constant time (`O(1)`).
 2. Guarantees prerequisite ancestor tiers (e.g. Tier 1, Tier 2, Tier 3, Tier 4 Base) are safely registered at Level 5 (+4 `CHARGE`) so the game's evolution prerequisite checks succeed.
-3. Places the final uncapped tier at Level 19 `CHARGE`, instantly populating the entire Chokufunsha R&D catalog without skipping game logic.
+3. Places the final uncapped tier at Level 20 `CHARGE` (or Level 19 `CHARGE` in R&D mode), instantly populating the entire Chokufunsha catalog without skipping game logic.
 
 ---
 
@@ -739,4 +793,206 @@ Whenever a fighter is created (`create_new_fighter`), duplicated (`clone_fighter
 
 ---
 
+## 26. Chokufunsha 2D Icon Streaming & Parent-Child Inheritance Architecture (`master_part.nextptid`, `CookedPCConsole`)
+
+### Problem Diagnosis: The "Missing Icon" Fallback Anomaly
+When browsing Chokufunsha Shop after unlocking all blueprints or uncapping equipment, uncapped items (`_005` or `_G`) previously rendered with a fallback placeholder (a solid green tile with radial sunburst lines) rather than the weapon/armor's authentic 2D UI icon.
+
+### Technical Root Cause: Asset Packaging vs Dynamic Reverse Lookup
+1. **Absence of Dedicated Uncapped Icon Packages**:
+   In `CookedPCConsole`, Unreal Engine 3 bundles 2D equipment icon textures as individual Scaleform GFx packages:
+   * Tier 1: `UI_Icon_PT_ARM_WP006_001_SF.upk`
+   * Tier 2: `UI_Icon_PT_ARM_WP006_002_SF.upk`
+   * Tier 3: `UI_Icon_PT_ARM_WP006_003_SF.upk`
+   * Tier 4: `UI_Icon_PT_ARM_WP006_004_SF.upk`
+   * **Tier 5 / Uncapped (`PT_ARM_WP006_005`)**: **Does NOT have a dedicated `.upk` file** (`UI_Icon_PT_ARM_WP006_005_SF.upk` does not exist in the game directory).
+
+2. **Parent-Child Reverse Lookup via `nextptid`**:
+   To render the card for `PT_ARM_WP006_005`, the client binary (`BrgGame-Steam.exe` inside `UBrgJsonObjectFactory::execCreateJsonObject`) performs an SQL query against `masters.db`:
+   ```sql
+   SELECT id FROM master_part WHERE nextptid = 'PT_ARM_WP006_005';
+   ```
+   This query discovers that `PT_ARM_WP006_004` (Tier 4) is the immediate precursor of `PT_ARM_WP006_005`. The engine then inherits the 2D texture package associated with `PT_ARM_WP006_004` and displays the authentic Buzzsaw icon.
+
+3. **The Database Wiping Anti-Pattern (`UPDATE master_part SET nextptid = ''`)**:
+   A prior script attempted to make all intermediate evolution tiers visible in the shop by running:
+   ```sql
+   UPDATE master_part SET nextptid = '' WHERE nextptid != '';
+   ```
+   While this exposed intermediate tiers, it catastrophically severed all 279 uncapping links. When the engine queried `WHERE nextptid = 'PT_ARM_WP006_005'`, it received 0 rows, returned `NULL` for the UI icon resource, and displayed the generic green sunburst card.
+
+### Invariant: 100% Factory Authenticity of `masters.db`
+* `masters.db` in `BrgGame\Content\` must remain **100% factory original** (byte-for-byte identical to `masters.db.original.bak`).
+* Never wipe or modify `nextptid` or any columns in `masters.db`.
+* Multi-tier shop visibility is natively and cleanly achieved in the save file by registering both Tier 4 at Level 5 (`receive_type: "CHARGE"`) and Tier 5 at Level 20 (`receive_type: "CHARGE"`), allowing all tiers to be purchasable simultaneously while preserving intact icon inheritance.
+
+---
+
+## 27. Skill Decal Combat Formula Placeholders & Offline Resolution (`master_text`, `master_skill`)
+
+### In-Game Token Formatting Syntax
+In `masters.db` table `master_text`, skill decal descriptions contain parametric format tokens:
+* `#0%`, `#1%`, `#2%`, `#3%`, `#4%`, `#5%`
+* Example (`SKILL_DESCRIPTION.TXT_SKL_HPUP_03`):
+  - EN: `Increase max HP by #0%.\n `
+  - ES: `Aumenta un #0% los PS máximos.\n `
+
+### Dynamic Engine Substitution
+During gameplay, Unreal Engine 3 reads the active record in `master_skill` and binds the attributes:
+* `#0` -> `master_skill.val0`
+* `#1` -> `master_skill.val1`
+* `#2` -> `master_skill.val2`
+* `#3` -> `master_skill.val3`
+* `#4` -> `master_skill.val4`
+* `#5` -> `master_skill.val5`
+
+### The "0% / #0%" Decal Sheet Display Glitch
+When offline tools, encyclopedia extractors, or save editor interfaces dump raw strings from `master_text` without parameter substitution:
+* Decals show literal `#0%` or default to `0%` in the UI.
+* **Super Heavy Tank (`SKL_HPUP_03_P`)**:
+  - `val0 = 60` in `master_skill`.
+  - Raw `master_text`: `Aumenta un #0% los PS máximos.`
+  - Evaluated: `Aumenta un 60% los PS máximos.`
+* **World of Tanks (`SKL_HPUP_WOT_P`)**:
+  - `val0 = 45` in `master_skill`.
+  - Evaluated: `Aumenta un 45% los PS máximos.`
+* **Naomi Detox (`SKL_RESUP_DECDOWN_01_P`)**:
+  - `val1 = 50`, `val5 = 50` in `master_skill`.
+  - Raw text: `...SPLithium obtenido un #1%.`
+  - Evaluated: `Aumenta las Kill Coins de enemigos y tesoros y el SPLithium obtenido un 50%.`
+* **Yo-Yo Addict / Fan del Yoyó (`SKL_YOYO_ATKUP_01`)**:
+  - `val0 = 30` in `master_skill`.
+  - Evaluated: `Poder de ATQ +30% con yoyós.`
+* **White Feather / Pluma Blanca (`SKL_WHITEFEATHER`)**:
+  - `val0 = 15`, `val1 = 70` in `master_skill`.
+  - Evaluated: `Aumenta ATQ de armas perforantes en 15% y un 70% el poder de ataque al realizar un disparo a la cabeza.`
+
+### Resolution Pipeline
+All datasets in `all_decals_encyclopedia.json` and the GUI's `i18n.get_item_desc()` pre-resolve these parametric tokens against `master_skill` values and sanitize newline delimiters (`//` to `\n`), ensuring all 368 decals display authentic combat statistics.
+
+---
+
+## 28. Weapon Mastery HUD vs Equipment Research Level Demystification (`master_expert_lvl_reward`, `soul.expert`)
+
+### The UI Anatomy of a Chokufunsha Shop Card
+When inspecting weapons in the Chokufunsha Shop or inventory, two distinct level indicators appear on the screen, frequently confusing modders:
+1. **Top-Left Card Badge (`+19`, `+4`, `+0`)**:
+   Represents the **Equipment Upgrade Level** stored in `soul.partresearch.user[i]["lvl"]`.
+   * For standard gear: Level 1 to 5 corresponds to `+0` through `+4`.
+   * For uncapped gear: Level 20 corresponds to `+19` (or `+24` overall).
+2. **Bottom-Left Card Footer (`[Fist Icon] Nvl. 20 ----/----`)**:
+   Represents the active fighter's **Weapon Mastery Level** (Expert / ABP category proficiency) stored in `soul.expert`.
+   * The clenched fist indicates mastery proficiency for that specific weapon category (e.g. `PTARMTP_05` Circle Saw).
+   * `----/----` indicates that ABP is maxed out and no further mastery EXP is required.
+   * **This is NOT the weapon's level**; it is the fighter's weapon skill!
+
+### Mastery Calibration Architecture (`master_expert_lvl_reward`)
+To prevent the game engine from permanently resetting weapon mastery to Level 0:
+* **Fists (`PTARMTP_00`)**: Governed by the Fists ABP curve, reaching Level 20 at **47,000 ABP**.
+* **Standard Weapons (`PTARMTP_01` to `PTARMTP_21`)**: Reach Level 20 at **3,800 ABP**.
+* **Unused Engine Dummy Slots (`PTARMTP_08`, `PTARMTP_22`)**: Must be preserved strictly at `abp: -1, lvl: 1, is_checked: 0`.
+* **The Level 0 Underflow Trap**: If `lvl = 20` is injected into `soul.expert` but `abp` is left at `0` (or below the required threshold for that level), the engine's startup validator detects a stat desync and zeroes the mastery level. The editor's `repair_and_sanitize_mastery()` ensures `abp >= get_required_abp(wt, lvl)` for all categories.
+
+---
+
+## 29. Defense Simulation & Raid Engine Crash Prevention (`bodyuser.rage`, `select_arm_slots`, TDM sanitization)
+
+### Root Cause Analysis of TDM / Simulation Crashes
+When players created or edited fighters from scratch, initiating a **Defense Simulation (Simulación de Defensa)** or invading in TDM would reliably cause an immediate engine crash. Reverse engineering the game binary (`BrgGame-Steam.exe`) revealed several interconnected issues:
+
+1. **The `bodyuser['rage']` Level 0 Gauge Freeze & Crash**:
+   * For Grade 6 limit_break 4 fighters, the game engine calculates the 5-bar Rage Gauge dynamically from `master_body_detail`.
+   * If `bodyuser['rage'] != 0`, the engine's deserializer queries `master_bodylvl_status_value` for a corresponding rage progression row. Because Grade 6 fighters do not possess rage progression rows in this table, the lookup fails with unhandled null dereferences, freezing the gauge at "Level 0" and crashing when rendering or simulating combat encounters.
+   * **Fix**: `f['rage'] = 0` is strictly enforced for all fighters.
+
+2. **Mingo Head Slot Desynchronization (`skill` and `bag` in `bodyuser`)**:
+   * Setting `skill` and `bag` in `bodyuser` caused Mingo Head to display corrupted fractions like `45/30` stat points and `8/6` decal slots.
+   * Limit Break 4 natively yields 9 decal slots and 54 inventory slots.
+   * **Fix**: For Grade 6 limit_break 4 fighters, `f['skill'] = 0` and `f['bag'] = 0` must be canonical zero.
+
+3. **`select_arm_slots` & Death Bag Equipment Sites**:
+   * In `soul.chr.chrs`, `select_arm_slots` must be `"0,0"`. Setting invalid slot pairs crashes weapon swapping logic during defense AI initialization.
+   * Items in `soul.deathbag` must have strictly valid `site` (`EQSITE_HEAD`, `EQSITE_BODY`, `EQSITE_LEGS`, `EQSITE_ARMR`, `EQSITE_ARML`) with matching `arm_slot` (-1 for armor, 0..2 for right arm, 3..5 for left arm).
+
+4. **Proactive Auto-Sanitization**:
+   * Rather than requiring the player to press a hidden repair button, `sanitize_fighters(save)` and `repair_and_sanitize_tdm(save)` execute **automatically** on every fighter creation, cloning, stat update, and save write.
+
+---
+
+## 30. Legitimacy Normalization: Removal of Out-of-Bounds Stats & Fictitious Modifiers
+
+### Why Abnormal Numbers Break the Game
+Putting extreme or out-of-bounds values into a save file causes table boundary violations in the game's C++ engine:
+
+1. **The Fake "+24" Equipment Myth**:
+   * In *Let It Die*, maximum uncapping is strictly **+19** (`reflvllmt = 20` in `master_part`).
+   * A "+24" option was a fictitious modifier with no underlying game assets, icons, or stats. Any save attempting level > 20 was clamped or caused missing asset rendering.
+   * **Normalization**: The fake "+24" option was removed completely from the UI and replaced with `Unlock All Gear at Level +19 in Shop (Direct)`.
+
+2. **Firearm Ammo Sanitization (The 9,999 Ammo Corruption Bug)**:
+   * Setting `rest: 9999` and `spare: 9999` previously contaminated melee weapons (swords, bats, katanas) and armor (tops, pants, helmets) with gun ammunition keys.
+   * **Normalization**: The editor now queries `master_part` to extract the authentic magazine capacity and reserve capacity for all 160 genuine ranged firearms (KAMAS, Snipers, Shotguns, Nail Guns, Launchers). Melee weapons and armors have all stray ammo keys strictly purged to 0.
+
+3. **Durability Normalization (999,999 -> 50,000)**:
+   * 999,999 durability was an unnatural cheat value.
+   * **Normalization**: Durability is standardized to `50,000`, the canonical 100% full durability value of maximum uncapped gear in the game. It is virtually unbreakable in normal use while appearing 100% legitimate and safe.
+
+4. **44CE Endgame Sets Injection**:
+   * The 44CE Forcemen sets (White Steel, Red Napalm, Black Thunder, Pale Wind) are 100% authentic in-game items. Injected sets now spawn at authentic +19 (Level 20) with 50,000 durability, identical to gear crafted through legitimate in-game progression.
+
+---
+
+## 31. Level-Up Engine Crash Demystification (`DistributeBodyLvlParam` RVA `0x118e9c0` & `chr.rest_exp`)
+
+### The Mystery: "I had 999,999 Bloodnium, but leveling up 1 level crashed!"
+When players visited Mingo Head with a newly forged or modified fighter and attempted to level up a stat by 1 level using Bloodnium, the game immediately crashed to desktop. Reverse engineering `BrgGame-Steam.exe` inside `BrgOsBodyUser.cpp` revealed the exact C++ failure mechanism:
+
+### Disassembly & Call Trace in `BrgGame-Steam.exe`
+1. **The Mingo Head Level-Up Entry (`0x136676f`)**:
+   When the player confirms a level-up, the game executes:
+   ```asm
+   RVA 0x136675d: lea r9, [rbx + 0x80]       ; r9 = pointer to fighter's rest_exp (from chr[i])
+   RVA 0x1366764: mov r8, rdi                ; r8 = requested target stat allocation
+   RVA 0x1366767: mov rcx, r13               ; rcx = fighter object
+   RVA 0x136676a: mov [rsp + 0x20], rax      ; [rsp + 0x20] = pointer to soul.bloodnium_point
+   RVA 0x136676f: call 0x14118e9c0           ; Call DistributeBodyLvlParam()
+   ```
+
+2. **The Dual Requirement Check in `DistributeBodyLvlParam` (`0x118f186` - `0x118f19e`)**:
+   For each level being incremented from `current_lvl` to `target_lvl`, the engine queries `master_bodylvl_exp` to retrieve both `nec_exp` (required EXP) and `nec_bloodnium` (required Bloodnium). It then performs two strict comparisons:
+   ```asm
+   RVA 0x118f186: mov rdx, [rbp - 0x38]      ; Pointer to fighter's rest_exp
+   RVA 0x118f18a: mov eax, [rdx]             ; Current available EXP
+   RVA 0x118f18c: cmp eax, edi               ; Compare available EXP vs nec_exp
+   RVA 0x118f18e: jl  0x14118f321            ; CRASH IF current_exp < nec_exp!
+   RVA 0x118f194: mov r8, [rbp - 0x30]       ; Pointer to soul.bloodnium_point
+   RVA 0x118f198: mov ecx, [r8]              ; Current available Bloodnium
+   RVA 0x118f19b: cmp ecx, r14d              ; Compare available Bloodnium vs nec_bloodnium
+   RVA 0x118f19e: jl  0x14118f321            ; CRASH IF current_bloodnium < nec_bloodnium!
+   ```
+   If either condition fails, execution jumps to `0x14118f321`, invoking:
+   ```cpp
+   appErrorf(TEXT("body_lvl distribute failed! cid=%s, grade=%d, exp=%d, nec_exp=%d, bloodnium=%d, nec_bloodnium=%d"), ...);
+   ```
+
+3. **The Root Causes**:
+   * **Missing `rest_exp`**: When fighters were created from scratch or upgraded via save editor, `chr["rest_exp"]` was left at `0`. Although the Mingo Head UI only highlights the Bloodnium cost on uncapped fighters, the C++ engine mathematically requires `rest_exp >= nec_exp`. Because `0 < nec_exp`, the EXP assertion failed and crashed the game.
+   * **Missing `chr["lvl"]`**: The save schema previously omitted `"lvl"` from `soul.chr.chrs[i]`, relying only on `bodyuser["lvl"]`. In `DistributeBodyLvlParam` (`0x118eb42`), `r15 + 0x1c` reads `chr.lvl`. With the field missing, the engine evaluated current level as `0`, desynchronizing level progression and attempting to query invalid stat tables.
+   * **Missing Death 'Roids (`ITMT_STEROID`) & `Array.h` Assertion Crash**: When uncapping stats, skill decal slots, death bag capacity, or rage at Mingo Head, `master_bodylvl_limit_break_item` mandates Death 'Roids (`ITMT_STEROID_1` through `6`). If the player's storage has 0 Death 'Roids, the engine logs `cid %s do not have %s => %d` and falls through to an unchecked element removal on an empty internal container. This triggers Unreal Engine's `Array.h(635): Assertion failed: i >= 0 && i < ArrayNum`, invoking `appErrorf` / `RaiseException(1, ...)` and crashing straight to desktop.
+
+### The Automated Solution
+1. **EXP Injection**:
+   * All fighters now automatically receive authentic `total_exp` consistent with their level (482,191 for Grade 6 level 247; 139,875 for level 140; etc.).
+   * Fighters are pre-populated with reserve `rest_exp` (`9,999,999` for Grade 6, `5,000,000` for lower tiers), guaranteeing that any manual level-up at Mingo Head or the Fighter Freezer has more than enough EXP to satisfy `nec_exp`.
+2. **Level Synchronization**:
+   * `bodyuser["lvl"]` and `soul.chr.chrs[i]["lvl"]` are strictly synchronized to the same value on every save, creation, and edit.
+3. **Database-Aligned Base Stats**:
+   * Newly forged fighters receive canonical stats matching `param_lv_max` for their grade (Grade 1=5, Grade 2=9, Grade 3=13, Grade 4=17, Grade 5=21, Grade 6=25/45).
+4. **Death 'Roid Stocking & Coin Locker Expansion**:
+   * Expanded Coin Locker capacity to 1,500 slots.
+   * Injected 50x of each Death 'Roid tier (`ITMT_STEROID_1` through `ITMT_STEROID_6`, 300 total) into the player's Coin Locker, ensuring the Mingo Head material requirement is always satisfied.
+
+---
+
 *Technical reference verified against the official masters.db database and the Unreal Engine save pipeline of LET IT DIE.*
+

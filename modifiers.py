@@ -26,6 +26,7 @@ from core.helpers import (
     load_all_equipment,
     get_save_summary,
     get_account_overview,
+    get_authentic_uncap_ptids,
 )
 
 from core.currencies import (
@@ -45,6 +46,7 @@ from core.currencies import (
     get_waiting_room_info,
     get_vip_status,
     max_all_currencies,
+    repair_and_sanitize_currencies,
     activate_vip_express_pass,
     max_login_streak,
 )
@@ -67,6 +69,12 @@ from core.fighters import (
     create_new_fighter,
     delete_fighter,
     is_tutorial_cleared,
+    sanitize_fighters,
+)
+
+from core.tdm import (
+    repair_and_sanitize_tdm,
+    calculate_player_rank,
 )
 
 
@@ -76,6 +84,7 @@ from core.mastery import (
     set_weapon_mastery,
     max_weapon_masteries,
     set_single_weapon_mastery,
+    repair_and_sanitize_mastery,
 )
 
 from core.decals import (
@@ -128,6 +137,11 @@ from core.blueprints import (
     set_massive_ammo_all_weapons,
     upgrade_all_equipment_max_level,
     inject_endgame_set,
+    enable_all_shop_tiers,
+    restore_shop_tier_progression,
+    get_shop_tier_mod_status,
+    get_evolution_mappings,
+    clamp_all_equipment_authentic_levels,
 )
 
 from core.tower import (

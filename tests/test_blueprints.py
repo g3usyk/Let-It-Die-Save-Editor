@@ -38,9 +38,32 @@ class TestBlueprints(unittest.TestCase):
         self.assertGreater(len(user_pr), 0)
 
     def test_set_infinite_durability(self):
-        count = modifiers.set_infinite_durability_all_equipment(self.save, target_dur=999999)
+        count = modifiers.set_infinite_durability_all_equipment(self.save, target_dur=50000)
         self.assertEqual(count, 1)
         p = self.save["part"]["pts"]["COIN_LOCKER"][0]
+        self.assertEqual(p["dur"], 50000)
+
+    def test_set_ammo_only_affects_firearms_not_melee_or_armor(self):
+        # Inject a firearm (KAMAS), a melee weapon (Machete), and an armor (Tops)
+        pts = self.save["part"]["pts"]["COIN_LOCKER"]
+        pts.append({"ptid": "PT_ARM_WP017_001", "rest": 0, "spare": 0, "dur": 1000})  # KAMAS firearm
+        machete_dirty = {"ptid": "PT_ARM_WP001_001", "rest": 99, "spare": 99, "dur": 1000}
+        pts.append(machete_dirty)  # Machete melee
+        armor_dirty = {"ptid": "PT_DIY_TOPS_001", "rest": 99, "spare": 99, "dur": 1000}
+        pts.append(armor_dirty)   # Armor
+        
+        modifiers.set_massive_ammo_all_weapons(self.save, ammo=None)
+        
+        kamas = next(p for p in pts if p["ptid"] == "PT_ARM_WP017_001")
+        
+        # KAMAS firearm must have authentic magazine (30) and spare reserve (300)
+        self.assertGreater(kamas["rest"], 0)
+        self.assertGreater(kamas["spare"], 0)
+        # Machete and armor must be sanitized to 0 ammo!
+        self.assertEqual(machete_dirty.get("rest", 0), 0)
+        self.assertEqual(machete_dirty.get("spare", 0), 0)
+        self.assertEqual(armor_dirty.get("rest", 0), 0)
+        self.assertEqual(armor_dirty.get("spare", 0), 0)
     def test_unlock_single_blueprint_evolves_into_remodel(self):
         # Unlocking Yes Knife 1 at +4 should place Yes Knife 2 in R&D as REMODEL, not in forge
         next_id = modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP002_0Y1", level=4, unlock_next_tier=True)
@@ -135,28 +158,32 @@ class TestBlueprints(unittest.TestCase):
         self.assertEqual(len(dups), 0, f"No duplicates allowed in save: {dups}")
 
     def test_uncapped_blueprint_and_storage_upgrade(self):
-        # 1. Unlocking final tier (PT_ARM_WP001_005) to level 19 (R&D ready for +19)
-        modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=19, unlock_next_tier=False)
+        # 1. Setting final tier (PT_ARM_WP001_005) ready for R&D next upgrade (+18 in store, ready for +19)
+        modifiers.send_blueprint_to_rnd(self.save, "PT_ARM_WP001_005", target_level=19)
         pr_map = modifiers.get_blueprints_unlock_map(self.save)
         self.assertEqual(pr_map["PT_ARM_WP001_005"]["status"], "RND_UNCAPPED")
         self.assertEqual(pr_map["PT_ARM_WP001_005"]["lvl"], 19)
         self.assertIn("+18 → +19", pr_map["PT_ARM_WP001_005"]["label"])
         
-        # 2. Unlocking final tier to level 20 (Shop Max)
-        modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=20, unlock_next_tier=False)
+        # 2. Unlocking final tier to max authentic endgame (+19 in Shop, engine level 20)
+        modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=19, unlock_next_tier=False)
         pr_map2 = modifiers.get_blueprints_unlock_map(self.save)
         self.assertEqual(pr_map2["PT_ARM_WP001_005"]["status"], "STORE_UNCAPPED")
         self.assertEqual(pr_map2["PT_ARM_WP001_005"]["lvl"], 20)
         self.assertIn("+19", pr_map2["PT_ARM_WP001_005"]["label"])
         
-        # Verify CHARGE is set on level 20
+        # Verify CHARGE is set on engine level 20 (which produces +19 in game and makes it purchasable in shop)
         pr_u = self.save["soul"]["partresearch"]["user"]
-        charge_entry = next((e for e in pr_u if e.get("ptid") == "PT_ARM_WP001_005" and e.get("receive_type") == "CHARGE"), None)
-        self.assertIsNotNone(charge_entry)
-        self.assertEqual(charge_entry.get("lvl"), 20)
+        finished_entry = next((e for e in pr_u if e.get("ptid") == "PT_ARM_WP001_005" and e.get("lvl") == 20), None)
+        self.assertIsNotNone(finished_entry)
+        self.assertEqual(finished_entry.get("receive_type"), "CHARGE")
         
-        # Verify deliver to storage at lvl 20
-        added = modifiers.add_equipment_to_storage(self.save, "PT_ARM_WP001_005", count=1, lvl=20)
+        # Verify parent Tier 4 has CHARGE so Chokufunsha Shop sells gear with official 2D UI icon
+        parent_charge = next((e for e in pr_u if e.get("ptid") == "PT_ARM_WP001_004" and e.get("receive_type") == "CHARGE"), None)
+        self.assertIsNotNone(parent_charge)
+        
+        # Verify deliver to storage at lvl 19 (resolves to authentic engine lvl 20)
+        added = modifiers.add_equipment_to_storage(self.save, "PT_ARM_WP001_005", count=1, lvl=19)
         self.assertEqual(added, 1)
         pts = self.save["part"]["pts"]
         items = [i for sub in pts.values() for i in sub] if isinstance(pts, dict) else pts
@@ -166,8 +193,8 @@ class TestBlueprints(unittest.TestCase):
         self.assertGreaterEqual(uncapped_item.get("dur"), 50000)
 
     def test_uncapped_intermediate_level_plus15(self):
-        # When unlocking an uncapped piece at level 15:
-        # Shop should have +15 (engine lvl 16 CHARGE), and R&D counter should show +15 -> +16
+        # When unlocking an uncapped piece at display level +15:
+        # Shop should have +15 (engine lvl 16), and R&D counter should show +15 -> +16
         modifiers.unlock_single_blueprint(self.save, "PT_ARM_WP001_005", level=15, unlock_next_tier=False)
         pr_map = modifiers.get_blueprints_unlock_map(self.save)
         self.assertEqual(pr_map["PT_ARM_WP001_005"]["status"], "RND_UNCAPPED")
@@ -175,9 +202,74 @@ class TestBlueprints(unittest.TestCase):
         self.assertIn("+15 → +16", pr_map["PT_ARM_WP001_005"]["label"])
         
         pr_u = self.save["soul"]["partresearch"]["user"]
-        charge_entry = next((e for e in pr_u if e.get("ptid") == "PT_ARM_WP001_005" and e.get("receive_type") == "CHARGE"), None)
-        self.assertIsNotNone(charge_entry)
-        self.assertEqual(charge_entry.get("lvl"), 16)
+        finished_entry = next((e for e in pr_u if e.get("ptid") == "PT_ARM_WP001_005" and e.get("lvl") == 16), None)
+        self.assertIsNotNone(finished_entry)
+        self.assertEqual(finished_entry.get("receive_type"), "CHARGE")
+
+    def test_clamp_all_equipment_authentic_levels(self):
+        # Inject an oversized uncap piece (lvl 25) and standard piece (lvl 19)
+        pr_u = self.save["soul"]["partresearch"]["user"]
+        pr_u.append({"ptid": "PT_ARM_WP001_005", "lvl": 25, "research_type": "FINISHED", "receive_type": "CHARGE"})
+        pr_u.append({"ptid": "PT_ARM_WP001_001", "lvl": 19, "research_type": "FINISHED", "receive_type": "CHARGE"})
+        
+        clamped_bp, clamped_st = modifiers.clamp_all_equipment_authentic_levels(self.save)
+        self.assertGreater(clamped_bp, 0)
+        
+        # Check that uncap piece in partresearch is clamped to 20 (display +19) and has CHARGE so it is in shop
+        pr_u_clamped = self.save["soul"]["partresearch"]["user"]
+        uncap_entry = next((e for e in pr_u_clamped if e.get("ptid") == "PT_ARM_WP001_005" and e.get("lvl") == 20), None)
+        self.assertIsNotNone(uncap_entry)
+        self.assertEqual(uncap_entry.get("receive_type"), "CHARGE")
+        
+        # Check standard piece in partresearch is clamped to 5 (display +4)
+        charge_std = next((e for e in pr_u_clamped if e.get("ptid") == "PT_ARM_WP001_001" and e.get("lvl") == 5 and e.get("receive_type") == "CHARGE"), None)
+        self.assertIsNotNone(charge_std)
+        self.assertEqual(charge_std.get("lvl"), 5)
+
+    def test_shop_tier_mod_lifecycle(self):
+        import sqlite3
+        test_db_path = os.path.join(BASE_DIR, "test_shop_tier_mod.db")
+        try:
+            conn = sqlite3.connect(test_db_path)
+            cur = conn.cursor()
+            cur.execute("CREATE TABLE master_part (id TEXT PRIMARY KEY, nextptid TEXT);")
+            cur.execute("INSERT INTO master_part VALUES ('PT_1', 'PT_2');")
+            cur.execute("INSERT INTO master_part VALUES ('PT_2', 'PT_3');")
+            cur.execute("INSERT INTO master_part VALUES ('PT_3', '');")
+            conn.commit()
+            conn.close()
+
+            # Status initially inactive
+            st1 = modifiers.get_shop_tier_mod_status(db_path=test_db_path)
+            self.assertFalse(st1["active"])
+
+            # Enable mod
+            res_en = modifiers.enable_all_shop_tiers(db_path=test_db_path)
+            self.assertTrue(res_en["success"])
+            self.assertEqual(res_en["modified_count"], 2)
+
+            st2 = modifiers.get_shop_tier_mod_status(db_path=test_db_path)
+            self.assertTrue(st2["active"])
+            self.assertEqual(st2["modified_count"], 2)
+
+            # Check next_map and parent_map work seamlessly
+            nmap, pmap = modifiers.get_evolution_mappings(db_path=test_db_path)
+            self.assertEqual(nmap.get("PT_1"), "PT_2")
+            self.assertEqual(pmap.get("PT_2"), "PT_1")
+
+            # Restore progression
+            res_res = modifiers.restore_shop_tier_progression(db_path=test_db_path)
+            self.assertTrue(res_res["success"])
+            self.assertEqual(res_res["restored_count"], 2)
+
+            st3 = modifiers.get_shop_tier_mod_status(db_path=test_db_path)
+            self.assertFalse(st3["active"])
+        finally:
+            if os.path.exists(test_db_path):
+                os.remove(test_db_path)
+            bak = test_db_path + ".original.bak"
+            if os.path.exists(bak):
+                os.remove(bak)
 
 if __name__ == "__main__":
     unittest.main()

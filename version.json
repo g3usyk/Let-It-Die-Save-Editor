@@ -1,14 +1,14 @@
 {
-  "version": "2.7.0",
+  "version": "4.0.0",
   "name": "Let It Die - Complete Save Editor & Encyclopedia",
-  "release_date": "2026-09-04",
+  "release_date": "2026-09-05",
   "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
   "changelog": [
-    "Modularizacion de Arquitectura: Division del editor monolitico en mixins de dominio desacoplados en ui/tabs/",
-    "Correccion de Congelador y Tutorial en Partidas Nuevas: Desbloqueo automatico de Kiwako Seto, Sala de Espera e instalaciones al crear/modificar luchadores o desbloquear mapa",
-    "Sincronizacion de 10 Ranuras del Congelador: Mapeo y reordenamiento sin corrupcion de slots en soul.chr.slots",
-    "Compresor ZLIB Balanceado: Distribucion en 4 trozos balanceados con UTF-8 estricto compatible con streaming nativo",
-    "Estabilizacion de la Torre: Retirada de inyeccion forzada de habitaciones off-rotation para prevenir cuelgues de carga",
-    "Boton de Rescate de Emergencia: Recuperacion automatica de luchadores atrapados en el vacio o en bucles de carga hacia la Sala de Espera"
+    "Correccion Critica de Crasheo en Mingo Head (DistributeBodyLvlParam): Inyeccion automatica de Experiencia acumulada canonica (total_exp) y reserva de EXP (rest_exp = 9,999,999) para evitar cuelgues al subir de nivel con Sangrenio.",
+    "Prevencion de Crasheo por Falta de Materiales (Array.h:635 Assertion): Inyeccion automatica de Death 'Roids (ITMT_STEROID_1 a 6) en el Coin Locker para desbloqueos de ranuras de habilidad, bolsa y furia.",
+    "Expansion Automatica del Baul (Coin Locker): Ampliacion de 30 a 1,500 espacios en partidas nuevas y guardados sanitizados.",
+    "Sincronizacion Estricta de Nivel y Estadisticas Canonicas: Parametros de luchadores 100% alineados con master_body_detail y master_bodylvl_status_value.",
+    "Blindaje de Simulacion y Asaltos TDM: Eliminacion de datos fuera de rango (rage gauge desincronizado, durabilidad irreal, municion corrupta en armas cuerpo a cuerpo).",
+    "Estabilidad Total del Motor Unreal Engine: Cobertura automatizada completa con 62 pruebas unitarias pasando al 100%."
   ]
 }
