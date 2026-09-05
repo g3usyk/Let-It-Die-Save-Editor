@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-LET IT DIE (Offline) - Deep Save Editor Pro v4.0.0 (Master Cyberpunk Encyclopedia Edition)
+LET IT DIE (Offline) - Deep Save Editor Pro v4.0.1 (Master Cyberpunk Encyclopedia Edition)
 Complete Visual Redesign matching ArmorSetViewerDialog quality standard across all tabs.
 Modular architecture with tab mixins in ui/tabs.
 """
@@ -82,7 +82,7 @@ class CompleteSaveEditorGUI(
 
     def __init__(self):
         super().__init__()
-        self.title("LET IT DIE (Offline) - Deep Save Editor Pro v4.0.0 (Master Cyberpunk Edition)")
+        self.title("LET IT DIE (Offline) - Deep Save Editor Pro v4.0.1 (Master Cyberpunk Edition)")
         self.geometry("1240x820")
         self.minsize(1040, 700)
         self.configure(bg=BG_DARK)
