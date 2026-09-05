@@ -289,6 +289,22 @@ class TestBlueprints(unittest.TestCase):
         self.assertEqual(len(save_with_empty_dict_pts["part"]["pts"]["1"]), 1)
         self.assertEqual(save_with_empty_dict_pts["part"]["pts"]["1"][0]["ptid"], "PT_DIY_HEAD_001")
 
+    def test_armor_set_unlock_branch_hierarchy(self):
+        # Unlocking a Tier 4 piece must auto-unlock all lower branch ancestors (Tier 1, 2, 3)
+        save = {
+            "user": {"uid": 1},
+            "soul": {"partresearch": {"user": []}, "cl": []},
+            "part": {"pts": {"1": []}}
+        }
+        modifiers.unlock_single_blueprint(save, "PT_DIY_HEAD_102", level=20, unlock_next_tier=True, auto_unlock_ancestors=True)
+        pr_u = save["soul"]["partresearch"]["user"]
+        
+        # Verify Tier 1, Tier 2, and Tier 3 are unlocked at Level 5 with CHARGE
+        for anc_ptid in ["PT_DIY_HEAD_001", "PT_DIY_HEAD_101", "PT_DIY_HEAD_002"]:
+            entry_lvl5 = next((e for e in pr_u if e.get("ptid") == anc_ptid and e.get("lvl") == 5), None)
+            self.assertIsNotNone(entry_lvl5, f"Ancestor {anc_ptid} must be unlocked to Level 5")
+            self.assertEqual(entry_lvl5.get("receive_type"), "CHARGE", f"Ancestor {anc_ptid} must have CHARGE to be buyable in shop")
+
 if __name__ == "__main__":
     unittest.main()
 

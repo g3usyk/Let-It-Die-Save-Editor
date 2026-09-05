@@ -258,7 +258,13 @@ class ArmorSetViewerDialog(tk.Toplevel):
         counts = modifiers.get_equipment_inventory_counts(self.save_json) if self.save_json else ({}, {})
         storage_map, bag_map = counts
         pr_list = self.save_json.get("soul", {}).get("partresearch", {}).get("user", []) if self.save_json else []
-        forge_levels = {r.get("ptid"): r.get("lvl", 0) for r in pr_list if isinstance(r, dict)}
+        forge_levels = {}
+        for r in pr_list:
+            if isinstance(r, dict) and r.get("research_type") == "FINISHED":
+                ptid = r.get("ptid")
+                lvl = r.get("lvl", 0)
+                if lvl > forge_levels.get(ptid, 0):
+                    forge_levels[ptid] = lvl
         
         for slot_key in ["head", "body", "legs", "weapon"]:
             p = t_obj.get(slot_key)
@@ -313,14 +319,28 @@ class ArmorSetViewerDialog(tk.Toplevel):
             bg_cnt = bag_map.get(p["id"], 0)
             
             if is_en:
-                f_txt = f"⭐ Shop: Unlocked (+{f_lvl})" if f_lvl >= 4 else f"🔨 Shop: Level +{f_lvl}" if f_lvl > 0 else "❌ Shop: Locked"
+                if f_lvl >= 20:
+                    f_txt = "⭐ Shop: Unlocked (+19 Uncapped)"
+                elif f_lvl >= 5:
+                    f_txt = "⭐ Shop: Unlocked (+4)"
+                elif f_lvl > 0:
+                    f_txt = f"🔨 Shop: Level +{f_lvl-1}"
+                else:
+                    f_txt = "❌ Shop: Locked"
                 st_txt = f"📦 Storage: {st_cnt} pcs." if st_cnt > 0 else "📦 Storage: 0 pcs."
                 bg_txt = f"🎒 Bag: {bg_cnt} pcs." if bg_cnt > 0 else ""
             else:
-                f_txt = f"⭐ Tienda: Desbloqueado (+{f_lvl})" if f_lvl >= 4 else f"🔨 Tienda: Nivel +{f_lvl}" if f_lvl > 0 else "❌ Tienda: Bloqueado"
+                if f_lvl >= 20:
+                    f_txt = "⭐ Tienda: Desbloqueado (+19 Destope)"
+                elif f_lvl >= 5:
+                    f_txt = "⭐ Tienda: Desbloqueado (+4)"
+                elif f_lvl > 0:
+                    f_txt = f"🔨 Tienda: Nivel +{f_lvl-1}"
+                else:
+                    f_txt = "❌ Tienda: Bloqueado"
                 st_txt = f"📦 Almacén: {st_cnt} u." if st_cnt > 0 else "📦 Almacén: 0 u."
                 bg_txt = f"🎒 Mochila: {bg_cnt} u." if bg_cnt > 0 else ""
-            f_color = ACCENT_GOLD if f_lvl >= 4 else ACCENT_BLUE if f_lvl > 0 else FG_MUTED
+            f_color = ACCENT_GOLD if f_lvl >= 5 else ACCENT_BLUE if f_lvl > 0 else FG_MUTED
             
             full_stat = f"{f_txt}  •  {st_txt}" + (f"  •  {bg_txt}" if bg_txt else "")
             card_ui["status_lbl"].config(text=full_stat, foreground=f_color)
@@ -376,47 +396,8 @@ class ArmorSetViewerDialog(tk.Toplevel):
     def unlock_single_piece(self, pid):
         if not self.save_json or not pid:
             return
-        pr_list = self.save_json.setdefault("soul", {}).setdefault("partresearch", {}).setdefault("user", [])
-        existing = {(r.get("ptid"), r.get("lvl")): r for r in pr_list if isinstance(r, dict)}
-        
-        # 1. Levels 1 to 4 (FINISHED / FINISHED)
-        for lvl in range(1, 5):
-            key = (pid, lvl)
-            if key not in existing:
-                pr_list.append({
-                    "ptid": pid,
-                    "lvl": lvl,
-                    "research_type": "FINISHED",
-                    "receive_type": "FINISHED",
-                    "is_announced": 1,
-                    "is_checked": 1,
-                    "before_ptid": pid if lvl > 1 else "",
-                    "before_lvl": lvl - 1 if lvl > 1 else 0
-                })
-            else:
-                existing[key]["research_type"] = "FINISHED"
-                existing[key]["receive_type"] = "FINISHED"
-                
-        # 2. Level 5 (Completed +4, available to purchase in Chokufunsha with Kill Coins)
-        key5 = (pid, 5)
-        if key5 not in existing:
-            pr_list.append({
-                "ptid": pid,
-                "lvl": 5,
-                "research_type": "FINISHED",
-                "receive_type": "CHARGE",
-                "is_announced": 1,
-                "is_checked": 3,
-                "before_ptid": pid,
-                "before_lvl": 4
-            })
-        else:
-            existing[key5]["research_type"] = "FINISHED"
-            existing[key5]["receive_type"] = "CHARGE"
-            existing[key5]["is_checked"] = 3
-            
-        # 3. Add 1 unit directly to Storage (Coin Locker) at selected tier level (+19 default, +24 optional)
         int_lvl, plus_lvl = self._get_selected_gear_level()
+        modifiers.unlock_single_blueprint(self.save_json, pid, level=int_lvl, unlock_next_tier=True, auto_unlock_ancestors=True)
         modifiers.add_equipment_to_storage(self.save_json, pid, count=1, lvl=int_lvl, dur=50000)
         self._auto_save_and_sync()
         self.parent_app.filter_blueprints_list()
@@ -425,13 +406,13 @@ class ArmorSetViewerDialog(tk.Toplevel):
         is_en = i18n.get_language() == "en"
         title = "Blueprint & Item Unlocked" if is_en else "Plano y Objeto Desbloqueado"
         msg = (
-            f"'{pid}' successfully unlocked!\n\n"
+            f"'{pid}' and its ancestor branch successfully unlocked!\n\n"
             f"1. 🛒 Chokufunsha: Available in Shop (+4) to purchase with Kill Coins.\n"
             f"2. 📦 Storage: 1 unit (+{plus_lvl}, 100% Durability) delivered to Coin Locker.\n"
             f"3. 💾 Save updated automatically."
         ) if is_en else (
-            f"¡El objeto '{pid}' ha sido completamente desbloqueado!\n\n"
-            f"1. 🛒 Chokufunsha: Disponible en tienda (+4) para comprar con Kill Coins.\n"
+            f"¡El objeto '{pid}' y toda su rama inferior han sido desbloqueados!\n\n"
+            f"1. 🛒 Chokufunsha: Disponibles en tienda (+4) para comprar con Kill Coins.\n"
             f"2. 📦 Almacén: Se ha entregado 1 unidad (+{plus_lvl}, Dur 100%) en tu Almacén.\n"
             f"3. 💾 Partida guardada automáticamente."
         )
@@ -465,50 +446,33 @@ class ArmorSetViewerDialog(tk.Toplevel):
             
         int_lvl, plus_lvl = self._get_selected_gear_level()
         unlocked = []
+
+        # 1. Unlock all preceding tiers in this armor set (Tier 1, Tier 2, Tier 3, etc.)
+        for tier_item in s_obj.get("tiers", []):
+            if tier_item.get("tier_num", 0) < self.current_tier_num:
+                for slot in ["head", "body", "legs", "weapon"]:
+                    prev_p = tier_item.get(slot)
+                    if prev_p and prev_p.get("id"):
+                        modifiers.unlock_single_blueprint(
+                            self.save_json,
+                            prev_p["id"],
+                            level=4,
+                            unlock_next_tier=True,
+                            auto_unlock_ancestors=True
+                        )
+
+        # 2. Unlock the current tier pieces + weapon and deliver to storage
         for slot in ["head", "body", "legs", "weapon"]:
             p = t_obj.get(slot)
             if p and p.get("id"):
                 pid = p["id"]
-                pr_list = self.save_json.setdefault("soul", {}).setdefault("partresearch", {}).setdefault("user", [])
-                existing = {(r.get("ptid"), r.get("lvl")): r for r in pr_list if isinstance(r, dict)}
-                
-                # Levels 1 to 4
-                for lvl in range(1, 5):
-                    key = (pid, lvl)
-                    if key not in existing:
-                        pr_list.append({
-                            "ptid": pid,
-                            "lvl": lvl,
-                            "research_type": "FINISHED",
-                            "receive_type": "FINISHED",
-                            "is_announced": 1,
-                            "is_checked": 1,
-                            "before_ptid": pid if lvl > 1 else "",
-                            "before_lvl": lvl - 1 if lvl > 1 else 0
-                        })
-                    else:
-                        existing[key]["research_type"] = "FINISHED"
-                        existing[key]["receive_type"] = "FINISHED"
-                        
-                # Level 5 (CHARGE / Buyable in store)
-                key5 = (pid, 5)
-                if key5 not in existing:
-                    pr_list.append({
-                        "ptid": pid,
-                        "lvl": 5,
-                        "research_type": "FINISHED",
-                        "receive_type": "CHARGE",
-                        "is_announced": 1,
-                        "is_checked": 3,
-                        "before_ptid": pid,
-                        "before_lvl": 4
-                    })
-                else:
-                    existing[key5]["research_type"] = "FINISHED"
-                    existing[key5]["receive_type"] = "CHARGE"
-                    existing[key5]["is_checked"] = 3
-                    
-                # Add 1 physical unit to Storage at chosen tier level (+19 default, +24 optional)
+                modifiers.unlock_single_blueprint(
+                    self.save_json,
+                    pid,
+                    level=int_lvl,
+                    unlock_next_tier=True,
+                    auto_unlock_ancestors=True
+                )
                 modifiers.add_equipment_to_storage(self.save_json, pid, count=1, lvl=int_lvl, dur=50000)
                 unlocked.append(f"{p['name']} ({p.get('name_es', p['name'])})")
                 
@@ -521,14 +485,14 @@ class ArmorSetViewerDialog(tk.Toplevel):
         s_name = s_obj['name_en'] if is_en else s_obj.get('name_es', s_obj['name_en'])
         t_name = t_obj.get('tier_name_en', t_obj['tier_name']) if is_en else t_obj['tier_name']
         msg = (
-            f"{s_name} ({t_name}) and signature weapon unlocked!\n\n"
-            f"🛒 Chokufunsha: Pieces and weapon ready to purchase in Shop with KC.\n"
+            f"{s_name} ({t_name}), preceding branch tiers, and signature weapon unlocked!\n\n"
+            f"🛒 Chokufunsha: Pieces, lower tiers, and weapon ready to purchase in Shop with KC.\n"
             f"📦 Storage: 1 copy of each armor piece + weapon (+{plus_lvl}, 100% Durability) added to Coin Locker.\n"
             f"💾 Save file updated automatically.\n\n"
             + "\n".join([f"• {u}" for u in unlocked])
         ) if is_en else (
-            f"¡El {s_name} ({t_name}) y su arma característica han sido desbloqueados!\n\n"
-            f"🛒 Tienda Chokufunsha: Las piezas y el arma están listas para comprar al Nivel +4 con Kill Coins.\n"
+            f"¡El {s_name} ({t_name}), sus tiers inferiores y su arma han sido desbloqueados!\n\n"
+            f"🛒 Tienda Chokufunsha: Las piezas, los tiers previos y el arma están listos para comprar con Kill Coins.\n"
             f"📦 Almacén: Se ha entregado 1 copia de cada armadura + el arma (Nivel +{plus_lvl}, 100% Durabilidad) en tu Almacén.\n"
             f"💾 Partida guardada automáticamente.\n\n"
             + "\n".join([f"• {u}" for u in unlocked])
