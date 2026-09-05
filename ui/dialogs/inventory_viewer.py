@@ -236,7 +236,8 @@ class InventoryViewerDialog(tk.Toplevel):
                     
                 loc_txt = t("inv_loc_storage") if owner == "COIN_LOCKER" else t("inv_loc_bag")
                 clean_slug = (meta.get("name_en") or mid).lower().replace(" ", "_").replace("-", "_")
-                thumb = self.parent_app.get_photo(clean_slug, size=(24, 24)) or self.parent_app.get_photo("01_heartshroom_1", size=(24, 24))
+                icon_k = meta.get("icon") or f"{mid.lower()}.png"
+                thumb = self.parent_app.get_photo(icon_k, size=(24, 24)) or self.parent_app.get_photo(clean_slug, size=(24, 24)) or self.parent_app.get_photo("01_heartshroom_1", size=(24, 24))
                 
                 node = self.tree.insert(
                     "",
@@ -267,7 +268,8 @@ class InventoryViewerDialog(tk.Toplevel):
                     
                 loc_txt = t("inv_loc_storage") if owner == "COIN_LOCKER" else t("inv_loc_bag")
                 clean_slug = (meta.get("name_en") or bid).lower().replace(" ", "_").replace("-", "_")
-                thumb = self.parent_app.get_photo(clean_slug, size=(24, 24)) or self.parent_app.get_photo("golden_frog", size=(24, 24)) or self.parent_app.get_photo("snails", size=(24, 24))
+                icon_k = meta.get("icon") or f"{bid.lower()}.png"
+                thumb = self.parent_app.get_photo(icon_k, size=(24, 24)) or self.parent_app.get_photo(clean_slug, size=(24, 24)) or self.parent_app.get_photo("golden_frog", size=(24, 24)) or self.parent_app.get_photo("snails", size=(24, 24))
                 
                 node = self.tree.insert(
                     "",

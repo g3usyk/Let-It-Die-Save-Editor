@@ -80,5 +80,36 @@ class TestStorage(unittest.TestCase):
         self.assertIsInstance(dict_save["item"]["items"], list)
         self.assertEqual(len(dict_save["item"]["items"]), 50)
 
+    def test_all_shrooms_beasts_database(self):
+        import json
+        sb_path = os.path.join(BASE_DIR, "all_shrooms_beasts_db.json")
+        self.assertTrue(os.path.exists(sb_path))
+        with open(sb_path, "r", encoding="utf-8") as f:
+            sb_db = json.load(f)
+        self.assertEqual(len(sb_db), 87)
+        self.assertIn("MSR_309", sb_db)
+        self.assertIn("MSR_310", sb_db)
+        self.assertIn("MSR_311", sb_db)
+        self.assertEqual(sb_db["MSR_309"]["name_en"], "Bronze Pumpkinshroom")
+        self.assertEqual(sb_db["MSR_310"]["name_en"], "Silver Pumpkinshroom")
+        self.assertEqual(sb_db["MSR_311"]["name_en"], "Gold Pumpkinshroom")
+        self.assertTrue(len(sb_db["MSR_309"].get("desc_es", "")) > 0)
+        self.assertTrue(len(sb_db["MSR_309"].get("desc_en", "")) > 0)
+
+    def test_add_pumpkinshrooms_to_storage(self):
+        added_bronze = modifiers.add_material_to_storage(self.save, "MSR_309", count=5)
+        added_silver = modifiers.add_material_to_storage(self.save, "MSR_310", count=5)
+        added_gold = modifiers.add_material_to_storage(self.save, "MSR_311", count=5)
+        self.assertEqual(added_bronze, 5)
+        self.assertEqual(added_silver, 5)
+        self.assertEqual(added_gold, 5)
+        self.assertEqual(len(self.save["mushroom"]["msrs"]), 15)
+
+        stock = modifiers.analyze_storage_stock(self.save)
+        self.assertEqual(stock["stock_by_id"]["MSR_309"], 5)
+        self.assertEqual(stock["stock_by_id"]["MSR_310"], 5)
+        self.assertEqual(stock["stock_by_id"]["MSR_311"], 5)
+
 if __name__ == "__main__":
     unittest.main()
+

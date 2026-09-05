@@ -63,7 +63,9 @@ class MaterialsTabMixin:
                 "Boss Metals",
                 "Jackals & Tengoku Materials",
                 "Steroids / Rostest (Fighters)",
-                "🍄 Mushrooms & Beasts"
+                "🍄 Mushrooms & Beasts",
+                "🍄 Mushrooms",
+                "🐸 Beasts"
             ]
         else:
             cats = [
@@ -81,7 +83,9 @@ class MaterialsTabMixin:
                 "Metales de Jefes (Boss Metals)",
                 "Materiales Jackals y Tengoku",
                 "Esteroides / Rostest (Luchadores)",
-                "🍄 Setas y Criaturas"
+                "🍄 Setas y Criaturas",
+                "🍄 Setas (Mushrooms)",
+                "🐸 Criaturas (Beasts)"
             ]
         cb_cat = ttk.Combobox(ctrl_frame, textvariable=self.mat_cat_var, values=cats, state="readonly", width=24)
         cb_cat.pack(side="left", padx=2)
@@ -244,31 +248,42 @@ class MaterialsTabMixin:
         else:
             self.mat_stock_lbl.config(text=t("mat_none_in_storage"), foreground=FG_MUTED)
         
+        is_en = (i18n.get_language() == "en")
         desc = t("mat_desc_default")
-        for m in self.materials_db:
-            if m["itemid"] == itemid:
-                desc = i18n.get_item_desc(m) or desc
-                break
+        sb_db = getattr(self, "shrooms_beasts_db", {})
+        if not sb_db:
+            sb_path = os.path.join(BASE_DIR, "all_shrooms_beasts_db.json")
+            if os.path.exists(sb_path):
+                try:
+                    with open(sb_path, "r", encoding="utf-8") as f:
+                        self.shrooms_beasts_db = json.load(f)
+                        sb_db = self.shrooms_beasts_db
+                except Exception:
+                    pass
+
+        if itemid.startswith("MSR_") or itemid.startswith("BST_"):
+            sb_info = sb_db.get(itemid, {})
+            if is_en:
+                desc = sb_info.get("desc_en") or sb_info.get("desc_es") or desc
+            else:
+                desc = sb_info.get("desc_es") or sb_info.get("desc_en") or desc
+        else:
+            for m in self.materials_db:
+                if m["itemid"] == itemid:
+                    desc = i18n.get_item_desc(m) or desc
+                    break
         self.mat_desc_lbl.config(text=desc)
         
         name_en = full_title.split("(")[-1].replace(")", "").strip() if "(" in full_title else full_title
         clean_slug = name_en.lower().replace(" ", "_").replace("-", "_").replace("'", "")
         
-        # Check if selection is a Special Mushroom or Beast
-        special_icon = None
-        for mid, mname, icon_f in SPECIAL_MUSHROOMS:
-            if mid == itemid:
-                special_icon = icon_f
-                break
-        if not special_icon:
-            for bid, bname, icon_b in SPECIAL_BEASTS:
-                if bid == itemid:
-                    special_icon = icon_b
-                    break
+        # Check if selection is a Mushroom or Beast
+        photo = None
+        if itemid.startswith("MSR_") or itemid.startswith("BST_"):
+            sb_icon = sb_db.get(itemid, {}).get("icon") or f"{itemid.lower()}.png"
+            photo = self.get_photo(sb_icon, size=(220, 220), preserve_aspect=True) or self.get_photo(itemid.lower(), size=(220, 220), preserve_aspect=True) or self.get_photo(clean_slug, size=(220, 220), preserve_aspect=True)
 
-        if special_icon:
-            photo = self.get_photo(special_icon, size=(220, 220), preserve_aspect=True)
-        else:
+        if not photo:
             card_rel = self.icon_map.get("materials_cards", {}).get(itemid) if hasattr(self, "icon_map") else None
             photo = self.get_photo(card_rel, size=(280, 140), preserve_aspect=True) if card_rel else None
             if not photo:
@@ -463,7 +478,7 @@ class MaterialsTabMixin:
         is_en = (i18n.get_language() == "en")
         
         # 1. R&D Materials from masters.db
-        if "🍄" not in cat_filter:
+        if "🍄" not in cat_filter and "🐸" not in cat_filter:
             for m in self.materials_db:
                 name_es = m.get("name_es", m.get("name", ""))
                 name_en = m.get("name_en", "")
@@ -543,57 +558,81 @@ class MaterialsTabMixin:
                     first_row = node_id
                     
         # 2. Shrooms and Beasts (Tower Exploration)
-        if (cat_filter in ["Todos", "All"] or "🍄" in cat_filter) and floor_filter == "TODOS" and rarity_filter in ("Todas", "All"):
-            for mid, mname, icon_f in SPECIAL_MUSHROOMS:
-                cnt = stock_map.get(mid, 0)
+        is_shroom_cat = ("🍄" in cat_filter or "🐸" in cat_filter)
+        allow_shrooms_floors = (is_shroom_cat or floor_filter == "TODOS")
+        show_shrooms = (cat_filter in ["Todos", "All"] or is_shroom_cat)
+
+        if show_shrooms and allow_shrooms_floors:
+            only_shrooms = ("(Mushrooms)" in cat_filter or cat_filter == "🍄 Mushrooms")
+            only_beasts = ("(Beasts)" in cat_filter or cat_filter == "🐸 Beasts")
+
+            sb_db = getattr(self, "shrooms_beasts_db", {})
+            if not sb_db:
+                sb_path = os.path.join(BASE_DIR, "all_shrooms_beasts_db.json")
+                if os.path.exists(sb_path):
+                    try:
+                        with open(sb_path, "r", encoding="utf-8") as f:
+                            self.shrooms_beasts_db = json.load(f)
+                            sb_db = self.shrooms_beasts_db
+                    except Exception:
+                        pass
+
+            sorted_entries = sorted(
+                sb_db.items(),
+                key=lambda item: (0 if item[1].get("type") == "MUSHROOM" else 1, item[0])
+            )
+
+            for itemid, info in sorted_entries:
+                item_type = info.get("type", "MUSHROOM")
+                if only_shrooms and item_type != "MUSHROOM":
+                    continue
+                if only_beasts and item_type != "BEAST":
+                    continue
+
+                cnt = stock_map.get(itemid, 0)
                 if ("En Stock" in stock_filter or "In Stock" in stock_filter) and cnt <= 0:
                     continue
                 elif ("Stock Bajo" in stock_filter or "Low Stock" in stock_filter) and (cnt <= 0 or cnt >= 10):
                     continue
                 elif ("Agotado" in stock_filter or "Out of Stock" in stock_filter) and cnt > 0:
                     continue
+
+                r = info.get("rarity", 1)
+                if rarity_filter not in ("Todas", "All"):
+                    try:
+                        req_r = int(rarity_filter.replace("★", "").strip())
+                        if r != req_r:
+                            continue
+                    except ValueError:
+                        pass
+
+                name_en = info.get("name_en", "")
+                name_es = info.get("name_es", "")
+                cooked_en = info.get("cooked_name_en", "")
+                cooked_es = info.get("cooked_name_es", "")
+                cat_en = info.get("category_en", "Mushrooms" if item_type == "MUSHROOM" else "Beasts")
+                cat_es = info.get("category_es", "Setas" if item_type == "MUSHROOM" else "Criaturas")
+                cat_display = cat_en if is_en else cat_es
+
                 if query_tokens:
-                    searchable = f"{mname} {mid} mushroom seta shroom".lower()
-                    if not all(token in searchable for token in query_tokens):
-                        continue
-                stock_str = f"{cnt} pcs." if i18n.get_language() == "en" and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
-                tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
-                thumb = self.get_photo(icon_f, size=(36, 36), preserve_aspect=True) or self.get_photo("01_heartshroom_1", size=(36, 36), preserve_aspect=True)
-                node_id = self.mat_tree.insert(
-                    "",
-                    "end",
-                    text=f" {mname}",
-                    image=thumb or "",
-                    values=(stock_str, "★★★", "Special Shrooms" if i18n.get_language() == "en" else "Setas Especiales", mid),
-                    tags=(tag,)
-                )
-                self.tree_images[node_id] = thumb
-                if not first_row:
-                    first_row = node_id
-                    
-            for bid, bname, icon_b in SPECIAL_BEASTS:
-                cnt = stock_map.get(bid, 0)
-                if ("En Stock" in stock_filter or "In Stock" in stock_filter) and cnt <= 0:
-                    continue
-                elif ("Stock Bajo" in stock_filter or "Low Stock" in stock_filter) and (cnt <= 0 or cnt >= 10):
-                    continue
-                elif ("Agotado" in stock_filter or "Out of Stock" in stock_filter) and cnt > 0:
-                    continue
-                if query_tokens:
-                    searchable = f"{bname} {bid} beast criatura".lower()
+                    searchable = f"{name_es} {name_en} {itemid} {item_type} {cat_display} {cooked_en} {cooked_es} mushroom seta shroom beast criatura t{r} tier{r} {r}★ {r}star".lower()
                     if not all(token in searchable for token in query_tokens):
                         continue
 
-                stock_str = f"{cnt} pcs." if i18n.get_language() == "en" and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
+                stock_str = f"{cnt} pcs." if is_en and cnt > 0 else (f"{cnt} u." if cnt > 0 else "-")
                 tag = "tag_in_stock" if cnt > 0 else "tag_out_of_stock"
-                thumb = self.get_photo(icon_b, size=(36, 36), preserve_aspect=True) or self.get_photo("snails", size=(36, 36), preserve_aspect=True)
-                beast_cat = "Golden Beasts" if i18n.get_language() == "en" else "Criaturas Doradas"
+                stars = "★" * r
+                display_title = f"{name_en} ({name_es})" if is_en else f"{name_es} ({name_en})"
+
+                icon_f = info.get("icon") or f"{itemid.lower()}.png"
+                thumb = self.get_photo(icon_f, size=(36, 36), preserve_aspect=True) or self.get_photo(itemid.lower(), size=(36, 36), preserve_aspect=True)
+
                 node_id = self.mat_tree.insert(
                     "",
                     "end",
-                    text=f" {bname}",
+                    text=f" {display_title}",
                     image=thumb or "",
-                    values=(stock_str, "★★★★", beast_cat, bid),
+                    values=(stock_str, stars, cat_display, itemid),
                     tags=(tag,)
                 )
                 self.tree_images[node_id] = thumb

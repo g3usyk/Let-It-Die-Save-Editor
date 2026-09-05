@@ -5,7 +5,13 @@
     "name_en": "Heartshroom",
     "name_es": "Seta corazón",
     "cooked_name_en": "Grilled Heart Shroom",
-    "cooked_name_es": "Seta corazón asada"
+    "cooked_name_es": "Seta corazón asada",
+    "desc_en": "The heart-shaped cap of the\nmushroom restores HP\nwhen eaten. Its effects increase\nwith heat. It is a delicacy.",
+    "desc_es": "Al comerla, el sombrero en forma \nde corazón de la seta restablece \nla salud. El calor aumenta\nsu efecto. Una exquisitez.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_001.png"
   },
   "MSR_002": {
     "id": "MSR_002",
@@ -13,7 +19,13 @@
     "name_en": "Ricebowl Shroom",
     "name_es": "Seta de cuenco de arroz",
     "cooked_name_en": "Grilled Ricebowl Shroom",
-    "cooked_name_es": "Seta cuenco de arroz asada"
+    "cooked_name_es": "Seta cuenco de arroz asada",
+    "desc_en": "The \"grains of rice\" are\nactually powerful, swollen\nHeartshroom-esque healing\ncomponents. Tastes better\nthan most mushrooms.",
+    "desc_es": "Sus \"granos de arroz\" son\ncomponentes poderosos y\ncurativos similares a las\nsetas corazón. Sabe mejor\nque muchas setas.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_002.png"
   },
   "MSR_006": {
     "id": "MSR_006",
@@ -21,7 +33,13 @@
     "name_en": "Punchshroom",
     "name_es": "Seta puñetazo",
     "cooked_name_en": "Grilled Punchshroom",
-    "cooked_name_es": "Seta puñetazo asada"
+    "cooked_name_es": "Seta puñetazo asada",
+    "desc_en": "Resembling a fist, the tip\ncontains propulsion parts and \nexplodes when thrown. Known\nas one of the \"3 Exploshrooms.\" \nDo not eat.",
+    "desc_es": "Su cabeza con forma de puño\nactúa como propulsor y explota\nal contacto. Es una de las \"3 \nsetas explosivas\".  No comer.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_006.png"
   },
   "MSR_007": {
     "id": "MSR_007",
@@ -29,7 +47,13 @@
     "name_en": "Toughshroom",
     "name_es": "Seta de resistencia",
     "cooked_name_en": "Grilled Toughshroom",
-    "cooked_name_es": "Seta de resistencia asada"
+    "cooked_name_es": "Seta de resistencia asada",
+    "desc_en": "Crystal-like minerals have\nformed over time. Tough and\nnon-poisonous. Not ideal for \neating, but can harden the user \ntemporarily.",
+    "desc_es": "Cubierta por minerales. Es \nresistente y no venenosa. Se \ndesaconseja su consumo,\naunque puede mejorar la\nresistencia temporalmente.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_007.png"
   },
   "MSR_009": {
     "id": "MSR_009",
@@ -37,7 +61,13 @@
     "name_en": "Lavashroom",
     "name_es": "Seta de lava",
     "cooked_name_en": "Grilled Lavashroom",
-    "cooked_name_es": "Seta de lava asada"
+    "cooked_name_es": "Seta de lava asada",
+    "desc_en": "Contains magma-like parts in\nthe cap. Very light and explodes \nat the slightest touch. One of\nthe \"3 Exploshrooms.\" Do not \neat.",
+    "desc_es": "Tiene propiedades volcánicas. \nLigera y altamente explosiva.\nUna de las \"3 setas\nexplosivas\". No comer.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_009.png"
   },
   "MSR_010": {
     "id": "MSR_010",
@@ -45,7 +75,13 @@
     "name_en": "Fluffy Fungus",
     "name_es": "Seta esponjosa",
     "cooked_name_en": "Grilled Fluffy Fungus",
-    "cooked_name_es": "Seta esponjosa asada"
+    "cooked_name_es": "Seta esponjosa asada",
+    "desc_en": "Has a round, cotton-like cap,\nand poisonous spores. Just \ntouching it will put you to sleep. \nDo not trust its sweet smell.",
+    "desc_es": "Su sombrero es suave, redondo\ny tiene esporas venenosas. Al \ntocarlo, provoca sueño. No te\nfíes de su agradable olor.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_010.png"
   },
   "MSR_012": {
     "id": "MSR_012",
@@ -53,7 +89,13 @@
     "name_en": "Doomshroom",
     "name_es": "Seta mortífera",
     "cooked_name_en": "Grilled Doomshroom",
-    "cooked_name_es": "Seta mortífera asada"
+    "cooked_name_es": "Seta mortífera asada",
+    "desc_en": "Contains α-Doomitin poison\nthat induces vomiting. Can be \nlethal. Releases poison gas as a \ndefense. Heat only enhances\nthe poison.",
+    "desc_es": "Contiene veneno α-Barbitin\nque provoca vómitos. Emite\ngas venenoso como defensa. \nPuede ser letal. El calor la hace \nmás venenosa.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_012.png"
   },
   "MSR_013": {
     "id": "MSR_013",
@@ -61,7 +103,13 @@
     "name_en": "Yogashroom",
     "name_es": "Seta de yoga",
     "cooked_name_en": "Grilled Yogashroom",
-    "cooked_name_es": "Seta de yoga asada"
+    "cooked_name_es": "Seta de yoga asada",
+    "desc_en": "With a turquoise cap, this\nmushroom aids the user's \nconcentration. It spread from \nIndia to the island of South Tokyo. \nMeaty and tasty.",
+    "desc_es": "Esta seta turquesa, que\nllegó de la India a la isla\nde Tokyo del Sur, mejora\nla concentración al comerla.\nEs carnosa y sabrosa.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_013.png"
   },
   "MSR_014": {
     "id": "MSR_014",
@@ -69,7 +117,13 @@
     "name_en": "Brainshroom",
     "name_es": "Seta cerebral",
     "cooked_name_en": "Grilled Brainshroom",
-    "cooked_name_es": "Seta cerebral asada"
+    "cooked_name_es": "Seta cerebral asada",
+    "desc_en": "It contains chemicals that\nhinder blood flow to the brain, \ncausing temporary fatigue\nwhen consumed. Rare. Dry and \nflavorless.",
+    "desc_es": "Tiene agentes químicos que\nimpiden el flujo sanguíneo\nal cerebro y causan cansancio\nal comerla. Rara, seca e\ninsípida.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_014.png"
   },
   "MSR_015": {
     "id": "MSR_015",
@@ -77,7 +131,13 @@
     "name_en": "Transparungus",
     "name_es": "Seta transparente",
     "cooked_name_en": "Grilled Transparungus",
-    "cooked_name_es": "Seta transparente asada"
+    "cooked_name_es": "Seta transparente asada",
+    "desc_en": "Mysteriously thins the user's\nbody tissue. It escapes danger\nby erasing its own existence. \nFlavorless and odorless.",
+    "desc_es": "Debilita los tejidos de su\nconsumidor. Evita los peligros \nborrando su existencia.\nInsípida e inodora.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_015.png"
   },
   "MSR_016": {
     "id": "MSR_016",
@@ -85,7 +145,13 @@
     "name_en": "Staminungus",
     "name_es": "Seta de aguante",
     "cooked_name_en": "Grilled Staminungus",
-    "cooked_name_es": "Seta de aguante asada"
+    "cooked_name_es": "Seta de aguante asada",
+    "desc_en": "Its leg-shaped fungi dissolve \nfatigue quickly. Once eaten, \nfatigue will disappear for a short \ntime. Surprisingly tasty.",
+    "desc_es": "Esta seta con forma de pierna \nreduce el cansancio rápidamente\ny por un breve espacio de\ntiempo. Curiosamente sabrosa.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_016.png"
   },
   "MSR_017": {
     "id": "MSR_017",
@@ -93,7 +159,13 @@
     "name_en": "Decoyshroom",
     "name_es": "Seta señuelo",
     "cooked_name_en": "Grilled Decoyshroom",
-    "cooked_name_es": "Seta señuelo asada"
+    "cooked_name_es": "Seta señuelo asada",
+    "desc_en": "Can instantly analyze the DNA of\nanything it touches and create or\ntransform into a flawless\nduplicate. Odiously sour.",
+    "desc_es": "Puede copiar de inmediato\nel ADN de cualquier cosa\nque toca y transformarse\nen una réplica exacta de ella. \nDemasiado ácida.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_017.png"
   },
   "MSR_020": {
     "id": "MSR_020",
@@ -101,7 +173,13 @@
     "name_en": "Slowmungus",
     "name_es": "Seta ralentizadora",
     "cooked_name_en": "Grilled Slowmungus",
-    "cooked_name_es": "Seta ralentizadora asada"
+    "cooked_name_es": "Seta ralentizadora asada",
+    "desc_en": "Has a unique eye-shaped cap\nand red hyphae that resemble \nveins. Slows time down. Has an \nirritating smell.",
+    "desc_es": "Tiene una inusual cabeza con \nforma de ojo y unos filamentos \nrojos como venas. Ralentiza el \ntiempo. Huele fatal.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_020.png"
   },
   "MSR_021": {
     "id": "MSR_021",
@@ -109,7 +187,13 @@
     "name_en": "Shockshroom",
     "name_es": "Seta descarga",
     "cooked_name_en": "Grilled Shockshroom",
-    "cooked_name_es": "Seta descarga asada"
+    "cooked_name_es": "Seta descarga asada",
+    "desc_en": "Consists of \"electrocells\" which \nrelease a high electric charge\nwhen eaten. Salty and not very \npalatable.",
+    "desc_es": "Posee \"electrocélulas\" que\nliberan una potente carga\neléctrica al ser ingerida.\nSalada y poco apetecible.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_021.png"
   },
   "MSR_022": {
     "id": "MSR_022",
@@ -117,7 +201,13 @@
     "name_en": "Fun Fungus",
     "name_es": "Seta de la diversión",
     "cooked_name_en": "Grilled Fun Fungus",
-    "cooked_name_es": "Seta de la diversión asada"
+    "cooked_name_es": "Seta de la diversión asada",
+    "desc_en": "Cap is speckled with white warts. \nFills user with a strange power \nthat repairs their equipment. \nMeaty texture, very tasty.",
+    "desc_es": "El sombrero tiene verrugas \nblancas. Le da al usuario el raro \npoder de reparar las herramientas.\nTextura parecida a la de la carne, \nmuy deliciosa.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_022.png"
   },
   "MSR_023": {
     "id": "MSR_023",
@@ -125,7 +215,13 @@
     "name_en": "Boomshroom",
     "name_es": "Seta trueno",
     "cooked_name_en": "Grilled Boomshroom",
-    "cooked_name_es": "Seta trueno asada"
+    "cooked_name_es": "Seta trueno asada",
+    "desc_en": "This grenade-shaped mushroom \nexplodes when force is applied. \nOne of the \"3 Exploshrooms.\"\nIt tastes bitter like gunpowder.",
+    "desc_es": "Seta en forma de granada que \nexplota cuando se le aplica\npresión. Es una de las \"3 setas \nexplosivas\" y tiene sabor a\npólvora.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_023.png"
   },
   "MSR_024": {
     "id": "MSR_024",
@@ -133,7 +229,13 @@
     "name_en": "Crushroom",
     "name_es": "Seta destrucción",
     "cooked_name_en": "Grilled Crushroom",
-    "cooked_name_es": "Seta destrucción asada"
+    "cooked_name_es": "Seta destrucción asada",
+    "desc_en": "Tough and sinewy, this\nmushroom increases muscle \nstrength for a short time. Often \nused for doping, it is delicious \nwhen grilled.",
+    "desc_es": "Dura y jugosa, esta seta \naumenta la fuerza muscular\npor un tiempo. Muchos la usan \npara doparse. Asada, está\ndeliciosa.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_024.png"
   },
   "MSR_025": {
     "id": "MSR_025",
@@ -141,7 +243,13 @@
     "name_en": "Guardshroom",
     "name_es": "Seta defensa",
     "cooked_name_en": "Grilled Guardshroom",
-    "cooked_name_es": "Seta defensa asada"
+    "cooked_name_es": "Seta defensa asada",
+    "desc_en": "Its surface is metallic and inside\nis hollow. Stiffens the user's\nbody tissue. Rarely seen, heat \nenhances its properties.",
+    "desc_es": "De superficie metálica e interior \nhueco, endurece el cuerpo del \nconsumidor. Es muy rara y el\ncalor aumenta sus propiedades.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_025.png"
   },
   "MSR_029": {
     "id": "MSR_029",
@@ -149,7 +257,13 @@
     "name_en": "Gambleshroom",
     "name_es": "Seta de apuestas",
     "cooked_name_en": "Grilled Gambleshroom",
-    "cooked_name_es": "Seta de apuestas asada"
+    "cooked_name_es": "Seta de apuestas asada",
+    "desc_en": "Poisonous when the black side\nis larger, beneficial when the\nwhite side is larger. Tricky to \njudge with the naked eye.",
+    "desc_es": "Venenosa cuando la parte\nnegra es mayor y beneficiosa\ncuando la parte blanca es mayor.\nDíficil de saber a simple vista.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_029.png"
   },
   "MSR_031": {
     "id": "MSR_031",
@@ -157,7 +271,13 @@
     "name_en": "Frongus",
     "name_es": "Seta batracio estrépito",
     "cooked_name_en": "Grilled Frongus",
-    "cooked_name_es": "Seta batracio estré. asada"
+    "cooked_name_es": "Seta batracio estré. asada",
+    "desc_en": "Feeds on dead Frogs and \ncontains tear-inducing\nproperties that vaporize when \nforce is applied. Not suitable for \neating.",
+    "desc_es": "Se alimenta de ranas muertas\ny emite gas lacrimógeno cuando \nse le aplica fuerza. No es \ncomestible.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_031.png"
   },
   "MSR_032": {
     "id": "MSR_032",
@@ -165,7 +285,13 @@
     "name_en": "Croakstool",
     "name_es": "Seta batracio letal",
     "cooked_name_en": "Croakstool (Grilled)",
-    "cooked_name_es": "Seta batracio letal (Asada)"
+    "cooked_name_es": "Seta batracio letal (Asada)",
+    "desc_en": "Feeds on dead Golden Frogs\nand has enhanced tear-inducing \nproperties. With a smelly gelatin \ntip, it is not to be eaten.",
+    "desc_es": "Se alimenta de ranas doradas \nmuertas y emite gas\nlacrimógeno potente. Su cabeza \nes gelatinosa y no se debe \ncomer.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_032.png"
   },
   "MSR_033": {
     "id": "MSR_033",
@@ -173,7 +299,13 @@
     "name_en": "Mouseshroom",
     "name_es": "Seta roedora",
     "cooked_name_en": "Grilled Mouseshroom",
-    "cooked_name_es": "Seta roedora asada"
+    "cooked_name_es": "Seta roedora asada",
+    "desc_en": "Feeds on dead Rats and\ncontains stimulating properties \nthat are enhanced with heat. \nSweet-smelling and tasty.",
+    "desc_es": "Se alimenta de ratas muertas\ny sus propiedades estimulantes \naumentan con el calor.\nAgradable al olor y apetitosa.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_033.png"
   },
   "MSR_034": {
     "id": "MSR_034",
@@ -181,7 +313,13 @@
     "name_en": "Golden Mouseshroom",
     "name_es": "Seta roedora dorada",
     "cooked_name_en": "Golden Mouseshroom (Grilled)",
-    "cooked_name_es": "Seta roedora dorada (Asada)"
+    "cooked_name_es": "Seta roedora dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Rats and \ndirectly stimulates the brain, \nincreasing aggression.\nSurprisingly tasty.",
+    "desc_es": "Se alimenta de ratas doradas\nmuertas y estimula el cerebro,\naumentando la agresividad.\nSorprendentemente sabrosa.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_034.png"
   },
   "MSR_035": {
     "id": "MSR_035",
@@ -189,7 +327,13 @@
     "name_en": "Stingshroom",
     "name_es": "Seta aguijón",
     "cooked_name_en": "Grilled Stingshroom",
-    "cooked_name_es": "Seta aguijón asada"
+    "cooked_name_es": "Seta aguijón asada",
+    "desc_en": "Feeds on dead Scorpions and \nnamed after its stinger-like bump.\nIncreases strength, but makes \nthe body brittle.",
+    "desc_es": "Llamada así por su aguijón, se \nalimenta de escorpiones\nmuertos. Aumenta la fuerza,\npero debilita el cuerpo.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_035.png"
   },
   "MSR_036": {
     "id": "MSR_036",
@@ -197,7 +341,13 @@
     "name_en": "Golden Stingshroom",
     "name_es": "Seta aguijón dorada",
     "cooked_name_en": "Golden Stingshroom (Grilled)",
-    "cooked_name_es": "Seta aguijón dorada (Asada)"
+    "cooked_name_es": "Seta aguijón dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Scorpions \nand is more potent than the \nStingshroom. Looks deadly \nbut is extremely tasty.",
+    "desc_es": "Se alimenta de escorpiones \ndorados muertos y es más \npotente que la seta escorpión. \nDe aspecto mortífero y muy \napetitosa.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_036.png"
   },
   "MSR_037": {
     "id": "MSR_037",
@@ -205,7 +355,13 @@
     "name_en": "Fishy Fungus",
     "name_es": "Seta sospechosa",
     "cooked_name_en": "Grilled Fishy Fungus",
-    "cooked_name_es": "Seta sospechosa asada"
+    "cooked_name_es": "Seta sospechosa asada",
+    "desc_en": "Feeds on dead Fish. Only the\ntip can be eaten. This \nhallucinatory mushroom is\nsmelly but tasty.",
+    "desc_es": "Se alimenta de lubinas muertas. \nSolo se come la cabeza. Esta \nseta alucinógena huele mal,\npero sabe muy bien.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_037.png"
   },
   "MSR_038": {
     "id": "MSR_038",
@@ -213,7 +369,13 @@
     "name_en": "Golden Fishy Fungus",
     "name_es": "Seta sospechosa dorada",
     "cooked_name_en": "Golden Fishy Fungus (Grilled)",
-    "cooked_name_es": "Seta sospechosa dorada (Asada)"
+    "cooked_name_es": "Seta sospechosa dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Fish\nand is more potent than the\nFishy Fungi. A true delicacy\nwith soft, moist flesh.",
+    "desc_es": "Se alimenta de lubinas doradas \nmuertas y es más potente que\nla seta sospechosa. Exquisita, \nsuave y jugosa.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_038.png"
   },
   "MSR_039": {
     "id": "MSR_039",
@@ -221,7 +383,13 @@
     "name_en": "Snailshroom",
     "name_es": "Seta caracol",
     "cooked_name_en": "Grilled Snailshroom",
-    "cooked_name_es": "Seta caracol asada"
+    "cooked_name_es": "Seta caracol asada",
+    "desc_en": "Feeds on dead Snails. The\nvalue of this fragrant mushroom\nis determined by the number of\nspirals, and has enzymes that\nimprove immunity to bad\nstatuses.",
+    "desc_es": "Se alimenta de caracoles\nmuertos. Cuantas más espirales\ntenga, mayor será su valor. Sus\nenzimas mejoran la resistencia\na los estados negativos.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_039.png"
   },
   "MSR_040": {
     "id": "MSR_040",
@@ -229,7 +397,13 @@
     "name_en": "Golden Snailshroom",
     "name_es": "Seta caracol dorada",
     "cooked_name_en": "Golden Snailshroom (Grilled)",
-    "cooked_name_es": "Seta caracol dorada (Asada)"
+    "cooked_name_es": "Seta caracol dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Snails\nand aids the nervous system\nand relieves pain. Feels good\nto eat but has no taste.",
+    "desc_es": "Se alimenta de caracoles\ndorados, ayuda al sistema \nnervioso y alivia el dolor. Quita \nel hambre, pero no tiene sabor.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_040.png"
   },
   "MSR_041": {
     "id": "MSR_041",
@@ -237,7 +411,13 @@
     "name_en": "Dragonshroom",
     "name_es": "Seta dragón",
     "cooked_name_en": "Grilled Dragonshroom",
-    "cooked_name_es": "Seta dragón asada"
+    "cooked_name_es": "Seta dragón asada",
+    "desc_en": "Feeds on dead Lizards and \ncontains strange magic that\ngives infinite ammo for a short \ntime. Chewy but dull in taste.",
+    "desc_es": "Se alimenta de lagartos muertos\ny posee una rara magia que \nconcede munición infinita \ntemporalmente. Correosa e\ninsípida.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_041.png"
   },
   "MSR_042": {
     "id": "MSR_042",
@@ -245,7 +425,13 @@
     "name_en": "Golden Dragonshroom",
     "name_es": "Seta dragón dorada",
     "cooked_name_en": "Golden Dragonshroom (Grilled)",
-    "cooked_name_es": "Seta dragón dorada (Asada)"
+    "cooked_name_es": "Seta dragón dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Lizards\nand more potent than the \nDragonshroom, this striking \nshroom is chewy but tasteless.",
+    "desc_es": "Se alimenta de lagartos\ndorados muertos y es más \npotente que la seta dragón. \nEsta seta es correosa e\ninsípida.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_042.png"
   },
   "MSR_043": {
     "id": "MSR_043",
@@ -253,7 +439,13 @@
     "name_en": "Lifeshroom",
     "name_es": "Seta de vida",
     "cooked_name_en": "Grilled Lifeshroom",
-    "cooked_name_es": "Seta de vida asada"
+    "cooked_name_es": "Seta de vida asada",
+    "desc_en": "Feeds on dead Pillbugs. Revives \nuser and restores a little HP. \nAs rare as the bugs it feeds on. \nTastes citric and sour.",
+    "desc_es": "Come cochinillas muertas\ny ayuda a reparar el PS. Tan \nrara como los bichos de los que\nse alimenta. Ácida y agria.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_043.png"
   },
   "MSR_044": {
     "id": "MSR_044",
@@ -261,7 +453,13 @@
     "name_en": "Golden Lifeshroom",
     "name_es": "Seta de vida dorada",
     "cooked_name_en": "Golden Lifeshroom (Grilled)",
-    "cooked_name_es": "Seta de vida dorada (Asada)"
+    "cooked_name_es": "Seta de vida dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Pillbugs. \nRevives user and restores all \nHP. Incredibly rare and has a \nsharp mint taste.",
+    "desc_es": "Come cochinillas doradas\nmuertas y ayuda a \nrestablecer el PS.\nExcesivamente rara y tiene un \nsabor a menta fuerte.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_044.png"
   },
   "MSR_045": {
     "id": "MSR_045",
@@ -269,7 +467,13 @@
     "name_en": "Vampire Fungus",
     "name_es": "Seta vampiro",
     "cooked_name_en": "Grilled Vampire Fungus",
-    "cooked_name_es": "Seta vampiro asada"
+    "cooked_name_es": "Seta vampiro asada",
+    "desc_en": "Feeds on dead Crabs. This\ncoral-like mushroom enables\nthe user to absorb some HP\nwhen damage is dealt. Hard and\ntasteless.",
+    "desc_es": "Se alimenta de cangrejos\nmuertos. Permite absorber\nsalud cuando el consumidor \nproduce daño. Dura, sosa y con \nforma de coral.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_045.png"
   },
   "MSR_046": {
     "id": "MSR_046",
@@ -277,7 +481,13 @@
     "name_en": "Golden Vampire Fungus",
     "name_es": "Seta vampiro dorada",
     "cooked_name_en": "Golden Vampire Fungus (Grilled)",
-    "cooked_name_es": "Seta vampiro dorada (Asada)"
+    "cooked_name_es": "Seta vampiro dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Crabs.\nIts tip is red with blood absorbed \nfrom other animals. Also known\nas the \"brute,\" and tastes bad.",
+    "desc_es": "Come cangrejos dorados\nmuertos. Su color rojo se debe\na la sangre de otros animales. \nTambién llamada \"bruta\", sabe \nmuy mal.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_046.png"
   },
   "MSR_047": {
     "id": "MSR_047",
@@ -285,7 +495,13 @@
     "name_en": "Evershroom",
     "name_es": "Seta eterna",
     "cooked_name_en": "Grilled Evershroom",
-    "cooked_name_es": "Seta eterna asada"
+    "cooked_name_es": "Seta eterna asada",
+    "desc_en": "Feeds on dead Turtles. This \nshroom adds a fatigue effect to \nattacks, and this is enhanced\nwith heat. Smelly and coarse.",
+    "desc_es": "Se alimenta de tortugas\nmuertas. Añade efecto de \ncansancio a los ataques. El\ncalor mejora su efecto. Es\náspera y huele mal.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_047.png"
   },
   "MSR_048": {
     "id": "MSR_048",
@@ -293,7 +509,13 @@
     "name_en": "Golden Evershroom",
     "name_es": "Seta eterna dorada",
     "cooked_name_en": "Golden Evershroom (Grilled)",
-    "cooked_name_es": "Seta eterna dorada (Asada)"
+    "cooked_name_es": "Seta eterna dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Turtles\nand contains more fatigue \nproperties than the Evershroom. \nSmelly but tasty.",
+    "desc_es": "Se alimenta de tortugas doradas \nmuertas. Tiene más propiedades \nde cansancio que la seta\neterna. Huele mal, pero sabe\nbien.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_048.png"
   },
   "MSR_049": {
     "id": "MSR_049",
@@ -301,7 +523,13 @@
     "name_en": "Oakshroom",
     "name_es": "Seta de roble",
     "cooked_name_en": "Grilled Oakshroom",
-    "cooked_name_es": "Seta de roble asada"
+    "cooked_name_es": "Seta de roble asada",
+    "desc_en": "Feeds on dead Birds and \nmomentarily improves explosive \npower of the next attack.\nBrittle and best eaten as a soup.",
+    "desc_es": "Se alimenta de casuarios\nmuertos y aumenta el poder \nexplosivo del próximo ataque \nbrevemente. Frágil y sabe mejor\nen sopa.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_049.png"
   },
   "MSR_050": {
     "id": "MSR_050",
@@ -309,7 +537,13 @@
     "name_en": "Golden Oakshroom",
     "name_es": "Seta de roble dorada",
     "cooked_name_en": "Golden Oakshroom (Grilled)",
-    "cooked_name_es": "Seta de roble dorada (Asada)"
+    "cooked_name_es": "Seta de roble dorada (Asada)",
+    "desc_en": "Feeds on dead Golden Birds,\nand is more potent than the\nOakshroom. Very brittle, and\ntasty if made into soup.",
+    "desc_es": "Se alimenta de casuarios\ndorados muertos y es más \npotente que la seta de roble. \nMuy frágil y sabe mejor en sopa.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_050.png"
   },
   "MSR_051": {
     "id": "MSR_051",
@@ -317,7 +551,13 @@
     "name_en": "Bronze Skillshroom",
     "name_es": "Seta habilidad bronce",
     "cooked_name_en": "Bronze Skillshroom (Grilled)",
-    "cooked_name_es": "Seta habilidad bronce (Asada)"
+    "cooked_name_es": "Seta habilidad bronce (Asada)",
+    "desc_en": "Contains bronze, and resembles\na human face. Trade these with \nMomoko Yamada for Skill\nDecal. Smells and tastes bad.",
+    "desc_es": "Contiene bronce y parece un \nrostro humano. Momoko Yamada \nte dará Pegatinas de Habilidad\npor ella. Sabe y huele mal.",
+    "rarity": 2,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_051.png"
   },
   "MSR_052": {
     "id": "MSR_052",
@@ -325,7 +565,13 @@
     "name_en": "Silver Skillshroom",
     "name_es": "Seta habilidad plata",
     "cooked_name_en": "Silver Skillshroom (Grilled)",
-    "cooked_name_es": "Seta habilidad plata (Asada)"
+    "cooked_name_es": "Seta habilidad plata (Asada)",
+    "desc_en": "Contains silver, and has anti-\nbacterial effects. Trade these\nwith Momoko Yamada for Skill \nDecal. No effect when eaten.",
+    "desc_es": "Contiene plata y tiene efecto \nantibacteriano. Momoko Yamada \nte dará Pegatinas de Habilidad\npor ella. Sin efecto al comerla.",
+    "rarity": 3,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_052.png"
   },
   "MSR_053": {
     "id": "MSR_053",
@@ -333,7 +579,13 @@
     "name_en": "Golden Skillshroom",
     "name_es": "Seta habilidad oro",
     "cooked_name_en": "Golden Skillshroom (Grilled)",
-    "cooked_name_es": "Seta habilidad oro (Asada)"
+    "cooked_name_es": "Seta habilidad oro (Asada)",
+    "desc_en": "Rare and contains gold, seen as\na symbol of the sun. Trade these \nwith Momoko Yamada for Skill \nDecal. Not for eating.",
+    "desc_es": "Es rara, contiene oro y se ve \ncomo un símbolo solar. Momoko \nYamada te dará Pegatinas de \nHabilidad por ella. Mejor no \ncomerla.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_053.png"
   },
   "MSR_200": {
     "id": "MSR_200",
@@ -341,7 +593,13 @@
     "name_en": "Bronze Eggshroom",
     "name_es": "Seta huevo de bronce",
     "cooked_name_en": "Bronze Eggshroom",
-    "cooked_name_es": "Seta huevo de bronce"
+    "cooked_name_es": "Seta huevo de bronce",
+    "desc_en": "This southern Boomshroom\nenhances already latent skills and \nabilities. Its firm flesh resists heat,\nand has a metallic and slightly\nsweet taste.",
+    "desc_es": "Esta seta trueno del sur potencia\nlas habilidades latentes. Su carne\nes ignífuga. Tiene un gusto\nmetálico y algo dulce.",
+    "rarity": 2,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_200.png"
   },
   "MSR_201": {
     "id": "MSR_201",
@@ -349,7 +607,13 @@
     "name_en": "Silver Eggshroom",
     "name_es": "Seta huevo de plata",
     "cooked_name_en": "Silver Eggshroom",
-    "cooked_name_es": "Seta huevo de plata"
+    "cooked_name_es": "Seta huevo de plata",
+    "desc_en": "A more ripened Bronze Eggshroom.\nEnhances skills even more. Its firm\nflesh resists heat, and has a\nunique metallic and sweet taste.",
+    "desc_es": "Una Seta huevo de bronce más\nmadura. Potencia las habilidades\naún más. Su carne es ignífuga.\nTiene un gusto metálico y dulce\núnico.",
+    "rarity": 3,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_201.png"
   },
   "MSR_202": {
     "id": "MSR_202",
@@ -357,7 +621,13 @@
     "name_en": "Golden Eggshroom",
     "name_es": "Seta huevo de oro",
     "cooked_name_en": "Golden Eggshroom",
-    "cooked_name_es": "Seta huevo de oro"
+    "cooked_name_es": "Seta huevo de oro",
+    "desc_en": "A fully ripened Bronze Eggshroom.\nGreatly enhances skills. Its soft\nflesh resists heat, and has a\nmetallic and very sweet taste.",
+    "desc_es": "Una Seta huevo de bronce que ha\nmadurado completamente.\nPotencia mucho las habilidades. \nSu carne es ignífuga. Tiene un\ngusto metálico y muy dulce.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_202.png"
   },
   "MSR_300": {
     "id": "MSR_300",
@@ -365,7 +635,13 @@
     "name_en": "Red Stingshroom",
     "name_es": "Seta aguijón roja",
     "cooked_name_en": "Grilled Red Stingshroom",
-    "cooked_name_es": "Seta aguijón roja asada"
+    "cooked_name_es": "Seta aguijón roja asada",
+    "desc_en": "Grows on the nutrient-rich corpses\nof Red Scorpions. Similar to\nStingshroom, but weaker. Smells\ncoppery. Tastes awful.",
+    "desc_es": "Crece en los cadáveres de\nlos escorpiones rojos.\nVersión menos potente de\nla seta aguijón. Huele como\na cobre y sabe fatal.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_300.png"
   },
   "MSR_301": {
     "id": "MSR_301",
@@ -373,7 +649,13 @@
     "name_en": "Helmetshroom",
     "name_es": "Seta yelmo",
     "cooked_name_en": "Grilled Helmetshroom",
-    "cooked_name_es": "Seta yelmo asada"
+    "cooked_name_es": "Seta yelmo asada",
+    "desc_en": "Has a distinctive metallic cap. \nContains minerals hardening body\ntissues, like the Guardshroom, but\nless concentrated.",
+    "desc_es": "Tiene un raro sombrerete\nmetálico. Sus minerales\nmejoran el tejido corporal con\nmenor efecto que el de una\nseta defensa.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_301.png"
   },
   "MSR_302": {
     "id": "MSR_302",
@@ -381,7 +663,13 @@
     "name_en": "Umbrella Rib Fungus",
     "name_es": "Seta de paraguas",
     "cooked_name_en": "Grilled Umbrella Rib Fungus",
-    "cooked_name_es": "Seta de paraguas asada"
+    "cooked_name_es": "Seta de paraguas asada",
+    "desc_en": "Useless little fungus that\nlooks like an umbrella.\nSame properties as a\nTransparungus, but weakened\nby poison. Dry and nasty.",
+    "desc_es": "Hongo inservible con forma\nde paraguas. Similar a una\nSeta transparente, pero más\ndébil debido a su veneno.\nSeca y desagradable.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_302.png"
   },
   "MSR_303": {
     "id": "MSR_303",
@@ -389,7 +677,13 @@
     "name_en": "False Brainshroom",
     "name_es": "Seta cerebral falsa",
     "cooked_name_en": "Grilled False Brainshroom",
-    "cooked_name_es": "Seta cerebral falsa asada"
+    "cooked_name_es": "Seta cerebral falsa asada",
+    "desc_en": "Brainshroom impostor.\nThe cap consists of self-\nreplicated copies.\nEmits toxic spores when\ndamaged. Tastes rubbery.",
+    "desc_es": "Copia de la seta cerebral.\nSu sombrerete crea\ncopias de sí mismo.\nEmite esporas tóxicas al\nsufrir daño. Sabe a goma.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_303.png"
   },
   "MSR_304": {
     "id": "MSR_304",
@@ -397,7 +691,13 @@
     "name_en": "Cateye Shroom",
     "name_es": "Seta de ojo felino",
     "cooked_name_en": "Grilled Cateye Shroom",
-    "cooked_name_es": "Seta de ojo felino asada"
+    "cooked_name_es": "Seta de ojo felino asada",
+    "desc_en": "Subspecies of Slowmungus.\nReminiscent of a cat eye.\nVision effects weakened\nby defensive poison.\nChewy and gross.",
+    "desc_es": "Subespecie de seta\nralentizadora similar a un\nojo de gato. Su visión es\nmás débil por su veneno\ndefensivo. Gomosa y mala.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_304.png"
   },
   "MSR_305": {
     "id": "MSR_305",
@@ -405,7 +705,13 @@
     "name_en": "Boleoshroom",
     "name_es": "Boleoseta",
     "cooked_name_en": "Grilled Boleoshroom",
-    "cooked_name_es": "Boleoseta asada"
+    "cooked_name_es": "Boleoseta asada",
+    "desc_en": "Grows on nutrient-rich\ncorpses of Goggly Boleos.\nKnown to release toxic\nspores when damaged.\nTastes fishy and gross.",
+    "desc_es": "Crece en los cadáveres\nde los boleos micópticos.\nLibera unas esporas\ntóxicas al sufrir daño.\nDe sabor raro y asqueroso.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_305.png"
   },
   "MSR_306": {
     "id": "MSR_306",
@@ -413,7 +719,13 @@
     "name_en": "Bronze Parasol Shroom",
     "name_es": "Seta de sombrilla de bronce",
     "cooked_name_en": "Bronze Parasol Shroom (Grilled)",
-    "cooked_name_es": "Seta de sombrilla de bronce (Asada)"
+    "cooked_name_es": "Seta de sombrilla de bronce (Asada)",
+    "desc_en": "A rare bronze parasol-like\nmushroom requiring hot\nand humid conditions\nto grow. Rock hard.\nMetallic odor. Inedible.",
+    "desc_es": "Seta especial de bronce\ncon aspecto de sombrilla\nque requiere calor y\nhumedad. Dura, de olor\nmetálico e incomestible.",
+    "rarity": 2,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_306.png"
   },
   "MSR_307": {
     "id": "MSR_307",
@@ -421,7 +733,13 @@
     "name_en": "Silver Parasol Shroom",
     "name_es": "Seta de sombrilla de plata",
     "cooked_name_en": "Silver Parasol Shroom (Grilled)",
-    "cooked_name_es": "Seta de sombrilla de plata (Asada)"
+    "cooked_name_es": "Seta de sombrilla de plata (Asada)",
+    "desc_en": "A valuable mushroom with\na silver cap. Rock hard.\nMetallic odor. Inedible.\nEating it has no effect on\nthe human body.",
+    "desc_es": "Seta valiosa de sombrerete\nplateado. Dura, de olor\nmetálico e incomestible.\nSin efecto corporal al\ncomerla.",
+    "rarity": 3,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_307.png"
   },
   "MSR_308": {
     "id": "MSR_308",
@@ -429,7 +747,13 @@
     "name_en": "Golden Parasol Shroom",
     "name_es": "Seta de sombrilla de oro",
     "cooked_name_en": "Golden Parasol Shroom (Grilled)",
-    "cooked_name_es": "Seta de sombrilla de oro (Asada)"
+    "cooked_name_es": "Seta de sombrilla de oro (Asada)",
+    "desc_en": "A valuable mushroom with\na gold cap. Very shiny.\nRock hard. Metallic odor.\nInedible. Eating it has no\neffect on the human body.",
+    "desc_es": "Seta valiosa de sombrerete\ndorado. Brillante, dura,\nde olor metálico e\nincomestible. Sin efecto\ncorporal al comerla.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_308.png"
   },
   "MSR_309": {
     "id": "MSR_309",
@@ -437,7 +761,13 @@
     "name_en": "Bronze Pumpkinshroom",
     "name_es": "Seta calabaza de bronce",
     "cooked_name_en": "Bronze Pumpkinshroom",
-    "cooked_name_es": "Seta calabaza de bronce"
+    "cooked_name_es": "Seta calabaza de bronce",
+    "desc_en": "A mushroom that grows on\ntop of pumpkins. Contains\na strong stimulant.\nMetallic smell. Sweet and\nwith a good bite to it.",
+    "desc_es": "Una seta que crece sobre\nlas calabazas. Contiene un\nfuerte estimulante. Olor\nmetálico y gusto dulce\ny agradable.",
+    "rarity": 2,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_309.png"
   },
   "MSR_310": {
     "id": "MSR_310",
@@ -445,7 +775,13 @@
     "name_en": "Silver Pumpkinshroom",
     "name_es": "Seta calabaza de plata",
     "cooked_name_en": "Silver Pumpkinshroom",
-    "cooked_name_es": "Seta calabaza de plata"
+    "cooked_name_es": "Seta calabaza de plata",
+    "desc_en": "More grown Pumpkinshroom.\nHas a silver shimmer.\nHas an even stronger\nstimulant. Metallic smell.\nSweet and firm.",
+    "desc_es": "Una seta de calabaza de\nmayor tamaño. Tiene un\nbrillo plateado y contiene\nun estimulante más fuerte.\nOlor metálico. Sabe dulce.",
+    "rarity": 3,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_310.png"
   },
   "MSR_311": {
     "id": "MSR_311",
@@ -453,7 +789,13 @@
     "name_en": "Gold Pumpkinshroom",
     "name_es": "Seta calabaza de oro",
     "cooked_name_en": "Gold Pumpkinshroom",
-    "cooked_name_es": "Seta calabaza de oro"
+    "cooked_name_es": "Seta calabaza de oro",
+    "desc_en": "Fully grown Pumpkinshroom.\nHas a golden shimmer. Has\nthe strongest stimulant of\nall Pumpkinshrooms. Also\nthe sweetest and firmest.",
+    "desc_es": "Una seta de calabaza muy\ngrande. Tiene un brillo\ndorado y contiene el\nestimulante más fuerte.\nSabor más dulce e intenso.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_311.png"
   },
   "MSR_312": {
     "id": "MSR_312",
@@ -461,7 +803,13 @@
     "name_en": "Bronze Snowcap",
     "name_es": "Seta nevada bronce",
     "cooked_name_en": "Bronze Snowcap",
-    "cooked_name_es": "Seta nevada bronce"
+    "cooked_name_es": "Seta nevada bronce",
+    "desc_en": "Mushroom from the Tower of\nBarbs. Covered in snow to\nthe point that it looks\nlike a mini snowman.\nRestores durability a bit.",
+    "desc_es": "Seta de la Tower of Barbs.\nEs de un blanco tan puro\nque hasta parece un\nminimuñeco de nieve.\nDa un poco de durabilidad.",
+    "rarity": 2,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_312.png"
   },
   "MSR_313": {
     "id": "MSR_313",
@@ -469,7 +817,13 @@
     "name_en": "Silver Snowcap",
     "name_es": "Seta nevada plata",
     "cooked_name_en": "Silver Snowcap",
-    "cooked_name_es": "Seta nevada plata"
+    "cooked_name_es": "Seta nevada plata",
+    "desc_en": "Its durability restoring\neffect is boosted by\nsilver in the cap and\nscarf. The snow is\nsuper heat-resistant.",
+    "desc_es": "Efecto de recuperación de\ndurabilidad mejorado\ngracias a la plata de su\nsombrerete y tallo. La\nnieve resiste el calor.",
+    "rarity": 3,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_313.png"
   },
   "MSR_314": {
     "id": "MSR_314",
@@ -477,7 +831,13 @@
     "name_en": "Golden Snowcap",
     "name_es": "Seta nevada oro",
     "cooked_name_en": "Golden Snowcap",
-    "cooked_name_es": "Seta nevada oro"
+    "cooked_name_es": "Seta nevada oro",
+    "desc_en": "Golden compounds\ngreatly improve this\nmushroom's effects.\nTastes like crunchy\nwater.",
+    "desc_es": "Los compuestos de oro\nmejoran mucho los\nefectos de esta seta.\nSabe como a agua\ncrujiente.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_314.png"
   },
   "MSR_400": {
     "id": "MSR_400",
@@ -485,7 +845,13 @@
     "name_en": "Splattershroom",
     "name_es": "Sanguiseta",
     "cooked_name_en": "Splattershroom",
-    "cooked_name_es": "Sanguiseta"
+    "cooked_name_es": "Sanguiseta",
+    "desc_en": "A mushroom imbued with\nBloodnium. Looks somewhat\nulcerous, but is actually\nhighly nutritious and can\nheal wounds. Smells like\nblood and tastes coppery.",
+    "desc_es": "Una seta empapada en\nsanguínium. Parece un\npoco una úlcera, pero\ncura heridas y es muy\nnutritiva. Huele a sangre\ny sabe a cobre.",
+    "rarity": 1,
+    "category_en": "Mushrooms",
+    "category_es": "Setas",
+    "icon": "msr_400.png"
   },
   "MSR_401": {
     "id": "MSR_401",
@@ -493,7 +859,13 @@
     "name_en": "Big Splattershroom",
     "name_es": "Sanguiseta grande",
     "cooked_name_en": "Big Splattershroom",
-    "cooked_name_es": "Sanguiseta grande"
+    "cooked_name_es": "Sanguiseta grande",
+    "desc_en": "Contains more Bloodnium\nthan a regular\nSplattershroom. Stronger\nhealing effects, too.\nSmells and tastes coppery.",
+    "desc_es": "Tiene más sanguínium que\nuna sanguiseta normal.\nTambién cura más.\nHuele y sabe a cobre.",
+    "rarity": 3,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_401.png"
   },
   "MSR_402": {
     "id": "MSR_402",
@@ -501,7 +873,13 @@
     "name_en": "Mega Splattershroom",
     "name_es": "Megasanguiseta",
     "cooked_name_en": "Mega Splattershroom",
-    "cooked_name_es": "Megasanguiseta"
+    "cooked_name_es": "Megasanguiseta",
+    "desc_en": "This mushroom has grown\nout of control after\nabsorbing too much\nBloodnium. Mega-powerful\nhealing effects!\nSmells and tastes coppery.",
+    "desc_es": "Esta sanguiseta ha crecido\nde forma desmesurada al\nabsorber mucho sanguínium.\nPoderes curativos fuertes.\nHuele y sabe a cobre.",
+    "rarity": 4,
+    "category_en": "Special Shrooms",
+    "category_es": "Setas Especiales",
+    "icon": "msr_402.png"
   },
   "BST_BASS": {
     "id": "BST_BASS",
@@ -509,7 +887,13 @@
     "name_en": "Fish",
     "name_es": "Pescado",
     "cooked_name_en": "Grilled Fish",
-    "cooked_name_es": "Pescado asado"
+    "cooked_name_es": "Pescado asado",
+    "desc_en": "Scientific Name:\nMicropterus squama\n \nDriven from its habitat by the \nEarth Rage, it has adapted to\nlive among the sewage.",
+    "desc_es": "Nombre científico:\nMicropterus squama\n \nExpulsada de su hábitat por la\nIra de la Tierra, se ha adaptado\na vivir en las alcantarillas.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_bass.png"
   },
   "BST_BASS02": {
     "id": "BST_BASS02",
@@ -517,7 +901,13 @@
     "name_en": "Goggly Boleo",
     "name_es": "Boleo micóptico",
     "cooked_name_en": "Grilled Goggly Boleo",
-    "cooked_name_es": "Boleo micóptico asado"
+    "cooked_name_es": "Boleo micóptico asado",
+    "desc_en": "Scientific Name: Micropterus\nBoleophthalmus pectinirostris\n \nDriven from the mudflats\nby the Earth Rage, it has\nadapted to live with Fish\nin the sewers. Somewhat\ncommon. Tasty, but muddy.",
+    "desc_es": "Nombre científico: Micropterus\nBoleophthalmus pectinirostris\n \nExpulsado de las marismas\npor la Ira de la Tierra,\nse ha adaptado a vivir con\nlos peces en las cloacas.\nComún, rico y terroso.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_bass02.png"
   },
   "BST_CASSOWARY": {
     "id": "BST_CASSOWARY",
@@ -525,7 +915,13 @@
     "name_en": "Bird",
     "name_es": "Ave",
     "cooked_name_en": "Grilled Bird",
-    "cooked_name_es": "Ave asada"
+    "cooked_name_es": "Ave asada",
+    "desc_en": "Scientific Name:\nCasuarius hyacinthopluma\n \nDespite its beauty, it has a wild \ndisposition and can be very \naggressive. Very fast. Simple\nyet tasty.",
+    "desc_es": "Nombre científico:\nCasuarius hyacinthopluma\n \nA pesar de su belleza, es de \nnaturaleza salvaje, muy rápido\ny agresivo. Simple, pero sabroso.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_cassowary.png"
   },
   "BST_CRAB": {
     "id": "BST_CRAB",
@@ -533,7 +929,13 @@
     "name_en": "Crab",
     "name_es": "Cangrejo",
     "cooked_name_en": "Grilled Crab",
-    "cooked_name_es": "Cangrejo asado"
+    "cooked_name_es": "Cangrejo asado",
+    "desc_en": "Scientific Name:\nGeothelphusa forcipes\n \nLives near water and hides in its \nden when sensing danger. Its\nshell is not too hard and can be \neaten.",
+    "desc_es": "Nombre científico:\nGeothelphusa forcipes\n \nVive cerca del agua. Se\nesconde en su concha poco\nresistente y comestible cuando \nsiente peligro.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_crab.png"
   },
   "BST_FROG": {
     "id": "BST_FROG",
@@ -541,7 +943,13 @@
     "name_en": "Frog",
     "name_es": "Rana",
     "cooked_name_en": "Grilled Frog",
-    "cooked_name_es": "Rana asada"
+    "cooked_name_es": "Rana asada",
+    "desc_en": "Scientific Name: Hyla festucam\n \nBody fluids protect its skin from \ndehydration. Beasts living in the \ntower have evolved uniquely due\nto the mushroom spores. The \nspores also evolve, feeding on \ncorpses to become mushrooms\nat an alarming speed.",
+    "desc_es": "Nombre científico: \nHyla festucam\n \nLos fluidos corporales\nevitan que se deshidraten. La \nincreíble evolución de las\nbestias de la torre se debe a\nlas esporas de las setas. Las \nesporas se nutren a su vez\nde restos para convertirse\nen setas.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_frog.png"
   },
   "BST_GBASS": {
     "id": "BST_GBASS",
@@ -549,7 +957,13 @@
     "name_en": "Golden Fish",
     "name_es": "Pescado dorado",
     "cooked_name_en": "Golden Fish (Grilled)",
-    "cooked_name_es": "Pescado dorado (Asado)"
+    "cooked_name_es": "Pescado dorado (Asado)",
+    "desc_en": "Scientific Name:\nMicropterus squama\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nMicropterus squama\n \nSe volvió dorada debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy rara.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gbass.png"
   },
   "BST_GCASSOWARY": {
     "id": "BST_GCASSOWARY",
@@ -557,7 +971,13 @@
     "name_en": "Golden Bird",
     "name_es": "Ave dorado",
     "cooked_name_en": "Golden Bird (Grilled)",
-    "cooked_name_es": "Ave dorado (Asado)"
+    "cooked_name_es": "Ave dorado (Asado)",
+    "desc_en": "Scientific Name:\nCasuarius hyacinthopluma\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nCasuarius hyacinthopluma\n \nSe volvió dorado debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy raro.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gcassowary.png"
   },
   "BST_GCRAB": {
     "id": "BST_GCRAB",
@@ -565,7 +985,13 @@
     "name_en": "Golden Crab",
     "name_es": "Cangrejo dorado",
     "cooked_name_en": "Golden Crab (Grilled)",
-    "cooked_name_es": "Cangrejo dorado (Asado)"
+    "cooked_name_es": "Cangrejo dorado (Asado)",
+    "desc_en": "Scientific Name:\nGeothelphusa forcipes\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nGeothelphusa forcipes\n \nSe volvió dorado debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy raro.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gcrab.png"
   },
   "BST_GFROG": {
     "id": "BST_GFROG",
@@ -573,7 +999,13 @@
     "name_en": "Golden Frog",
     "name_es": "Rana dorada",
     "cooked_name_en": "Golden Frog (Grilled)",
-    "cooked_name_es": "Rana dorada (Asado)"
+    "cooked_name_es": "Rana dorada (Asado)",
+    "desc_en": "Scientific Name: Hyla festucam\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico: \nHyla festucam\n \nSe volvió dorada debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy rara.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gfrog.png"
   },
   "BST_GHONEYCOMB": {
     "id": "BST_GHONEYCOMB",
@@ -581,7 +1013,13 @@
     "name_en": "Golden Honeycomb",
     "name_es": "Panal dorado",
     "cooked_name_en": "Golden Honeycomb (Grilled)",
-    "cooked_name_es": "Panal dorado (Asado)"
+    "cooked_name_es": "Panal dorado (Asado)",
+    "desc_en": "Scientific Name:----\n \nHas turned gold due to a sudden \ngenetic change. The nest is gold \nbecause the beeswax the bees \nproduce is also gold.",
+    "desc_es": "Nombre científico: \nN/A\n \nSe volvió dorado debido a un\nsúbito cambio genético. Es así\npor la cera dorada que\nproducen sus abejas.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_ghoneycomb.png"
   },
   "BST_GLIZARD": {
     "id": "BST_GLIZARD",
@@ -589,7 +1027,13 @@
     "name_en": "Golden Lizard",
     "name_es": "Lagarto dorado",
     "cooked_name_en": "Golden Lizard (Grilled)",
-    "cooked_name_es": "Lagarto dorado (Asado)"
+    "cooked_name_es": "Lagarto dorado (Asado)",
+    "desc_en": "Scientific Name: Varanus feritas\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico: \nVaranus feritas\n \nSe volvió dorado debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy raro.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_glizard.png"
   },
   "BST_GPILLBUG": {
     "id": "BST_GPILLBUG",
@@ -597,7 +1041,13 @@
     "name_en": "Golden Pillbug",
     "name_es": "Cochinilla dorada",
     "cooked_name_en": "Golden Pillbug (Grilled)",
-    "cooked_name_es": "Cochinilla dorada (Asado)"
+    "cooked_name_es": "Cochinilla dorada (Asado)",
+    "desc_en": "Scientific Name:\nArmadillidium orbicularibus\n \nHas turned gold due to a sudden\ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nArmadillidium orbicularibus\n \nSe volvió dorada debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy rara.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gpillbug.png"
   },
   "BST_GRAT": {
     "id": "BST_GRAT",
@@ -605,7 +1055,13 @@
     "name_en": "Golden Rat",
     "name_es": "Rata dorada",
     "cooked_name_en": "Golden Rat (Grilled)",
-    "cooked_name_es": "Rata dorada (Asado)"
+    "cooked_name_es": "Rata dorada (Asado)",
+    "desc_en": "Scientific Name: Rattus hispidus\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nRattus hispidus\n \nSe volvió dorada debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy rara.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_grat.png"
   },
   "BST_GSCORPION": {
     "id": "BST_GSCORPION",
@@ -613,7 +1069,13 @@
     "name_en": "Golden Scorpion",
     "name_es": "Escorpión dorado",
     "cooked_name_en": "Golden Scorpion (Grilled)",
-    "cooked_name_es": "Escorpión dorado (Asado)"
+    "cooked_name_es": "Escorpión dorado (Asado)",
+    "desc_en": "Scientific Name:\nPandinus exemplar\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nPandinus exemplar\n \nSe volvió dorado debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy raro.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gscorpion.png"
   },
   "BST_GSNAIL": {
     "id": "BST_GSNAIL",
@@ -621,7 +1083,13 @@
     "name_en": "Golden Snail",
     "name_es": "Caracol dorado",
     "cooked_name_en": "Golden Snail (Grilled)",
-    "cooked_name_es": "Caracol dorado (Asado)"
+    "cooked_name_es": "Caracol dorado (Asado)",
+    "desc_en": "Scientific Name: Euhadra testa\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nEuhadra testa\n \nSe volvió dorado debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy raro.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gsnail.png"
   },
   "BST_GTURTLE": {
     "id": "BST_GTURTLE",
@@ -629,7 +1097,13 @@
     "name_en": "Golden Turtle",
     "name_es": "Tortuga dorada",
     "cooked_name_en": "Golden Turtle (Grilled)",
-    "cooked_name_es": "Tortuga dorada (Asado)"
+    "cooked_name_es": "Tortuga dorada (Asado)",
+    "desc_en": "Scientific Name:\nGeochelone petramcrusta\n \nHas turned gold due to a sudden \ngenetic change, possibly \nconnected to the Earth Rage. \nVery rare.",
+    "desc_es": "Nombre científico:\nGeochelone petramcrusta\n \nSe volvió dorada debido a un\nsúbito cambio genético\nrelacionado con la Ira de la\nTierra. Muy rara.",
+    "rarity": 4,
+    "category_en": "Golden Beasts",
+    "category_es": "Criaturas Doradas",
+    "icon": "bst_gturtle.png"
   },
   "BST_HONEYCOMB": {
     "id": "BST_HONEYCOMB",
@@ -637,7 +1111,13 @@
     "name_en": "Honeycomb",
     "name_es": "Panal",
     "cooked_name_en": "Grilled Honeycomb",
-    "cooked_name_es": "Panal asado"
+    "cooked_name_es": "Panal asado",
+    "desc_en": "Scientific Name:----\n \nThe Honeycomb that lives in the \nTower of Barbs. Contains highly \nnutritious larva and honey.",
+    "desc_es": "Nombre científico: \nN/A\n \nEl panal que habita en la Torre\nde Barb. Contiene larvas muy\nnutritivas y miel.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_honeycomb.png"
   },
   "BST_LIZARD": {
     "id": "BST_LIZARD",
@@ -645,7 +1125,13 @@
     "name_en": "Lizard",
     "name_es": "Lagarto",
     "cooked_name_en": "Grilled Lizard",
-    "cooked_name_es": "Lagarto asado"
+    "cooked_name_es": "Lagarto asado",
+    "desc_en": "Scientific Name: Varanus feritas\n \nAn extremely ferocious lizard.\nWill bite if approached. Odorless \nand tasty.",
+    "desc_es": "Nombre científico: \nVaranus feritas\n \nLagarto extremadamente feroz. \nMuerde a quien se le acerque. \nInodoro y sabroso.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_lizard.png"
   },
   "BST_PILLBUG": {
     "id": "BST_PILLBUG",
@@ -653,7 +1139,13 @@
     "name_en": "Pillbug",
     "name_es": "Cochinilla",
     "cooked_name_en": "Grilled Pillbug",
-    "cooked_name_es": "Cochinilla asada"
+    "cooked_name_es": "Cochinilla asada",
+    "desc_en": "Scientific Name:\nArmadillidium spinescent\n \nSharp horns grow on its shell\nand it has adapted to eat meat \nand grow huge.",
+    "desc_es": "Nombre científico:\nArmadillidium spinescent\n \nTiene cuernos afilados en su \ncaparazón, se ha vuelto\ncarnívora y alcanza un tamaño \nenorme.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_pillbug.png"
   },
   "BST_RAT": {
     "id": "BST_RAT",
@@ -661,7 +1153,13 @@
     "name_en": "Rat",
     "name_es": "Rata",
     "cooked_name_en": "Grilled Rat",
-    "cooked_name_es": "Rata asada"
+    "cooked_name_es": "Rata asada",
+    "desc_en": "Scientific Name: Rattus hispidus\n \nPrefers dark, damp places and is \nomnivorous. Incredibly fertile, it\nis found everywhere.",
+    "desc_es": "Nombre científico:\nRattus hispidus\n \nPrefiere lugares oscuros y\nhúmedos. Es omnívora,\nincreíblemente fértil y está\npor todas partes.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_rat.png"
   },
   "BST_SCORPION": {
     "id": "BST_SCORPION",
@@ -669,7 +1167,13 @@
     "name_en": "Scorpion",
     "name_es": "Escorpión",
     "cooked_name_en": "Grilled Scorpion",
-    "cooked_name_es": "Escorpión asado"
+    "cooked_name_es": "Escorpión asado",
+    "desc_en": "Scientific Name:\nPandinus exemplar\n \nDespite the distinctive \nyellow muscles and ferocious \nsting, it is in fact not poisonous.",
+    "desc_es": "Nombre científico:\nPandinus exemplar\n \nA pesar de sus músculos\namarillos tan distintivos y su \ntemible aguijón, no es\nvenenoso.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_scorpion.png"
   },
   "BST_SCORPION02": {
     "id": "BST_SCORPION02",
@@ -677,7 +1181,13 @@
     "name_en": "Red Scorpion",
     "name_es": "Escorpión rojo",
     "cooked_name_en": "Grilled Red Scorpion",
-    "cooked_name_es": "Escorpión rojo asado"
+    "cooked_name_es": "Escorpión rojo asado",
+    "desc_en": "Scientific Name:\nPandinus sanguinem\n \nPandinus sanguinem Craves the\ntaste of blood at all times and is\nhighly aggressive.",
+    "desc_es": "Nombre científico:\nPandinus sanguinem\n \nLo pierde el sabor de la sangre\ny es tremendamente violento.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_scorpion02.png"
   },
   "BST_SNAIL": {
     "id": "BST_SNAIL",
@@ -685,7 +1195,13 @@
     "name_en": "Snail",
     "name_es": "Caracol",
     "cooked_name_en": "Grilled Snail",
-    "cooked_name_es": "Caracol asado"
+    "cooked_name_es": "Caracol asado",
+    "desc_en": "Scientific Name: Euhadra testa\n \nGrows huge by absorbing\nharmful spores from the Tower\nof Barbs, and sprays poison\nwhen threatened.",
+    "desc_es": "Nombre científico:\nEuhadra testa\n \nSu tamaño enorme se debe a\nla absorción de esporas de la \nTorre de Barb y emite veneno \ncuando le atacan.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_snail.png"
   },
   "BST_TURTLE": {
     "id": "BST_TURTLE",
@@ -693,6 +1209,12 @@
     "name_en": "Turtle",
     "name_es": "Tortuga",
     "cooked_name_en": "Grilled Turtle",
-    "cooked_name_es": "Tortuga asada"
+    "cooked_name_es": "Tortuga asada",
+    "desc_en": "Scientific Name:\nGeochelone petramcrusta\n \nIts shell mimics a rock and it\nhas a monkfish-like ecology.\nIt smells bad but it is dense\nand tasty.",
+    "desc_es": "Nombre científico:\nGeochelone petramcrusta\n \nSe camufla como una roca y se \nalimenta como un pez. Su carne \nhuele mal, pero es jugosa y \nsabrosa.",
+    "rarity": 2,
+    "category_en": "Beasts",
+    "category_es": "Criaturas",
+    "icon": "bst_turtle.png"
   }
 }
