@@ -20,6 +20,7 @@ else:
     APP_DATA_DIR = PROJECT_ROOT
 
 PROJECT_SLOTS_DIR = os.path.join(APP_DATA_DIR, "SaveSlots")
+ACTIVE_SLOT_FILE = os.path.join(PROJECT_SLOTS_DIR, "active_slot.json")
 TOTAL_SLOTS = 10
 
 
@@ -31,6 +32,34 @@ def ensure_slots_directory():
         s_dir = get_slot_dir(i)
         os.makedirs(s_dir, exist_ok=True)
         os.makedirs(os.path.join(s_dir, "backups"), exist_ok=True)
+
+
+def get_active_slot():
+    """Returns the currently active slot number (1-10) or None if none recorded."""
+    if os.path.exists(ACTIVE_SLOT_FILE):
+        try:
+            with open(ACTIVE_SLOT_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                num = data.get("active_slot")
+                if isinstance(num, int) and 1 <= num <= TOTAL_SLOTS:
+                    return num
+        except Exception:
+            pass
+    return None
+
+
+def set_active_slot(slot_num):
+    """Persists the active slot number (1-10). Pass None to clear."""
+    ensure_slots_directory()
+    try:
+        if slot_num is None:
+            if os.path.exists(ACTIVE_SLOT_FILE):
+                os.remove(ACTIVE_SLOT_FILE)
+        else:
+            with open(ACTIVE_SLOT_FILE, "w", encoding="utf-8") as f:
+                json.dump({"active_slot": slot_num, "updated_at": time.time()}, f, indent=2)
+    except Exception:
+        pass
 
 
 def get_slot_dir(slot_num):
@@ -141,6 +170,59 @@ def extract_save_metadata(save_data):
     }
 
 
+def find_matching_slot(save_data):
+    """
+    Finds a slot number matching the given save data by comparing UID and Steam ID.
+    If multiple match, returns the recorded active slot if among them, or the first match.
+    """
+    if not isinstance(save_data, dict):
+        return None
+    meta = extract_save_metadata(save_data)
+    t_uid = meta.get("uid")
+    t_steam = meta.get("steam_id")
+    if not t_uid and not t_steam:
+        return None
+
+    active_num = get_active_slot()
+    matching_slots = []
+
+    for i in range(1, TOTAL_SLOTS + 1):
+        slot_info = get_slot_info(i)
+        if slot_info["is_empty"]:
+            continue
+        s_meta = slot_info.get("meta", {})
+        if t_steam and s_meta.get("steam_id") == t_steam:
+            matching_slots.append(i)
+        elif t_uid and s_meta.get("uid") == t_uid:
+            matching_slots.append(i)
+
+    if not matching_slots:
+        return None
+
+    if active_num in matching_slots:
+        return active_num
+    return matching_slots[0]
+
+
+def get_backup_metadata(bak_path):
+    """
+    Extracts summary metadata for a backup (.bak) file.
+    Returns dict with fighter_name, max_floor, haters_killed, currencies, date_str.
+    """
+    if not os.path.exists(bak_path):
+        return {}
+    try:
+        data, ver = save_io.decompress_save(bak_path)
+        meta = extract_save_metadata(data)
+        st = os.stat(bak_path)
+        meta["mtime"] = st.st_mtime
+        meta["date_str"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(st.st_mtime))
+        meta["size_kb"] = st.st_size // 1024
+        return meta
+    except Exception as e:
+        return {"error": str(e)}
+
+
 def get_slot_info(slot_num, force_refresh=False):
     """
     Returns information and metadata about a specific slot.
@@ -163,13 +245,15 @@ def get_slot_info(slot_num, force_refresh=False):
                 try:
                     st = os.stat(fp)
                     is_orig = "ORIGINAL" in f
+                    is_session = "_session_" in f
                     backups.append({
                         "filename": f,
                         "path": fp,
                         "size": st.st_size,
                         "mtime": st.st_mtime,
                         "date_str": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(st.st_mtime)),
-                        "is_original": is_orig
+                        "is_original": is_orig,
+                        "is_session": is_session
                     })
                 except Exception:
                     pass
@@ -273,6 +357,7 @@ def save_current_to_slot(save_json, save_version, slot_num):
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)
 
+    set_active_slot(slot_num)
     return get_slot_info(slot_num, force_refresh=True)
 
 
@@ -297,15 +382,16 @@ def load_slot_to_active(slot_num, active_target_path):
         # Copy slot save to active target path atomically
         shutil.copyfile(slot_save, active_target_path)
         data, ver = save_io.decompress_save(active_target_path)
+        set_active_slot(slot_num)
         return True, data, ver
     except Exception as e:
         return False, str(e), None
 
 
-def create_slot_backup(slot_num):
+def create_slot_backup(slot_num, tag=None):
     """
     Creates a timestamped backup inside the slot's backups directory.
-    Enforces rolling retention of 10 backups (preserving ORIGINAL.bak).
+    Enforces rolling retention of up to 25 backups (preserving ORIGINAL.bak).
     """
     slot_save = get_slot_save_path(slot_num)
     backups_dir = get_slot_backups_dir(slot_num)
@@ -315,22 +401,85 @@ def create_slot_backup(slot_num):
 
     os.makedirs(backups_dir, exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S")
-    bak_filename = f"slot_{slot_num:02d}_{ts}.bak"
+    bak_filename = f"slot_{slot_num:02d}_{tag}_{ts}.bak" if tag else f"slot_{slot_num:02d}_{ts}.bak"
     bak_path = os.path.join(backups_dir, bak_filename)
 
     shutil.copyfile(slot_save, bak_path)
 
-    # Rolling retention: keep 10 most recent regular backups
+    # Rolling retention: keep 25 most recent regular backups
     baks = [f for f in os.listdir(backups_dir) if f.endswith(".bak") and not f.endswith(".ORIGINAL.bak")]
-    if len(baks) > 10:
+    if len(baks) > 25:
         baks.sort(key=lambda x: os.path.getmtime(os.path.join(backups_dir, x)))
-        for old in baks[:-10]:
+        for old in baks[:-25]:
             try:
                 os.remove(os.path.join(backups_dir, old))
             except Exception:
                 pass
 
     return bak_path
+
+
+def record_session_backup(slot_num, save_json, save_version, min_interval_sec=15, force=False):
+    """
+    Automatically archives a session backup and syncs the slot's savedata and metadata whenever changes are made.
+    """
+    ensure_slots_directory()
+    slot_save_path = get_slot_save_path(slot_num)
+    backups_dir = get_slot_backups_dir(slot_num)
+    os.makedirs(backups_dir, exist_ok=True)
+
+    # 1. Guarantee pristine ORIGINAL.bak exists
+    orig_bak = os.path.join(backups_dir, f"slot_{slot_num:02d}.ORIGINAL.bak")
+    if not os.path.exists(orig_bak):
+        if os.path.exists(slot_save_path) and os.path.getsize(slot_save_path) > 0:
+            shutil.copyfile(slot_save_path, orig_bak)
+        else:
+            save_io.save_to_file(save_json, orig_bak, version=save_version, make_backup=False)
+
+    # 2. Timing check for generating a new backup point
+    now = time.time()
+    should_backup = force
+
+    if not should_backup:
+        session_baks = [
+            os.path.join(backups_dir, f) for f in os.listdir(backups_dir)
+            if f.endswith(".bak") and not f.endswith(".ORIGINAL.bak")
+        ]
+        if not session_baks:
+            should_backup = True
+        else:
+            latest_mtime = max(os.path.getmtime(p) for p in session_baks)
+            if (now - latest_mtime) >= min_interval_sec:
+                should_backup = True
+
+    if should_backup:
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        bak_filename = f"slot_{slot_num:02d}_session_{ts}.bak"
+        bak_path = os.path.join(backups_dir, bak_filename)
+        save_io.save_to_file(save_json, bak_path, version=save_version, make_backup=False)
+
+        # Rolling retention: keep 25 most recent backups
+        baks = [f for f in os.listdir(backups_dir) if f.endswith(".bak") and not f.endswith(".ORIGINAL.bak")]
+        if len(baks) > 25:
+            baks.sort(key=lambda x: os.path.getmtime(os.path.join(backups_dir, x)))
+            for old in baks[:-25]:
+                try:
+                    os.remove(os.path.join(backups_dir, old))
+                except Exception:
+                    pass
+
+    # 3. Always keep slot's savedata.sav and slot_meta.json in sync with live changes
+    save_io.save_to_file(save_json, slot_save_path, version=save_version, make_backup=False)
+    meta = extract_save_metadata(save_json)
+    meta["file_mtime"] = os.path.getmtime(slot_save_path)
+    meta["save_version"] = save_version
+    meta["file_size_kb"] = os.path.getsize(slot_save_path) // 1024
+    meta_path = get_slot_meta_path(slot_num)
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2, ensure_ascii=False)
+
+    set_active_slot(slot_num)
+    return get_slot_info(slot_num, force_refresh=True)
 
 
 def restore_slot_backup(slot_num, bak_filename, active_target_path=None):

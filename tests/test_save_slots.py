@@ -18,13 +18,16 @@ class TestSaveSlots(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
         self.orig_slots_dir = save_slots.PROJECT_SLOTS_DIR
+        self.orig_active_file = save_slots.ACTIVE_SLOT_FILE
         save_slots.PROJECT_SLOTS_DIR = os.path.join(self.tmp_dir, "SaveSlots")
+        save_slots.ACTIVE_SLOT_FILE = os.path.join(save_slots.PROJECT_SLOTS_DIR, "active_slot.json")
         save_slots.ensure_slots_directory()
 
         self.save_data, self.version = save_io.decompress_save(REAL_SAVE_PATH)
 
     def tearDown(self):
         save_slots.PROJECT_SLOTS_DIR = self.orig_slots_dir
+        save_slots.ACTIVE_SLOT_FILE = self.orig_active_file
         if os.path.exists(self.tmp_dir):
             shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
@@ -97,6 +100,38 @@ class TestSaveSlots(unittest.TestCase):
         save_slots.clear_slot(1)
         self.assertTrue(save_slots.get_slot_info(1)["is_empty"])
         self.assertFalse(save_slots.get_slot_info(2)["is_empty"])
+
+    def test_record_session_backup_and_sync(self):
+        # Save initially
+        save_slots.save_current_to_slot(self.save_data, self.version, 2)
+        info1 = save_slots.get_slot_info(2)
+        initial_baks = info1["backups_count"]
+
+        # Make a change and record session backup
+        mod_data = dict(self.save_data)
+        mod_data["soul"]["free_money"] = 555555
+        res = save_slots.record_session_backup(2, mod_data, self.version, force=True)
+
+        self.assertEqual(res["meta"]["kill_coins"], 555555)
+        self.assertGreater(res["backups_count"], initial_baks)
+
+        # Verify a session backup was created with _session_ in filename
+        session_baks = [b for b in res["backups"] if b.get("is_session")]
+        self.assertGreaterEqual(len(session_baks), 1)
+
+        # Test extracting metadata directly from the backup file
+        bak_meta = save_slots.get_backup_metadata(session_baks[0]["path"])
+        self.assertEqual(bak_meta.get("kill_coins"), 555555)
+        self.assertEqual(bak_meta.get("player_name"), "Geus")
+
+    def test_active_slot_persistence_and_matching(self):
+        save_slots.set_active_slot(2)
+        self.assertEqual(save_slots.get_active_slot(), 2)
+
+        # Save to slot 2 and match
+        save_slots.save_current_to_slot(self.save_data, self.version, 2)
+        matched = save_slots.find_matching_slot(self.save_data)
+        self.assertEqual(matched, 2)
 
 
 if __name__ == "__main__":

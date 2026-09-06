@@ -26,12 +26,13 @@ class SlotBackupsDialog(tk.Toplevel):
         self.on_restored_cb = on_restored_cb
 
         self.title(t("slot_bak_dialog_title", slot=slot_num))
-        self.geometry("720x460")
-        self.minsize(620, 380)
+        self.geometry("760x530")
+        self.minsize(680, 450)
         self.configure(bg=BG_DARK)
         self.transient(parent)
         self.grab_set()
 
+        self._node_to_filename = {}
         self._build_ui()
         self.refresh_backups()
 
@@ -89,13 +90,37 @@ class SlotBackupsDialog(tk.Toplevel):
         self.tree.heading("size", text=t("bak_col_size"), anchor="center")
         self.tree.heading("type", text=t("slot_bak_col_type"), anchor="center")
 
-        self.tree.column("#0", width=280, anchor="w")
+        self.tree.column("#0", width=300, anchor="w")
         self.tree.column("date", width=160, anchor="center")
-        self.tree.column("size", width=90, anchor="center")
-        self.tree.column("type", width=110, anchor="center")
+        self.tree.column("size", width=85, anchor="center")
+        self.tree.column("type", width=130, anchor="center")
 
         scroll.pack(side="right", fill="y")
         self.tree.pack(side="left", fill="both", expand=True)
+        self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+
+        # Selected Backup Preview Card
+        self.preview_frame = tk.Frame(body, bg=BG_CARD, padx=10, pady=8, highlightbackground=ACCENT_CYAN, highlightthickness=1)
+        self.preview_frame.pack(fill="x", pady=(8, 0))
+
+        self.lbl_preview_title = tk.Label(
+            self.preview_frame,
+            text=t("slot_bak_preview_lbl"),
+            font=("Segoe UI", 9, "bold"),
+            fg=ACCENT_GOLD,
+            bg=BG_CARD
+        )
+        self.lbl_preview_title.pack(anchor="w")
+
+        self.lbl_preview_details = tk.Label(
+            self.preview_frame,
+            text=t("slot_bak_preview_none"),
+            font=("Segoe UI", 8),
+            fg=FG_TEXT,
+            bg=BG_CARD,
+            justify="left"
+        )
+        self.lbl_preview_details.pack(anchor="w", pady=(2, 0))
 
         # Action Buttons Frame
         btn_bar = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
@@ -138,11 +163,13 @@ class SlotBackupsDialog(tk.Toplevel):
 
     def refresh_backups(self):
         self.tree.delete(*self.tree.get_children())
+        self._node_to_filename.clear()
         slot_info = save_slots.get_slot_info(self.slot_num, force_refresh=True)
         backups = slot_info.get("backups", [])
 
         if not backups:
             self.tree.insert("", "end", text=f"  {t('slot_bak_empty')}", values=("-", "-", "-"))
+            self.lbl_preview_details.config(text=t("slot_bak_empty"))
             self.btn_restore.config(state="disabled")
             self.btn_restore_active.config(state="disabled")
             self.btn_del_bak.config(state="disabled")
@@ -155,28 +182,70 @@ class SlotBackupsDialog(tk.Toplevel):
         for b in backups:
             fn = b["filename"]
             is_orig = b.get("is_original", False)
-            display_title = f"⭐ {fn}" if is_orig else f" 📦 {fn}"
-            type_lbl = t("slot_bak_type_orig") if is_orig else t("slot_bak_type_auto")
+            is_session = b.get("is_session", False) or "_session_" in fn
+            if is_orig:
+                display_title = f"⭐ {fn}"
+                type_lbl = t("slot_bak_type_orig")
+            elif is_session:
+                display_title = f"🕒 {fn}"
+                type_lbl = t("slot_bak_type_session")
+            else:
+                display_title = f"📦 {fn}"
+                type_lbl = t("slot_bak_type_auto")
+
             sz_str = f"{b['size'] // 1024} KB"
             node_id = self.tree.insert(
                 "", "end",
                 text=display_title,
                 values=(b.get("date_str", "-"), sz_str, type_lbl)
             )
-            # Store filename in item data
-            self.tree.set(node_id, "size", sz_str)
+            self._node_to_filename[node_id] = fn
 
         # Auto-select first item
         children = self.tree.get_children()
         if children:
             self.tree.selection_set(children[0])
+            self._on_tree_select()
+
+    def _on_tree_select(self, event=None):
+        fn = self._get_selected_filename()
+        if not fn:
+            self.lbl_preview_details.config(text=t("slot_bak_preview_none"))
+            return
+        backups_dir = save_slots.get_slot_backups_dir(self.slot_num)
+        bak_path = os.path.join(backups_dir, fn)
+        meta = save_slots.get_backup_metadata(bak_path)
+        if not meta or "error" in meta:
+            self.lbl_preview_details.config(text=f"{fn} ({os.path.getsize(bak_path)//1024 if os.path.exists(bak_path) else 0} KB)")
+            return
+
+        p_name = meta.get("player_name", "Senpai")
+        f_name = meta.get("fighter_name", "Fighter")
+        f_class = meta.get("fighter_class", "BAL")
+        f_grade = meta.get("fighter_grade", 1)
+        f_lvl = meta.get("fighter_lvl", 1)
+        flr = meta.get("max_floor", 0)
+        haters = meta.get("haters_killed", 0)
+        kc = meta.get("kill_coins", 0)
+        dm = meta.get("death_metals", 0)
+        spl = meta.get("splithium", 0)
+        bl = meta.get("bloodnium", 0)
+
+        self.lbl_preview_details.config(
+            text=f"👤 {p_name} • 🥋 {f_name} ({f_class} ★{f_grade} Lv.{f_lvl})\n"
+                 f"🗼 {t('slot_lbl_floor', floor=flr)}  |  ⚔️ {t('slot_lbl_haters', haters=haters)}  |  "
+                 f"🪙 {kc:,} KC  |  💎 {dm:,} DM  |  ⚡ {spl:,} SPL  |  🩸 {bl:,} BL"
+        )
 
     def _get_selected_filename(self):
         sel = self.tree.selection()
         if not sel:
             return None
-        raw_text = self.tree.item(sel[0], "text").strip()
-        clean = raw_text.replace("⭐", "").replace("📦", "").strip()
+        node_id = sel[0]
+        if node_id in self._node_to_filename:
+            return self._node_to_filename[node_id]
+        raw_text = self.tree.item(node_id, "text").strip()
+        clean = raw_text.replace("⭐", "").replace("🕒", "").replace("📦", "").strip()
         if not clean.endswith(".bak"):
             return None
         return clean

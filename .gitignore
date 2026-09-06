@@ -3,6 +3,7 @@ CurrentSave/
 *.sav
 Backups/
 backups/
+SaveSlots/
 *.bak
 masters.db.original.bak
 

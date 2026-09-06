@@ -211,7 +211,10 @@ class AdvancedTabMixin:
 
         # Check if this slot matches active save
         is_active = False
-        if not is_empty and active_meta:
+        current_active = getattr(self, "get_current_active_slot_num", lambda: None)()
+        if current_active is not None:
+            is_active = (slot_num == current_active)
+        elif not is_empty and active_meta:
             s_uid = meta.get("uid")
             s_steam = meta.get("steam_id")
             s_kc = meta.get("kill_coins")
@@ -418,6 +421,8 @@ class AdvancedTabMixin:
         try:
             ver = getattr(self, "version", 2)
             save_slots.save_current_to_slot(self.save_json, ver, slot_num)
+            if hasattr(self, "set_current_active_slot_num"):
+                self.set_current_active_slot_num(slot_num)
             self.refresh_slots_view()
             messagebox.showinfo(
                 t("notice"),
@@ -450,6 +455,9 @@ class AdvancedTabMixin:
             messagebox.showerror(t("error"), str(err_or_data), parent=self)
             return
 
+        if hasattr(self, "set_current_active_slot_num"):
+            self.set_current_active_slot_num(slot_num)
+
         # Reload editor with newly active save
         self.load_save(self.save_path)
         self.refresh_slots_view()
@@ -480,6 +488,9 @@ class AdvancedTabMixin:
         ):
             return
         save_slots.clear_slot(slot_num)
+        if hasattr(self, "get_current_active_slot_num") and self.get_current_active_slot_num() == slot_num:
+            if hasattr(self, "set_current_active_slot_num"):
+                self.set_current_active_slot_num(None)
         self.refresh_slots_view()
         messagebox.showinfo(t("notice"), t("slot_cleared_ok", slot=slot_num), parent=self)
 

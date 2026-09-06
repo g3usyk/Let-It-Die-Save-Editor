@@ -423,10 +423,38 @@ class CompleteSaveEditorGUI(
             _apply(photo)
         return photo
 
+    def get_current_active_slot_num(self):
+        """Returns the active slot number (1-10) for this editing session."""
+        if hasattr(self, "_active_slot_num") and self._active_slot_num:
+            return self._active_slot_num
+        import core.save_slots as save_slots
+        saved = save_slots.get_active_slot()
+        if saved:
+            self._active_slot_num = saved
+            return saved
+        if self.save_json:
+            matched = save_slots.find_matching_slot(self.save_json)
+            if matched:
+                self._active_slot_num = matched
+                save_slots.set_active_slot(matched)
+                return matched
+        return None
+
+    def set_current_active_slot_num(self, slot_num):
+        self._active_slot_num = slot_num
+        import core.save_slots as save_slots
+        save_slots.set_active_slot(slot_num)
+
     def _auto_save(self):
         """Immediately writes changes to disk so modifications in the GUI are instantly live in the game."""
         if self.save_json and self.save_path:
             save_to_file(self.save_json, self.save_path, version=self.version)
+            import core.save_slots as save_slots
+            active_slot = self.get_current_active_slot_num()
+            if active_slot:
+                save_slots.record_session_backup(active_slot, self.save_json, self.version, min_interval_sec=15, force=False)
+                if hasattr(self, "refresh_slots_view"):
+                    self.refresh_slots_view()
 
     def _notify(self, title_en, title_es, msg_en, msg_es, kind="info"):
         """Displays dialog and status updates in the user's selected language (EN or ES)."""
@@ -709,8 +737,9 @@ class CompleteSaveEditorGUI(
 
             # Auto-sanitize currencies and facilities against C++ out-of-bounds corruption (> level 99)
             repaired_curr, fixes_curr = modifiers.repair_and_sanitize_currencies(self.save_json)
-            if repaired_curr:
-                print(f"[Auto-Repair] Currencies sanitized: {fixes_curr}")
+            # Reset and detect active slot for newly loaded save
+            self._active_slot_num = None
+            self.get_current_active_slot_num()
 
             self.refresh_all_views()
             self.status_var.set(f"Save loaded: {os.path.basename(path)}" if i18n.get_language() == "en" else f"Partida cargada con éxito: {os.path.basename(path)}")
@@ -891,6 +920,13 @@ class CompleteSaveEditorGUI(
                     re_points=_parse_safe_int(self.re_var.get())
                 )
             save_io.save_to_file(self.save_json, self.save_path, version=self.version)
+            import core.save_slots as save_slots
+            active_slot = self.get_current_active_slot_num()
+            if active_slot:
+                save_slots.record_session_backup(active_slot, self.save_json, self.version, force=True)
+                if hasattr(self, "refresh_slots_view"):
+                    self.refresh_slots_view()
+
             self._notify(
                 "Save Successful", "Guardado Exitoso",
                 f"Game save successfully re-encrypted and sealed!\n\nAll changes applied to {os.path.basename(self.save_path)}.",
