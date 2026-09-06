@@ -60,11 +60,38 @@ class AssetManager:
         self._is_batch_downloading = False
         self._cancel_batch = False
 
+        self.manifest = {}
+        for m_root in [BUNDLE_ROOT, EXE_DIR, PROJECT_ROOT]:
+            m_path = os.path.join(m_root, "asset_manifest.json")
+            if os.path.isfile(m_path):
+                try:
+                    with open(m_path, "r", encoding="utf-8") as f:
+                        self.manifest = json.load(f)
+                    break
+                except Exception:
+                    pass
+
     def normalize_rel_path(self, rel_path):
         """Converts Windows backslashes and strips leading slashes."""
         if not rel_path:
             return ""
         norm = str(rel_path).replace("\\", "/").strip().lstrip("/")
+        return norm
+
+    def resolve_asset_path(self, rel_path):
+        """Resolves a bare filename or relative path to its canonical repository path."""
+        norm = self.normalize_rel_path(rel_path)
+        if not norm:
+            return ""
+        if "/" in norm:
+            return norm
+        lower = norm.lower()
+        if hasattr(self, "manifest") and self.manifest:
+            if lower in self.manifest:
+                return self.manifest[lower]
+            stem = os.path.splitext(lower)[0]
+            if stem in self.manifest:
+                return self.manifest[stem]
         return norm
 
     def get_local_path(self, rel_path):
@@ -74,22 +101,22 @@ class AssetManager:
         2. Local persistent cache_dir
         Returns the absolute filepath if found, otherwise None.
         """
-        norm = self.normalize_rel_path(rel_path)
-        if not norm:
+        canonical = self.resolve_asset_path(rel_path)
+        if not canonical:
             return None
 
         # 1. Check primary icons directory
-        primary = os.path.join(self.local_icons_dir, norm.replace("/", os.sep))
+        primary = os.path.join(self.local_icons_dir, canonical.replace("/", os.sep))
         if os.path.isfile(primary):
             return primary
 
         # 2. Check local persistent cache
-        cached = os.path.join(self.cache_dir, norm.replace("/", os.sep))
+        cached = os.path.join(self.cache_dir, canonical.replace("/", os.sep))
         if os.path.isfile(cached):
             return cached
 
         # 3. Direct filename check inside icons subdirectories
-        base_name = os.path.basename(norm)
+        base_name = os.path.basename(canonical)
         for sub in ["", "cards", "sets", "all_official", "armor", "weapons", "materials", "decals", "shrooms", "gear", "thumbs"]:
             p1 = os.path.join(self.local_icons_dir, sub, base_name)
             if os.path.isfile(p1):
@@ -102,9 +129,9 @@ class AssetManager:
 
     def get_cdn_url(self, rel_path, use_fallback=False):
         """Builds full CDN URL for a given relative path."""
-        norm = self.normalize_rel_path(rel_path)
+        canonical = self.resolve_asset_path(rel_path)
         base = self.fallback_base if use_fallback else self.cdn_base
-        return base + norm
+        return base + canonical
 
     def request_asset(self, rel_path, on_downloaded=None):
         """
@@ -112,7 +139,8 @@ class AssetManager:
         If it's already on disk, returns its path immediately.
         If missing, queues background download and calls on_downloaded(path) when ready.
         """
-        existing = self.get_local_path(rel_path)
+        canonical = self.resolve_asset_path(rel_path)
+        existing = self.get_local_path(canonical)
         if existing:
             if on_downloaded:
                 try:
@@ -121,18 +149,17 @@ class AssetManager:
                     pass
             return existing
 
-        norm = self.normalize_rel_path(rel_path)
-        if not norm:
+        if not canonical:
             return None
 
         with self._lock:
             if on_downloaded:
-                self._callbacks.setdefault(norm, []).append(on_downloaded)
-            if norm in self._pending:
+                self._callbacks.setdefault(canonical, []).append(on_downloaded)
+            if canonical in self._pending:
                 return None
-            self._pending.add(norm)
+            self._pending.add(canonical)
 
-        self.executor.submit(self._download_worker, norm)
+        self.executor.submit(self._download_worker, canonical)
         return None
 
     def _download_worker(self, norm_rel_path):
@@ -208,15 +235,20 @@ class AssetManager:
                         pass
         return True
 
-    def download_all_assets_async(self, all_rel_paths, progress_callback=None, completion_callback=None):
+    def download_all_assets_async(self, all_rel_paths=None, progress_callback=None, completion_callback=None):
         """
         Batch downloader for offline preparation.
-        all_rel_paths: list of relative asset paths to ensure in cache.
+        all_rel_paths: list of relative asset paths to ensure in cache (if None, downloads entire manifest).
         progress_callback: fn(current, total, current_file)
         completion_callback: fn(downloaded_count, error_count)
         """
         if self._is_batch_downloading:
             return False
+
+        if not all_rel_paths and getattr(self, "manifest", None):
+            all_rel_paths = list(set(self.manifest.values()))
+        elif not all_rel_paths:
+            all_rel_paths = []
 
         self._is_batch_downloading = True
         self._cancel_batch = False

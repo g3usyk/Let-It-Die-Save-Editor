@@ -210,12 +210,29 @@ class MaterialsTabMixin:
     def _get_mat_photo_key(self, itemid, name_en):
         if hasattr(self, "icon_map") and "materials_thumbs" in self.icon_map:
             thumb_rel = self.icon_map["materials_thumbs"].get(itemid)
-            if thumb_rel and os.path.exists(os.path.join(ICONS_DIR, thumb_rel)):
+            if thumb_rel:
                 return thumb_rel
         clean_en = name_en.lower().replace(" ", "_").replace("-", "_").replace("'", "").replace(".", "")
-        for candidate in [f"thumbs/materials/mat_{itemid.lower()}.png", f"{clean_en}_box", f"{clean_en}_itembox", clean_en, itemid.lower()]:
+        candidates = [
+            f"thumbs/materials/mat_{itemid.lower()}.png",
+            f"{clean_en}_box.png",
+            f"{clean_en}_itembox.png",
+            f"{clean_en}.png",
+            f"{itemid.lower()}.png"
+        ]
+        if hasattr(self, "asset_manager") and getattr(self.asset_manager, "manifest", None):
+            for c in candidates:
+                c_low = c.lower()
+                if c_low in self.asset_manager.manifest:
+                    return self.asset_manager.manifest[c_low]
+                c_base = os.path.basename(c_low)
+                if c_base in self.asset_manager.manifest:
+                    return self.asset_manager.manifest[c_base]
+
+        for candidate in candidates:
             if self.get_photo(candidate, (36, 36)):
                 return candidate
+
         if "alumi" in itemid.lower(): return "materials/aluminum_scraps.png"
         elif "copper" in itemid.lower(): return "materials/clump_of_copper_scraps.png"
         elif "iron" in itemid.lower(): return "materials/iron_scraps.png"
@@ -240,59 +257,36 @@ class MaterialsTabMixin:
         cat = vals[2]
         itemid = vals[3]
         
-        self.current_mat_selection = (itemid, full_title, cat)
-        self.mat_title_lbl.config(text=full_title)
-        self.mat_type_lbl.config(text=t("mat_cat_info", cat=cat, rare=stars, id=itemid))
-        if stock_str != "-":
-            self.mat_stock_lbl.config(text=t("mat_in_storage", qty=stock_str), foreground=ACCENT_GOLD)
-        else:
-            self.mat_stock_lbl.config(text=t("mat_none_in_storage"), foreground=FG_MUTED)
+        cnt_raw = str(stock_str).replace("pcs.", "").replace("u.", "").replace("-", "0").strip()
+        cnt = int(cnt_raw) if cnt_raw.isdigit() else 0
         
-        is_en = (i18n.get_language() == "en")
-        desc = t("mat_desc_default")
+        self.current_mat_selection = (itemid, full_title, cat)
+        self.mat_qty_entry_var.set(str(cnt))
+        self.mat_title_lbl.config(text=f"{full_title}\n({itemid}) • {stars}")
+        self.mat_type_lbl.config(text=t("mat_type_info", cat=cat, count=cnt))
+        
+        clean_slug = full_title.split("(")[0].strip().lower().replace(" ", "_").replace("-", "_")
+        name_en = full_title.split("(")[0].strip()
+        
         sb_db = getattr(self, "shrooms_beasts_db", {})
-        if not sb_db:
-            sb_path = os.path.join(BASE_DIR, "all_shrooms_beasts_db.json")
-            if os.path.exists(sb_path):
-                try:
-                    with open(sb_path, "r", encoding="utf-8") as f:
-                        self.shrooms_beasts_db = json.load(f)
-                        sb_db = self.shrooms_beasts_db
-                except Exception:
-                    pass
-
-        if itemid.startswith("MSR_") or itemid.startswith("BST_"):
-            sb_info = sb_db.get(itemid, {})
-            if is_en:
-                desc = sb_info.get("desc_en") or sb_info.get("desc_es") or desc
-            else:
-                desc = sb_info.get("desc_es") or sb_info.get("desc_en") or desc
+        if itemid in sb_db:
+            meta = sb_db[itemid]
+            desc = i18n.get_item_desc(meta) or meta.get("desc_es") or meta.get("desc_en", "")
         else:
-            for m in self.materials_db:
-                if m["itemid"] == itemid:
-                    desc = i18n.get_item_desc(m) or desc
-                    break
+            meta = next((item for item in self.materials_db if item.get("itemid") == itemid), {})
+            desc = i18n.get_item_desc(meta) or meta.get("desc", "")
+            
         self.mat_desc_lbl.config(text=desc)
         
-        name_en = full_title.split("(")[-1].replace(")", "").strip() if "(" in full_title else full_title
-        clean_slug = name_en.lower().replace(" ", "_").replace("-", "_").replace("'", "")
-        
         # Check if selection is a Mushroom or Beast
-        photo = None
+        mat_art_target = None
         if itemid.startswith("MSR_") or itemid.startswith("BST_"):
-            sb_icon = sb_db.get(itemid, {}).get("icon") or f"{itemid.lower()}.png"
-            photo = self.get_photo(sb_icon, size=(220, 220), preserve_aspect=True) or self.get_photo(itemid.lower(), size=(220, 220), preserve_aspect=True) or self.get_photo(clean_slug, size=(220, 220), preserve_aspect=True)
-
-        if not photo:
+            mat_art_target = sb_db.get(itemid, {}).get("icon") or f"{itemid.lower()}.png"
+        else:
             card_rel = self.icon_map.get("materials_cards", {}).get(itemid) if hasattr(self, "icon_map") else None
-            photo = self.get_photo(card_rel, size=(280, 140), preserve_aspect=True) if card_rel else None
-            if not photo:
-                photo = self.get_photo(f"{clean_slug}_itembox", size=(280, 140), preserve_aspect=True) or self.get_photo(clean_slug, size=(140, 140), preserve_aspect=True)
-            if not photo:
-                photo = self.get_photo(self._get_mat_photo_key(itemid, name_en), size=(140, 140), preserve_aspect=True)
-            
-        self.mat_art_lbl.config(image=photo or "")
-        self.tree_images["mat_preview"] = photo
+            mat_art_target = card_rel or self._get_mat_photo_key(itemid, name_en)
+
+        self.set_widget_image(self.mat_art_lbl, mat_art_target, size=(160, 160), preserve_aspect=True, fallback="materials/special_steel.png")
 
     def _set_selected_mat_qty(self):
         if not self.current_mat_selection or not self.save_json:
@@ -554,6 +548,8 @@ class MaterialsTabMixin:
                     tags=(tag,)
                 )
                 self.tree_images[node_id] = thumb
+                if not thumb and icon_k:
+                    self.set_tree_item_image(self.mat_tree, node_id, icon_k, size=(36, 36), preserve_aspect=True)
                 if not first_row:
                     first_row = node_id
                     
@@ -636,6 +632,8 @@ class MaterialsTabMixin:
                     tags=(tag,)
                 )
                 self.tree_images[node_id] = thumb
+                if not thumb and icon_f:
+                    self.set_tree_item_image(self.mat_tree, node_id, icon_f, size=(36, 36), preserve_aspect=True)
                 if not first_row:
                     first_row = node_id
                     

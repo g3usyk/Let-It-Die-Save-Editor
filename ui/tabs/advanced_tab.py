@@ -100,6 +100,10 @@ class AdvancedTabMixin:
                     for p in cat.values():
                         if p:
                             asset_paths.add(p)
+        if hasattr(self.asset_manager, "manifest") and self.asset_manager.manifest:
+            for p in self.asset_manager.manifest.values():
+                if p and "/" in p:
+                    asset_paths.add(p)
         
         if not asset_paths:
             messagebox.showinfo(t("notice"), "No assets to download.")

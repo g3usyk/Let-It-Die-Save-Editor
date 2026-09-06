@@ -31,6 +31,7 @@ def build():
         ("teamhate_template.json", "."),
         ("tdm_dummy_template.json", "."),
         ("tdm_dummy_defenders_template.json", "."),
+        ("asset_manifest.json", "."),
     ]
 
     if is_lite:

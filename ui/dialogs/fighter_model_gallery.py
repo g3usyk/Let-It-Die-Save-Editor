@@ -122,20 +122,19 @@ class FighterModelGalleryDialog(tk.Toplevel):
             inner = tk.Frame(card, bg=BG_CARD, padx=6, pady=4)
             inner.pack(fill="both", expand=True)
             
-            photo = None
-            if hasattr(self.parent_app, "get_photo"):
-                photo = self.parent_app.get_photo(art_rel, size=(64, 78), preserve_aspect=True)
-            elif hasattr(self.master, "get_photo"):
-                photo = self.master.get_photo(art_rel, size=(64, 78), preserve_aspect=True)
-                
-            if photo:
-                img_lbl = tk.Label(inner, image=photo, bg=BG_CARD, cursor="hand2")
-                img_lbl.image = photo
-                img_lbl.pack(pady=(2, 4))
-                self.img_refs.append(photo)
-            else:
-                img_lbl = tk.Label(inner, text="[No Image]", bg=BG_CARD, fg=FG_MUTED, cursor="hand2")
-                img_lbl.pack(pady=10)
+            img_lbl = tk.Label(inner, bg=BG_CARD, cursor="hand2")
+            img_lbl.pack(pady=(2, 4))
+            app = getattr(self, "parent_app", None) or getattr(self, "master", None)
+            if app and hasattr(app, "set_widget_image"):
+                photo = app.set_widget_image(img_lbl, art_rel, size=(64, 78), preserve_aspect=True)
+                if photo:
+                    self.img_refs.append(photo)
+            elif app and hasattr(app, "get_photo"):
+                photo = app.get_photo(art_rel, size=(64, 78), preserve_aspect=True)
+                if photo:
+                    img_lbl.config(image=photo)
+                    img_lbl.image = photo
+                    self.img_refs.append(photo)
                 
             name_lbl = tk.Label(
                 inner,

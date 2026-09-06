@@ -210,6 +210,8 @@ class InventoryViewerDialog(tk.Toplevel):
                     tags=("tag_material",)
                 )
                 self.tree_images[node] = thumb
+                if not thumb and icon_k and hasattr(self.parent_app, "set_tree_item_image"):
+                    self.parent_app.set_tree_item_image(self.tree, node, icon_k, size=(24, 24))
                 total_entries += 1
                 total_units += qty
                 
@@ -232,7 +234,7 @@ class InventoryViewerDialog(tk.Toplevel):
                 if is_en:
                     display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else name_en
                 else:
-                    display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
+                    display_name = f"{name_es} ({name_en})" if name_es and name_en != name_es else name_es
                     
                 loc_txt = t("inv_loc_storage") if owner == "COIN_LOCKER" else t("inv_loc_bag")
                 clean_slug = (meta.get("name_en") or mid).lower().replace(" ", "_").replace("-", "_")
@@ -248,6 +250,8 @@ class InventoryViewerDialog(tk.Toplevel):
                     tags=("tag_shroom",)
                 )
                 self.tree_images[node] = thumb
+                if not thumb and icon_k and hasattr(self.parent_app, "set_tree_item_image"):
+                    self.parent_app.set_tree_item_image(self.tree, node, icon_k, size=(24, 24))
                 total_entries += 1
                 total_units += qty
                 
@@ -264,7 +268,7 @@ class InventoryViewerDialog(tk.Toplevel):
                 if is_en:
                     display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else name_en
                 else:
-                    display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else name_es
+                    display_name = f"{name_es} ({name_en})" if name_es and name_en != name_es else name_es
                     
                 loc_txt = t("inv_loc_storage") if owner == "COIN_LOCKER" else t("inv_loc_bag")
                 clean_slug = (meta.get("name_en") or bid).lower().replace(" ", "_").replace("-", "_")
@@ -280,6 +284,8 @@ class InventoryViewerDialog(tk.Toplevel):
                     tags=("tag_beast",)
                 )
                 self.tree_images[node] = thumb
+                if not thumb and icon_k and hasattr(self.parent_app, "set_tree_item_image"):
+                    self.parent_app.set_tree_item_image(self.tree, node, icon_k, size=(24, 24))
                 total_entries += 1
                 total_units += qty
 

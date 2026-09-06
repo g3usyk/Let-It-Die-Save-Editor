@@ -241,13 +241,12 @@ class ArmorSetViewerDialog(tk.Toplevel):
         # 1. Update character set model
         render_path = t_obj.get("set_render")
         if render_path:
-            model_photo = self.parent_app.get_photo(render_path, size=(300, 470))
+            model_photo = self.parent_app.set_widget_image(self.model_lbl, render_path, size=(300, 470))
             if model_photo:
-                self.model_lbl.config(image=model_photo, text="")
-                self.model_lbl.image = model_photo
+                self.model_lbl.config(text="")
                 self.img_refs.append(model_photo)
             else:
-                self.model_lbl.config(image="", text="[Official Render In Progress]" if is_en else "[Render Oficial en Proceso]")
+                self.model_lbl.config(image="", text="[Cargando...]" if not is_en else "[Loading...]")
         else:
             self.model_lbl.config(image="", text="[Official Render In Progress]" if is_en else "[Render Oficial en Proceso]")
             
@@ -308,10 +307,10 @@ class ArmorSetViewerDialog(tk.Toplevel):
                 else:
                     res_txt = (
                         f"🗡️ Corte: {res.get('slash',0):+d}%   🔨 Golpe: {res.get('blunt',0):+d}%   🏹 Perf: {res.get('pierce',0):+d}%\n"
-                        f"🔥 Fuego: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Veneno: {res.get('poison',0):+d}%"
+                        f"🔥 Fuego: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Ven: {res.get('poison',0):+d}%"
                     )
                 card_ui["res_lbl"].config(text=res_txt)
-                card_ui["btn_unlock"].config(text="⭐ Unlock +4" if is_en else "⭐ Desbloquear +4")
+                card_ui["btn_unlock"].config(text="⭐ Unlock Armor Piece +4" if is_en else "⭐ Desbloquear Pieza +4")
             
             # Status
             f_lvl = forge_levels.get(p["id"], 0)
@@ -347,36 +346,23 @@ class ArmorSetViewerDialog(tk.Toplevel):
             
             # Icon
             icon_rel = p.get("icon")
-            icon_photo = None
-            if icon_rel:
-                icon_photo = self.parent_app.get_photo(icon_rel, size=(54, 54))
-            if not icon_photo:
-                icon_photo = self.parent_app.get_photo(self.parent_app._find_equipment_art(p["id"]), size=(54, 54))
-            if not icon_photo and hasattr(self.parent_app, "icon_map"):
-                mapped = self.parent_app.icon_map.get("gear_icons", {}).get(p["id"])
-                if mapped:
-                    icon_photo = self.parent_app.get_photo(mapped, size=(54, 54))
+            target_ico = icon_rel or self.parent_app._find_equipment_art(p["id"])
+            icon_photo = self.parent_app.set_widget_image(card_ui["icon_lbl"], target_ico, size=(54, 54))
             if icon_photo:
-                card_ui["icon_lbl"].config(image=icon_photo, text="")
-                card_ui["icon_lbl"].image = icon_photo
+                card_ui["icon_lbl"].config(text="")
                 self.img_refs.append(icon_photo)
             else:
                 card_ui["icon_lbl"].config(image="", text="[Icono]")
                 
             # Card image
-            card_rel = p.get("card")
-            card_photo = None
-            if card_rel:
-                card_photo = self.parent_app.get_photo(card_rel, size=(180, 85))
-            if not card_photo and hasattr(self.parent_app, "icon_map"):
-                mapped_card = self.parent_app.icon_map.get("gear_cards", {}).get(p["id"])
-                if mapped_card:
-                    card_photo = self.parent_app.get_photo(mapped_card, size=(180, 85))
-            if card_photo:
-                card_ui["card_img_lbl"].config(image=card_photo)
-                card_ui["card_img_lbl"].image = card_photo
+            target_card = p.get("card")
+            if not target_card and hasattr(self.parent_app, "icon_map"):
+                target_card = self.parent_app.icon_map.get("gear_cards", {}).get(p["id"])
+            if target_card:
                 card_ui["card_img_lbl"].pack(pady=2)
-                self.img_refs.append(card_photo)
+                card_photo = self.parent_app.set_widget_image(card_ui["card_img_lbl"], target_card, size=(180, 85))
+                if card_photo:
+                    self.img_refs.append(card_photo)
             else:
                 card_ui["card_img_lbl"].pack_forget()
                 

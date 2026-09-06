@@ -283,9 +283,7 @@ class FightersTabMixin:
                 self.f_sub_lbl.config(text=f"Clase: {cls_name} ({cls_code}) | Grado: Tier {grade} ★ | Nivel: {lvl}")
             
             cls_icon_filename = FIGHTER_CLASSES.get(cls_code, ("", "all-rounder.png"))[1]
-            ico = self.get_photo(cls_icon_filename, (48, 48)) or self.get_photo("all-rounder", (48, 48))
-            self.f_class_icon_lbl.config(image=ico or "")
-            self.tree_images["fighter_hero"] = ico
+            self.set_widget_image(self.f_class_icon_lbl, cls_icon_filename, (48, 48), fallback="all-rounder")
             
             self.f_name_entry_var.set(name)
             self.f_class_select_var.set(f"{cls_code} ({cls_name})")
@@ -335,9 +333,8 @@ class FightersTabMixin:
                     d_info = self.decals_map.get(did, {})
                     d_name = d_info.get("name_es") or d_info.get("name_en") or did
                     art_rel = self._find_decal_art(did)
-                    d_thumb = self.get_photo(art_rel, (28, 28), preserve_aspect=True)
-                    self.f_decal_slots_lbls[s_idx].config(text=f" Espacio {s_idx+1}: {d_name} ({did})", image=d_thumb or "", foreground=ACCENT_GOLD)
-                    self.tree_images[f"eq_decal_{s_idx}"] = d_thumb
+                    self.f_decal_slots_lbls[s_idx].config(text=f" Espacio {s_idx+1}: {d_name} ({did})", foreground=ACCENT_GOLD)
+                    self.set_widget_image(self.f_decal_slots_lbls[s_idx], art_rel, (28, 28), preserve_aspect=True, fallback="decal_std")
                 else:
                     self.f_decal_slots_lbls[s_idx].config(text=f" Espacio {s_idx+1}: [Vacío]", image="", foreground=FG_MUTED)
 
@@ -351,9 +348,7 @@ class FightersTabMixin:
             
         # 2. Hero portrait in profile header
         if hasattr(self, "f_model_hero_lbl"):
-            photo_hero = self.get_photo(art_rel, size=(54, 66), preserve_aspect=True)
-            self.f_model_hero_lbl.config(image=photo_hero or "")
-            self.tree_images["f_model_hero"] = photo_hero
+            self.set_widget_image(self.f_model_hero_lbl, art_rel, size=(54, 66), preserve_aspect=True)
 
     def _open_fighter_model_gallery(self):
         cur = self.f_model_select_var.get() if hasattr(self, "f_model_select_var") else ""

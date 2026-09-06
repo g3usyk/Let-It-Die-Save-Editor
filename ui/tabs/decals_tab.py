@@ -163,25 +163,18 @@ class DecalsTabMixin:
         ttk.Button(d_quick, text=t("decal_zero"), width=3, command=lambda: self._quick_add_decal(-999)).pack(side="left", fill="x", expand=True, padx=1)
 
     def _find_decal_art(self, decal_id):
-        if not hasattr(self, "_decal_disk_map"):
-            decals_dir = os.path.join(ICONS_DIR, "decals")
-            self._decal_disk_map = {}
-            if os.path.isdir(decals_dir):
-                for f in os.listdir(decals_dir):
-                    self._decal_disk_map[f.lower()] = f
-
         special_aliases = {
-            "SKL_STMNUP_02": "golden_heart.png",
-            "SKL_STMNUP_02_P": "golden_heart_p.png",
-            "SKL_WHITEFEATHER": "skl_snowwhite.png",
-            "SKL_WHITEFEATHER_P": "skl_snowwhite_p.png",
+            "SKL_STMNUP_02": "decals/golden_heart.png",
+            "SKL_STMNUP_02_P": "decals/golden_heart_p.png",
+            "SKL_WHITEFEATHER": "decals/skl_snowwhite.png",
+            "SKL_WHITEFEATHER_P": "decals/skl_snowwhite_p.png",
         }
         if decal_id in special_aliases:
-            return f"decals/{special_aliases[decal_id]}"
+            return special_aliases[decal_id]
 
         if hasattr(self, "icon_map") and "decals_icons" in self.icon_map:
             mapped = self.icon_map["decals_icons"].get(decal_id) or self.icon_map["decals_icons"].get(decal_id.replace("_P", ""))
-            if mapped and self.get_photo(mapped, size=(24, 24)):
+            if mapped:
                 return mapped
 
         is_p = decal_id.endswith("_P")
@@ -208,6 +201,23 @@ class DecalsTabMixin:
             ]
             if slug:
                 exact_candidates += [f"{slug}.png", f"skl_{slug}.png"]
+
+        # Check AssetManager manifest
+        if hasattr(self, "asset_manager") and getattr(self.asset_manager, "manifest", None):
+            for c in exact_candidates:
+                c_low = c.lower()
+                if c_low in self.asset_manager.manifest:
+                    return self.asset_manager.manifest[c_low]
+
+        if not hasattr(self, "_decal_disk_map"):
+            self._decal_disk_map = {}
+            for base in [ICONS_DIR, getattr(getattr(self, "asset_manager", None), "cache_dir", "")]:
+                if not base:
+                    continue
+                d_dir = os.path.join(base, "decals")
+                if os.path.isdir(d_dir):
+                    for f in os.listdir(d_dir):
+                        self._decal_disk_map[f.lower()] = f
 
         for c in exact_candidates:
             if c in self._decal_disk_map:
@@ -242,11 +252,7 @@ class DecalsTabMixin:
         self.decal_desc_lbl.config(text=desc)
         
         art_rel = self._find_decal_art(did)
-        photo = self.get_photo(art_rel, size=(160, 160), preserve_aspect=True)
-        if not photo:
-            photo = self.get_photo("decal_p" if did.endswith("_P") else "decal_std", size=(140, 140), preserve_aspect=True)
-        self.decal_art_lbl.config(image=photo or "")
-        self.tree_images["decal_preview"] = photo
+        self.set_widget_image(self.decal_art_lbl, art_rel, size=(160, 160), preserve_aspect=True, fallback="decal_p" if did.endswith("_P") else "decal_std")
 
     def _update_current_decal_qty(self):
         if not self.current_decal_selection or not self.save_json:
@@ -406,6 +412,8 @@ class DecalsTabMixin:
             thumb = self.get_photo(art_rel, size=(36, 36), preserve_aspect=True)
             node_id = self.decals_tree.insert("", "end", text=f" {display_name}", image=thumb or "", values=(stars_str, did, "PREMIUM" if is_p else std_txt, f"x{cnt}" if cnt > 0 else "-"))
             self.tree_images[node_id] = thumb
+            if not thumb and art_rel:
+                self.set_tree_item_image(self.decals_tree, node_id, art_rel, size=(36, 36), preserve_aspect=True, fallback="decal_p" if is_p else "decal_std")
             if not first_row:
                 first_row = node_id
                 

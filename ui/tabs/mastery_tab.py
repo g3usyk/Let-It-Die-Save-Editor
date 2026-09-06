@@ -65,10 +65,12 @@ class MasteryTabMixin:
             
             w_name = get_expert_weapon_name(k)
             ico_file = WEAPON_MASTERY_ICONS.get(k, "weapon")
-            thumb = self.get_photo(ico_file, (28, 28), preserve_aspect=True) or self.get_photo("weapon", (24, 24))
+            thumb = self.get_photo(ico_file, (28, 28), preserve_aspect=True)
             lvl_str = t("wm_lvl_val", lvl=lvl)
             node_id = self.mastery_tree.insert("", "end", text=f" {w_name}", image=thumb or "", values=(k, lvl_str, f"{pts:,} ABP"))
             self.tree_images[node_id] = thumb
+            if not thumb and ico_file:
+                self.set_tree_item_image(self.mastery_tree, node_id, ico_file, (28, 28), preserve_aspect=True, fallback="weapon")
 
     def _edit_mastery_level(self, event):
         sel = self.mastery_tree.selection()

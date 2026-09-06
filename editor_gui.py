@@ -341,6 +341,8 @@ class CompleteSaveEditorGUI(
         # 4. If still missing on disk, request asynchronous download via CDN
         if not found_path and hasattr(self, "asset_manager"):
             fetch_target = remote_mapped or clean_rel
+            if hasattr(self.asset_manager, "resolve_asset_path"):
+                fetch_target = self.asset_manager.resolve_asset_path(fetch_target)
             if not os.path.splitext(fetch_target)[1]:
                 fetch_target += ".png"
 
@@ -385,6 +387,40 @@ class CompleteSaveEditorGUI(
             except Exception:
                 pass
         return None
+
+    def set_widget_image(self, widget, rel_path, size, preserve_aspect=False, fallback=None):
+        """Safely sets an image on a Tkinter widget (Label/Button), updating it reactively when CDN download completes."""
+        def _apply(img):
+            try:
+                if img and widget and widget.winfo_exists():
+                    widget.config(image=img)
+                    widget.image = img
+            except Exception:
+                pass
+
+        photo = self.get_photo(rel_path, size=size, preserve_aspect=preserve_aspect, on_ready=_apply)
+        if not photo and fallback:
+            photo = self.get_photo(fallback, size=size, preserve_aspect=preserve_aspect)
+        if photo:
+            _apply(photo)
+        return photo
+
+    def set_tree_item_image(self, tree, item_id, rel_path, size, preserve_aspect=False, fallback=None):
+        """Safely sets an image on a Tkinter Treeview row, updating it reactively when CDN download completes."""
+        def _apply(img):
+            try:
+                if img and tree and tree.winfo_exists() and tree.exists(item_id):
+                    tree.item(item_id, image=img)
+                    self.tree_images[item_id] = img
+            except Exception:
+                pass
+
+        photo = self.get_photo(rel_path, size=size, preserve_aspect=preserve_aspect, on_ready=_apply)
+        if not photo and fallback:
+            photo = self.get_photo(fallback, size=size, preserve_aspect=preserve_aspect)
+        if photo:
+            _apply(photo)
+        return photo
 
     def _auto_save(self):
         """Immediately writes changes to disk so modifications in the GUI are instantly live in the game."""

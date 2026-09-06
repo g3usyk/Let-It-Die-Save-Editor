@@ -369,21 +369,41 @@ class BlueprintsTabMixin:
                 return self.icon_map["gear_cards"][ptid]
             if "equipment_thumbs" in self.icon_map and ptid in self.icon_map["equipment_thumbs"]:
                 return self.icon_map["equipment_thumbs"][ptid]
+
         clean = ptid.lower().replace("pt_", "").replace("_001", "").replace("_01", "")
-        for folder in ["all_official", "weapons", "armor", "cards", "sets", "gear", "thumbs"]:
-            p = os.path.join(ICONS_DIR, folder, f"{ptid.lower()}.png")
-            if os.path.exists(p):
-                return f"{folder}/{ptid.lower()}.png"
-            if ptid.lower().endswith("_g"):
-                p_base = os.path.join(ICONS_DIR, folder, f"{ptid.lower()[:-2]}.png")
-                if os.path.exists(p_base):
-                    return f"{folder}/{ptid.lower()[:-2]}.png"
-            p_thumb = os.path.join(ICONS_DIR, folder, f"thumb_{ptid.lower()}.png")
-            if os.path.exists(p_thumb):
-                return f"{folder}/thumb_{ptid.lower()}.png"
-            p_clean = os.path.join(ICONS_DIR, folder, f"{clean}.png")
-            if os.path.exists(p_clean):
-                return f"{folder}/{clean}.png"
+        candidates = [
+            f"{ptid.lower()}.png",
+            f"{ptid.lower()[:-2]}.png" if ptid.lower().endswith("_g") else None,
+            f"thumb_{ptid.lower()}.png",
+            f"{clean}.png"
+        ]
+        candidates = [c for c in candidates if c]
+
+        # Check AssetManager manifest
+        if hasattr(self, "asset_manager") and getattr(self.asset_manager, "manifest", None):
+            for c in candidates:
+                c_low = c.lower()
+                if c_low in self.asset_manager.manifest:
+                    return self.asset_manager.manifest[c_low]
+
+        search_roots = [ICONS_DIR, getattr(getattr(self, "asset_manager", None), "cache_dir", "")]
+        for base in search_roots:
+            if not base or not os.path.isdir(base):
+                continue
+            for folder in ["all_official", "weapons", "armor", "cards", "sets", "gear", "thumbs"]:
+                p = os.path.join(base, folder, f"{ptid.lower()}.png")
+                if os.path.exists(p):
+                    return f"{folder}/{ptid.lower()}.png"
+                if ptid.lower().endswith("_g"):
+                    p_base = os.path.join(base, folder, f"{ptid.lower()[:-2]}.png")
+                    if os.path.exists(p_base):
+                        return f"{folder}/{ptid.lower()[:-2]}.png"
+                p_thumb = os.path.join(base, folder, f"thumb_{ptid.lower()}.png")
+                if os.path.exists(p_thumb):
+                    return f"{folder}/thumb_{ptid.lower()}.png"
+                p_clean = os.path.join(base, folder, f"{clean}.png")
+                if os.path.exists(p_clean):
+                    return f"{folder}/{clean}.png"
         return "weapon" if ("WP" in ptid or "ARM" in ptid) else "blueprint"
 
     def _on_bp_select(self, event):
@@ -463,10 +483,7 @@ class BlueprintsTabMixin:
                     )
                     if hasattr(self, "btn_evolve_tier"):
                         is_nxt_uncap = nxt_meta.get("can_uncap", False) if nxt_meta else False
-                        if is_nxt_uncap:
-                            btn_txt = f"⚡ Desbloquear {nxt_name} (+19 en I+D)" if not is_en else f"⚡ Unlock {nxt_name} (+19 in R&D)"
-                        else:
-                            btn_txt = f"🔄 Evolucionar a {nxt_name} (+4)" if not is_en else f"🔄 Evolve to {nxt_name} (+4)"
+                        btn_txt = t("bp_evolve_to_uncapped", name=nxt_name) if is_nxt_uncap else t("bp_evolve_to_next", name=nxt_name)
                         self.btn_evolve_tier.config(text=btn_txt)
                         self.btn_evolve_tier.pack(fill="x", pady=(2, 4))
                 else:
@@ -483,11 +500,7 @@ class BlueprintsTabMixin:
         if not card_art:
             card_art = self._find_equipment_art(ptid)
             
-        photo = self.get_photo(card_art, size=(280, 140), preserve_aspect=True) or \
-                self.get_photo(self._find_equipment_art(ptid), size=(280, 140), preserve_aspect=True) or \
-                self.get_photo("blueprint", size=(100, 100), preserve_aspect=True)
-        self.bp_art_lbl.config(image=photo or "")
-        self.tree_images["bp_preview"] = photo
+        self.set_widget_image(self.bp_art_lbl, card_art or self._find_equipment_art(ptid), size=(280, 140), preserve_aspect=True, fallback="blueprint")
 
     def _open_selected_piece_set(self):
         ptid = self.current_bp_selection
@@ -992,6 +1005,8 @@ class BlueprintsTabMixin:
                 tags=(tag,)
             )
             self.tree_images[node_id] = thumb
+            if not thumb and art_rel:
+                self.set_tree_item_image(self.bp_tree, node_id, art_rel, size=(36, 36), preserve_aspect=True, fallback="weapon" if ("WP" in bp_id or "ARM" in bp_id) else "blueprint")
             if not first_row:
                 first_row = node_id
                 
