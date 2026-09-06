@@ -7,6 +7,7 @@ BG_CARD = "#1c2030"        # Elevated card surface
 BG_CARD_LIGHT = "#252b40"  # Highlighted card surface
 BG_CARD_HOVER = "#2f3650"  # Interactive hover
 FG_MAIN = "#f0f2f5"        # Crisp white text
+FG_TEXT = FG_MAIN           # Compatibility alias
 FG_MUTED = "#9aa0b4"       # Subtle soft secondary text
 ACCENT_GOLD = "#f5b041"    # Royal gold accent
 ACCENT_CYAN = "#00e5ff"    # Bright cyber cyan
