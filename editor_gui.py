@@ -83,7 +83,8 @@ class CompleteSaveEditorGUI(
 
     def __init__(self):
         super().__init__()
-        self.title("LET IT DIE (Offline) - Deep Save Editor Pro v4.1.0 (Master Cyberpunk Edition)")
+        local_v = updater.get_local_version_info().get("version", "4.1.1")
+        self.title(f"LET IT DIE (Offline) - Deep Save Editor Pro v{local_v} (Master Cyberpunk Edition)")
         self.geometry("1240x820")
         self.minsize(1040, 700)
         self.configure(bg=BG_DARK)
