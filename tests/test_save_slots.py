@@ -133,6 +133,22 @@ class TestSaveSlots(unittest.TestCase):
         matched = save_slots.find_matching_slot(self.save_data)
         self.assertEqual(matched, 2)
 
+    def test_slot_custom_name_persistence(self):
+        # Set custom name on empty slot
+        save_slots.set_slot_custom_name(4, "Speedrun Tengoku")
+        info_empty = save_slots.get_slot_info(4)
+        self.assertEqual(info_empty["custom_name"], "Speedrun Tengoku")
+
+        # Save game data to slot 4, custom_name must persist
+        save_slots.save_current_to_slot(self.save_data, self.version, 4)
+        info_saved = save_slots.get_slot_info(4)
+        self.assertEqual(info_saved["custom_name"], "Speedrun Tengoku")
+
+        # Record session backup, custom_name must still persist
+        save_slots.record_session_backup(4, self.save_data, self.version, force=True)
+        info_session = save_slots.get_slot_info(4)
+        self.assertEqual(info_session["custom_name"], "Speedrun Tengoku")
+
 
 if __name__ == "__main__":
     unittest.main()

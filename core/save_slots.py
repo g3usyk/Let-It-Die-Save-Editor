@@ -261,6 +261,17 @@ def get_slot_info(slot_num, force_refresh=False):
     # Sort backups: ORIGINAL first, then newest descending
     backups.sort(key=lambda b: (0 if b["is_original"] else 1, -b["mtime"]))
 
+    # Read existing meta for custom_name and cache validity
+    meta = {}
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+        except Exception:
+            meta = {}
+
+    custom_name = meta.get("custom_name", "")
+
     if is_empty:
         return {
             "slot_num": slot_num,
@@ -270,37 +281,34 @@ def get_slot_info(slot_num, force_refresh=False):
             "backups_dir": backups_dir,
             "backups_count": len(backups),
             "backups": backups,
-            "meta": {}
+            "custom_name": custom_name,
+            "meta": meta
         }
 
     # If occupied, read or regenerate metadata
-    meta = {}
     save_mtime = os.path.getmtime(save_path)
     meta_valid = False
 
-    if not force_refresh and os.path.exists(meta_path):
-        try:
-            with open(meta_path, "r", encoding="utf-8") as f:
-                meta = json.load(f)
-                if meta.get("file_mtime") == save_mtime:
-                    meta_valid = True
-        except Exception:
-            meta_valid = False
+    if not force_refresh and meta and meta.get("file_mtime") == save_mtime:
+        meta_valid = True
 
     if not meta_valid:
         try:
             data, ver = save_io.decompress_save(save_path)
-            meta = extract_save_metadata(data)
-            meta["file_mtime"] = save_mtime
-            meta["save_version"] = ver
-            meta["file_size_kb"] = os.path.getsize(save_path) // 1024
-            # Cache meta
+            new_meta = extract_save_metadata(data)
+            new_meta["file_mtime"] = save_mtime
+            new_meta["save_version"] = ver
+            new_meta["file_size_kb"] = os.path.getsize(save_path) // 1024
+            if custom_name:
+                new_meta["custom_name"] = custom_name
+            meta = new_meta
             with open(meta_path, "w", encoding="utf-8") as f:
                 json.dump(meta, f, indent=2, ensure_ascii=False)
         except Exception as e:
             meta = {
                 "player_name": "Corrupted / Unreadable",
                 "error": str(e),
+                "custom_name": custom_name,
                 "file_size_kb": os.path.getsize(save_path) // 1024,
                 "last_saved": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(save_mtime))
             }
@@ -313,6 +321,7 @@ def get_slot_info(slot_num, force_refresh=False):
         "backups_dir": backups_dir,
         "backups_count": len(backups),
         "backups": backups,
+        "custom_name": meta.get("custom_name", ""),
         "meta": meta
     }
 
@@ -347,13 +356,23 @@ def save_current_to_slot(save_json, save_version, slot_num):
         except Exception:
             pass
 
-    # 4. Extract and cache metadata
+    # 4. Extract and cache metadata (preserving any custom name)
+    existing_custom_name = ""
+    meta_path = get_slot_meta_path(slot_num)
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                existing_custom_name = json.load(f).get("custom_name", "")
+        except Exception:
+            pass
+
     meta = extract_save_metadata(save_json)
     meta["file_mtime"] = os.path.getmtime(slot_save_path)
     meta["save_version"] = save_version
     meta["file_size_kb"] = os.path.getsize(slot_save_path) // 1024
+    if existing_custom_name:
+        meta["custom_name"] = existing_custom_name
 
-    meta_path = get_slot_meta_path(slot_num)
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)
 
@@ -470,15 +489,46 @@ def record_session_backup(slot_num, save_json, save_version, min_interval_sec=15
 
     # 3. Always keep slot's savedata.sav and slot_meta.json in sync with live changes
     save_io.save_to_file(save_json, slot_save_path, version=save_version, make_backup=False)
+
+    existing_custom_name = ""
+    meta_path = get_slot_meta_path(slot_num)
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                existing_custom_name = json.load(f).get("custom_name", "")
+        except Exception:
+            pass
+
     meta = extract_save_metadata(save_json)
     meta["file_mtime"] = os.path.getmtime(slot_save_path)
     meta["save_version"] = save_version
     meta["file_size_kb"] = os.path.getsize(slot_save_path) // 1024
-    meta_path = get_slot_meta_path(slot_num)
+    if existing_custom_name:
+        meta["custom_name"] = existing_custom_name
+
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)
 
     set_active_slot(slot_num)
+    return get_slot_info(slot_num, force_refresh=True)
+
+
+def set_slot_custom_name(slot_num, custom_name):
+    """
+    Sets or clears a custom label for a specific slot.
+    """
+    ensure_slots_directory()
+    meta_path = get_slot_meta_path(slot_num)
+    meta = {}
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+        except Exception:
+            meta = {}
+    meta["custom_name"] = (custom_name or "").strip()
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2, ensure_ascii=False)
     return get_slot_info(slot_num, force_refresh=True)
 
 

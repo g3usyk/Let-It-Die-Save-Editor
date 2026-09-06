@@ -235,18 +235,35 @@ class AdvancedTabMixin:
         )
         card.grid(row=row, column=col, sticky="nsew", padx=4, pady=4)
 
-        # Top Header: Slot Number & Status Badge
+        # Top Header: Slot Number, Custom Name & Status Badge
         hdr = tk.Frame(card, bg=BG_CARD)
         hdr.pack(fill="x")
 
+        custom_name = slot_data.get("custom_name") or meta.get("custom_name", "")
         slot_title = t("slot_card_num", num=slot_num)
-        tk.Label(
+        display_title = f"🎮 {slot_title}: {custom_name}" if custom_name else f"🎮 {slot_title}"
+
+        lbl_title = tk.Label(
             hdr,
-            text=f"🎮 {slot_title}",
+            text=display_title,
             font=("Segoe UI", 10, "bold"),
             fg=ACCENT_GOLD if not is_empty else FG_MUTED,
-            bg=BG_CARD
-        ).pack(side="left")
+            bg=BG_CARD,
+            cursor="hand2"
+        )
+        lbl_title.pack(side="left")
+        lbl_title.bind("<Double-Button-1>", lambda e, s=slot_num: self._rename_slot_action(s))
+
+        btn_edit = tk.Label(
+            hdr,
+            text="✏️",
+            font=("Segoe UI", 8),
+            fg=FG_MUTED,
+            bg=BG_CARD,
+            cursor="hand2"
+        )
+        btn_edit.pack(side="left", padx=4)
+        btn_edit.bind("<Button-1>", lambda e, s=slot_num: self._rename_slot_action(s))
 
         if is_active:
             badge_text = t("slot_badge_active")
@@ -297,7 +314,15 @@ class AdvancedTabMixin:
                 text=t("slot_btn_import_file"),
                 command=lambda s=slot_num: self._import_file_to_slot_action(s)
             )
-            btn_import.pack(side="left")
+            btn_import.pack(side="left", padx=(0, 4))
+
+            btn_ren = ttk.Button(
+                act_f,
+                text="✏️",
+                width=3,
+                command=lambda s=slot_num: self._rename_slot_action(s)
+            )
+            btn_ren.pack(side="left")
 
         else:
             # Occupied state with full metadata
@@ -392,6 +417,15 @@ class AdvancedTabMixin:
             )
             btn_bak.pack(side="left", padx=(0, 3))
 
+            # Rename button
+            btn_ren = ttk.Button(
+                act_f,
+                text="✏️",
+                width=3,
+                command=lambda s=slot_num: self._rename_slot_action(s)
+            )
+            btn_ren.pack(side="left", padx=(0, 3))
+
             # Clear Slot button
             btn_clear = ttk.Button(
                 act_f,
@@ -402,8 +436,61 @@ class AdvancedTabMixin:
             btn_clear.pack(side="left")
 
     # =========================================================================
-    # SLOT ACTIONS (Save, Load, Backups, Clear, Import)
+    # SLOT ACTIONS (Save, Load, Backups, Clear, Import, Rename)
     # =========================================================================
+    def _rename_slot_action(self, slot_num):
+        slot_info = save_slots.get_slot_info(slot_num)
+        current_name = slot_info.get("custom_name", "")
+
+        dialog = tk.Toplevel(self)
+        dialog.title(t("slot_rename_dialog_title", slot=slot_num))
+        dialog.geometry("400x150")
+        dialog.minsize(360, 140)
+        dialog.resizable(False, False)
+        dialog.configure(bg=BG_DARK)
+        dialog.transient(self)
+        dialog.grab_set()
+
+        dialog.update_idletasks()
+        try:
+            px = self.winfo_rootx() + (self.winfo_width() - 400) // 2
+            py = self.winfo_rooty() + (self.winfo_height() - 150) // 2
+            dialog.geometry(f"+{max(0, px)}+{max(0, py)}")
+        except Exception:
+            pass
+
+        pad_f = tk.Frame(dialog, bg=BG_DARK, padx=16, pady=14)
+        pad_f.pack(fill="both", expand=True)
+
+        tk.Label(
+            pad_f,
+            text=t("slot_rename_dialog_prompt"),
+            font=("Segoe UI", 9, "bold"),
+            fg=ACCENT_GOLD,
+            bg=BG_DARK
+        ).pack(anchor="w", pady=(0, 6))
+
+        entry_var = tk.StringVar(value=current_name)
+        entry = ttk.Entry(pad_f, textvariable=entry_var, font=("Segoe UI", 10))
+        entry.pack(fill="x", pady=(0, 12))
+        entry.focus_set()
+        entry.select_range(0, tk.END)
+
+        btn_row = tk.Frame(pad_f, bg=BG_DARK)
+        btn_row.pack(fill="x")
+
+        def _do_save(event=None):
+            val = entry_var.get().strip()
+            save_slots.set_slot_custom_name(slot_num, val)
+            dialog.destroy()
+            self.refresh_slots_view()
+
+        ttk.Button(btn_row, text=t("confirm"), style="Accent.TButton", command=_do_save).pack(side="left", padx=(0, 6))
+        ttk.Button(btn_row, text=t("dialog_close_btn"), command=dialog.destroy).pack(side="left")
+
+        entry.bind("<Return>", _do_save)
+        dialog.bind("<Escape>", lambda e: dialog.destroy())
+
     def _save_current_to_slot_action(self, slot_num):
         if not self.save_json:
             messagebox.showwarning(t("notice"), t("mb_load_save_first"), parent=self)
