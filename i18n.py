@@ -525,7 +525,18 @@ TRANSLATIONS = {
         "updater_browser_opened": "Se ha abierto la página de descargas de GitHub en tu navegador web para obtener el instalador más reciente.",
         "updater_error": "No se pudo completar la actualización automática:\n\n{error}",
         "updater_check_err": "No se pudo verificar si hay actualizaciones:\n{error}",
-        "updater_up_to_date": "Tu editor ya está en la versión más reciente (v{version})."
+        "updater_up_to_date": "Tu editor ya está en la versión más reciente (v{version}).",
+
+        # CDN Assets & Cache Manager
+        "asset_box_title": "🌐 Gestor de Recursos CDN y Caché Local",
+        "asset_box_desc": "Descarga bajo demanda de iconos, calcomanías y cartas 2D mediante jsDelivr CDN sin congelar la interfaz.",
+        "asset_cache_stats": "📦 Estado del Caché Local: {count} imágenes ({size} MB)",
+        "asset_download_all_btn": "📥 Descargar Catálogo Completo HD (Offline)",
+        "asset_clear_cache_btn": "🗑️ Limpiar Caché",
+        "asset_downloading": "Descargando recursos... ({current}/{total})",
+        "asset_download_done": "¡Descarga completa! Se descargaron {downloaded} imágenes nuevas.",
+        "asset_cache_cleared": "Caché de imágenes eliminado con éxito.",
+        "asset_confirm_clear": "¿Estás seguro de que deseas vaciar el caché local de imágenes?"
     },
 
     "en": {
@@ -987,7 +998,18 @@ TRANSLATIONS = {
         "updater_browser_opened": "The GitHub release download page has been opened in your browser to get the latest installer.",
         "updater_error": "Could not complete automatic update:\n\n{error}",
         "updater_check_err": "Could not check for updates:\n{error}",
-        "updater_up_to_date": "Your editor is already up to date (v{version})."
+        "updater_up_to_date": "Your editor is already up to date (v{version}).",
+
+        # CDN Assets & Cache Manager
+        "asset_box_title": "🌐 CDN Asset Manager & Local Cache",
+        "asset_box_desc": "On-demand downloading of icons, decals, and 2D cards via jsDelivr CDN without freezing the interface.",
+        "asset_cache_stats": "📦 Local Cache Status: {count} images ({size} MB)",
+        "asset_download_all_btn": "📥 Download Complete HD Catalog (Offline)",
+        "asset_clear_cache_btn": "🗑️ Clear Cache",
+        "asset_downloading": "Downloading assets... ({current}/{total})",
+        "asset_download_done": "Download complete! Downloaded {downloaded} new images.",
+        "asset_cache_cleared": "Image cache cleared successfully.",
+        "asset_confirm_clear": "Are you sure you want to clear the local image cache?"
     }
 }
 

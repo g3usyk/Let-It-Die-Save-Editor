@@ -13,6 +13,10 @@ from core.helpers import (
     repair_save_list_structures,
 )
 
+from core.asset_manager import (
+    AssetManager,
+)
+
 from core.currencies import (
     set_currencies,
     set_death_metals,
@@ -141,6 +145,7 @@ from core.tower import (
 )
 
 __all__ = [
+    'AssetManager',
     '_assign_to_coin_locker',
     'activate_vip_express_pass',
     'add_all_materials_to_storage',

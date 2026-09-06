@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-LET IT DIE (Offline) - Deep Save Editor Pro v4.0.1 (Master Cyberpunk Encyclopedia Edition)
+LET IT DIE (Offline) - Deep Save Editor Pro v4.1.0 (Master Cyberpunk Encyclopedia Edition)
 Complete Visual Redesign matching ArmorSetViewerDialog quality standard across all tabs.
 Modular architecture with tab mixins in ui/tabs.
 """
@@ -18,6 +18,7 @@ import save_io
 from save_io import get_default_save_path, decompress_save, save_to_file
 import modifiers
 import updater
+from core.asset_manager import AssetManager
 import i18n
 from i18n import t, get_item_name, get_item_desc, get_set_name
 
@@ -82,7 +83,7 @@ class CompleteSaveEditorGUI(
 
     def __init__(self):
         super().__init__()
-        self.title("LET IT DIE (Offline) - Deep Save Editor Pro v4.0.1 (Master Cyberpunk Edition)")
+        self.title("LET IT DIE (Offline) - Deep Save Editor Pro v4.1.0 (Master Cyberpunk Edition)")
         self.geometry("1240x820")
         self.minsize(1040, 700)
         self.configure(bg=BG_DARK)
@@ -99,6 +100,7 @@ class CompleteSaveEditorGUI(
                 self.iconphoto(True, self.icon_photo)
             except Exception: pass
             
+        self.asset_manager = AssetManager()
         self.img_cache = {}
         self.tree_images = {}
         self.icon_map = {}
@@ -228,16 +230,22 @@ class CompleteSaveEditorGUI(
 
     def _load_all_databases(self):
         self._icon_index = {}
-        if os.path.isdir(ICONS_DIR):
-            for root, _, files in os.walk(ICONS_DIR):
-                for f in files:
-                    full_p = os.path.join(root, f)
-                    lower_f = f.lower()
-                    if lower_f not in self._icon_index:
-                        self._icon_index[lower_f] = full_p
-                    base_no_ext = os.path.splitext(lower_f)[0]
-                    if base_no_ext not in self._icon_index:
-                        self._icon_index[base_no_ext] = full_p
+        dirs_to_index = [ICONS_DIR]
+        if hasattr(self, "asset_manager") and getattr(self.asset_manager, "cache_dir", None):
+            dirs_to_index.append(self.asset_manager.cache_dir)
+
+        for scan_dir in dirs_to_index:
+            if scan_dir and os.path.isdir(scan_dir):
+                for root, _, files in os.walk(scan_dir):
+                    for f in files:
+                        if not f.endswith(".tmp"):
+                            full_p = os.path.join(root, f)
+                            lower_f = f.lower()
+                            if lower_f not in self._icon_index:
+                                self._icon_index[lower_f] = full_p
+                            base_no_ext = os.path.splitext(lower_f)[0]
+                            if base_no_ext not in self._icon_index:
+                                self._icon_index[base_no_ext] = full_p
 
         if os.path.exists(ICON_MAP_PATH):
             with open(ICON_MAP_PATH, "r", encoding="utf-8") as f:
@@ -276,7 +284,7 @@ class CompleteSaveEditorGUI(
             with open(SHROOMS_BEASTS_DB_PATH, "r", encoding="utf-8") as f:
                 self.shrooms_beasts_db = json.load(f)
 
-    def get_photo(self, rel_path, size=(28, 28), preserve_aspect=False):
+    def get_photo(self, rel_path, size=(28, 28), preserve_aspect=False, on_ready=None):
         if not rel_path:
             return None
         key = (rel_path, size, preserve_aspect)
@@ -293,7 +301,8 @@ class CompleteSaveEditorGUI(
         found_path = idx.get(clean_base) or idx.get(clean_stem)
         
         # 2. Check icon_map if not found directly
-        if not found_path and hasattr(self, "icon_map"):
+        remote_mapped = None
+        if hasattr(self, "icon_map"):
             mapped = self.icon_map.get("gear_icons", {}).get(clean_rel) or \
                      self.icon_map.get("gear_cards", {}).get(clean_rel) or \
                      self.icon_map.get("materials_cards", {}).get(clean_rel) or \
@@ -301,23 +310,63 @@ class CompleteSaveEditorGUI(
                      self.icon_map.get("decals_icons", {}).get(clean_rel) or \
                      self.icon_map.get("equipment_thumbs", {}).get(clean_rel)
             if mapped:
-                mapped_base = os.path.basename(mapped.replace("\\", "/")).lower()
-                mapped_stem = os.path.splitext(mapped_base)[0]
-                found_path = idx.get(mapped_base) or idx.get(mapped_stem)
+                remote_mapped = mapped
+                if not found_path:
+                    mapped_base = os.path.basename(mapped.replace("\\", "/")).lower()
+                    mapped_stem = os.path.splitext(mapped_base)[0]
+                    found_path = idx.get(mapped_base) or idx.get(mapped_stem)
                 
-        # 3. Direct filesystem fallback
+        # 3. Direct filesystem fallback across ICONS_DIR and cache_dir
         if not found_path:
             if os.path.isabs(clean_rel) and os.path.exists(clean_rel):
                 found_path = clean_rel
             else:
-                for sub in ["", "cards", "sets", "all_official", "armor", "weapons", "materials", "decals", "shrooms", "gear", "thumbs"]:
-                    for ext in ["", ".png", ".jpg", ".jpeg", ".webp"]:
-                        p = os.path.join(ICONS_DIR, sub, clean_rel + ext)
-                        if os.path.exists(p) and not os.path.isdir(p):
-                            found_path = p
+                search_roots = [ICONS_DIR]
+                if hasattr(self, "asset_manager") and getattr(self.asset_manager, "cache_dir", None):
+                    search_roots.append(self.asset_manager.cache_dir)
+                for base_dir in search_roots:
+                    if not base_dir or not os.path.isdir(base_dir):
+                        continue
+                    for sub in ["", "cards", "sets", "all_official", "armor", "weapons", "materials", "decals", "shrooms", "gear", "thumbs"]:
+                        for ext in ["", ".png", ".jpg", ".jpeg", ".webp"]:
+                            p = os.path.join(base_dir, sub, clean_rel + ext)
+                            if os.path.exists(p) and not os.path.isdir(p):
+                                found_path = p
+                                break
+                        if found_path:
                             break
                     if found_path:
                         break
+
+        # 4. If still missing on disk, request asynchronous download via CDN
+        if not found_path and hasattr(self, "asset_manager"):
+            fetch_target = remote_mapped or clean_rel
+            if not os.path.splitext(fetch_target)[1]:
+                fetch_target += ".png"
+
+            def _on_downloaded(downloaded_file):
+                try:
+                    b = os.path.basename(downloaded_file).lower()
+                    self._icon_index[b] = downloaded_file
+                    self._icon_index[os.path.splitext(b)[0]] = downloaded_file
+                    
+                    im = Image.open(downloaded_file).convert("RGBA")
+                    if preserve_aspect:
+                        max_w, max_h = size
+                        w, h = im.size
+                        ratio = min(max_w / max(1, w), max_h / max(1, h))
+                        target_size = (max(1, int(w * ratio)), max(1, int(h * ratio)))
+                    else:
+                        target_size = size
+                    im = im.resize(target_size, Image.Resampling.LANCZOS)
+                    new_photo = ImageTk.PhotoImage(im)
+                    self.img_cache[key] = new_photo
+                    if on_ready:
+                        self.after(0, lambda: on_ready(new_photo))
+                except Exception:
+                    pass
+
+            self.asset_manager.request_asset(fetch_target, on_downloaded=_on_downloaded)
                         
         if found_path:
             try:

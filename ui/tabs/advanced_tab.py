@@ -60,7 +60,82 @@ class AdvancedTabMixin:
         ttk.Label(box_tools, text=t("bak_links_lbl"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
         ttk.Label(box_tools, text=t("bak_links_txt"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=2)
 
+        # Row 1: CDN Assets & Cache Manager
+        box_assets = ttk.LabelFrame(self.tab_advanced, text=t("asset_box_title"), padding=12)
+        box_assets.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=6, pady=6)
+
+        ttk.Label(box_assets, text=t("asset_box_desc"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=2)
+        
+        self.asset_stats_lbl = ttk.Label(box_assets, text="...", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD)
+        self.asset_stats_lbl.pack(anchor="w", pady=4)
+
+        self.asset_pbar = ttk.Progressbar(box_assets, orient="horizontal", mode="determinate")
+        self.asset_pbar.pack(fill="x", pady=4)
+        self.asset_pbar_lbl = ttk.Label(box_assets, text="", font=("Segoe UI", 8), foreground=FG_MUTED)
+        self.asset_pbar_lbl.pack(anchor="w", pady=1)
+
+        btn_assets_f = ttk.Frame(box_assets)
+        btn_assets_f.pack(fill="x", pady=4)
+        self.asset_dl_btn = ttk.Button(btn_assets_f, text=t("asset_download_all_btn"), style="Accent.TButton", command=self._download_all_cdn_assets)
+        self.asset_dl_btn.pack(side="left", padx=2)
+        ttk.Button(btn_assets_f, text=t("asset_clear_cache_btn"), command=self._clear_cdn_cache).pack(side="left", padx=2)
+        ttk.Button(btn_assets_f, text="🔄 " + t("reload"), command=self.update_cache_stats).pack(side="left", padx=2)
+
+        self.update_cache_stats()
+
+    def update_cache_stats(self):
+        if hasattr(self, "asset_manager"):
+            stats = self.asset_manager.get_cache_stats()
+            self.asset_stats_lbl.config(text=t("asset_cache_stats", count=stats["count"], size=stats["size_mb"]))
+
+    def _download_all_cdn_assets(self):
+        if not hasattr(self, "asset_manager"):
+            return
+        
+        # Collect all mapped asset paths
+        asset_paths = set()
+        if hasattr(self, "icon_map") and isinstance(self.icon_map, dict):
+            for cat in self.icon_map.values():
+                if isinstance(cat, dict):
+                    for p in cat.values():
+                        if p:
+                            asset_paths.add(p)
+        
+        if not asset_paths:
+            messagebox.showinfo(t("notice"), "No assets to download.")
+            return
+
+        total = len(asset_paths)
+        self.asset_dl_btn.config(state="disabled")
+        self.asset_pbar.config(maximum=total, value=0)
+        self.asset_pbar_lbl.config(text=t("asset_downloading", current=0, total=total))
+
+        def on_progress(cur, tot, f):
+            def _ui():
+                self.asset_pbar.config(value=cur)
+                self.asset_pbar_lbl.config(text=t("asset_downloading", current=cur, total=tot))
+            self.after(0, _ui)
+
+        def on_complete(downloaded, errors):
+            def _ui():
+                self.asset_dl_btn.config(state="normal")
+                self.update_cache_stats()
+                self.asset_pbar_lbl.config(text="")
+                messagebox.showinfo(t("notice"), t("asset_download_done", downloaded=downloaded))
+            self.after(0, _ui)
+
+        self.asset_manager.download_all_assets_async(list(asset_paths), progress_callback=on_progress, completion_callback=on_complete)
+
+    def _clear_cdn_cache(self):
+        if not hasattr(self, "asset_manager"):
+            return
+        if messagebox.askyesno(t("notice"), t("asset_confirm_clear")):
+            self.asset_manager.clear_cache()
+            self.update_cache_stats()
+            messagebox.showinfo(t("notice"), t("asset_cache_cleared"))
+
     def refresh_backups_list(self):
+        self.update_cache_stats()
         self.backups_tree.delete(*self.backups_tree.get_children())
             
         if not self.save_path:

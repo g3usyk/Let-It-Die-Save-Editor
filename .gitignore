@@ -40,3 +40,6 @@ build/
 *.db
 *.db.*
 
+# Local CDN asset cache
+cache/
+

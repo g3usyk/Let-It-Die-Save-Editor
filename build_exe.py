@@ -28,8 +28,15 @@ def build():
         ("teamhate_template.json", "."),
         ("tdm_dummy_template.json", "."),
         ("tdm_dummy_defenders_template.json", "."),
-        ("icons", "icons"),
     ]
+
+    # Only bundle essential root UI icons (~260 KB) instead of the 775 MB HD library
+    icons_dir = os.path.join(BASE_DIR, "icons")
+    if os.path.isdir(icons_dir):
+        for f in os.listdir(icons_dir):
+            fp = os.path.join(icons_dir, f)
+            if os.path.isfile(fp):
+                data_files.append((os.path.join("icons", f), "icons"))
 
     is_onefile = "--onefile" in sys.argv
     build_mode = "--onefile" if is_onefile else "--onedir"
@@ -80,6 +87,7 @@ def build():
         "core.mastery",
         "core.helpers",
         "core.tdm",
+        "core.asset_manager",
         "ui",
         "ui.theme",
         "ui.components",
