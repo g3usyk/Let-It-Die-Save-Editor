@@ -473,13 +473,19 @@ class CompleteSaveEditorGUI(
         self.btn_update_hud = ttk.Button(top_frame, text=t("updates"), command=self._check_app_updates)
         self.btn_update_hud.pack(side="left", padx=2)
         
-        # Language Switcher (Español / English)
+        # Language Switcher (Español / English / 中文)
         self.lbl_lang = tk.Label(top_frame, text=t("lang_label"), font=("Segoe UI", 9, "bold"), fg=ACCENT_GOLD, bg=BG_PANEL)
         self.lbl_lang.pack(side="left", padx=(6, 2))
         
-        cur_lang_str = "English" if i18n.get_language() == "en" else "Español"
+        cur_lang = i18n.get_language()
+        if cur_lang == "zh":
+            cur_lang_str = "中文"
+        elif cur_lang == "en":
+            cur_lang_str = "English"
+        else:
+            cur_lang_str = "Español"
         self.lang_var = tk.StringVar(value=cur_lang_str)
-        self.lang_cb = ttk.Combobox(top_frame, textvariable=self.lang_var, values=["Español", "English"], state="readonly", width=8)
+        self.lang_cb = ttk.Combobox(top_frame, textvariable=self.lang_var, values=["Español", "English", "中文"], state="readonly", width=8)
         self.lang_cb.pack(side="left", padx=(0, 4))
         self.lang_cb.bind("<<ComboboxSelected>>", self._on_language_changed)
         
@@ -602,7 +608,12 @@ class CompleteSaveEditorGUI(
     # ================= LANGUAGE HANDLING =================
     def _on_language_changed(self, event=None):
         val = self.lang_var.get()
-        new_lang = "en" if "Eng" in val else "es"
+        if "中文" in val or "zh" in val.lower():
+            new_lang = "zh"
+        elif "Eng" in val:
+            new_lang = "en"
+        else:
+            new_lang = "es"
         if new_lang != i18n.get_language():
             i18n.set_language(new_lang)
             self._refresh_all_language_texts()

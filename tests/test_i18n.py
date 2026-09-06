@@ -14,9 +14,10 @@ class TestI18n(unittest.TestCase):
     def test_key_parity_between_languages(self):
         es_keys = set(i18n.TRANSLATIONS["es"].keys())
         en_keys = set(i18n.TRANSLATIONS["en"].keys())
-        diff = es_keys ^ en_keys
-        self.assertEqual(len(diff), 0, f"Translation key mismatch: {diff}")
-        self.assertGreater(len(es_keys), 350)
+        zh_keys = set(i18n.TRANSLATIONS["zh"].keys())
+        self.assertEqual(len(es_keys ^ en_keys), 0, f"ES/EN mismatch: {es_keys ^ en_keys}")
+        self.assertEqual(len(en_keys ^ zh_keys), 0, f"EN/ZH mismatch: {en_keys ^ zh_keys}")
+        self.assertGreater(len(es_keys), 400)
 
     def test_translation_formatting(self):
         i18n.set_language("en")
@@ -29,6 +30,11 @@ class TestI18n(unittest.TestCase):
         s_es = t("inv_cap_lbl", used=10, total=100, free=90, pct=10.0)
         self.assertIn("10", s_es)
         self.assertIn("Almacén", s_es)
+
+        i18n.set_language("zh")
+        s_zh = t("inv_cap_lbl", used=10, total=100, free=90, pct=10.0)
+        self.assertIn("10", s_zh)
+        self.assertIn("仓库", s_zh)
 
     def test_unknown_key_fallback(self):
         res = t("non_existent_key_12345")

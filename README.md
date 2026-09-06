@@ -375,13 +375,14 @@ dist\LetItDieSaveEditor.exe
 
 1. **Pure Core Logic**: Keep modifications inside `core/` completely pure without UI dependencies. Functions must accept `save_json` as their first argument, handle missing keys defensively using `.setdefault()` or `get_or_create_list()`, and mutate state safely.
 2. **Schema Defensive Programming**: Always account for msgpack empty container anomalies (empty dict `{}` vs empty list `[]`).
-3. **Bilingual Requirement**: All user-facing strings must use `i18n.t("key_name")` with definitions provided in both English and Spanish in `i18n.py`.
+3. **Multilingual Requirement**: All user-facing strings must use `i18n.t("key_name")` with definitions provided in English, Spanish, and Chinese in `i18n.py`.
 4. **Test Coverage**: Any new feature or bug fix must include a corresponding test in `tests/`.
 
 ---
 
 ## Acknowledgements
 
+- **mayloglog** ([GitHub](https://github.com/mayloglog)): Contributed complete Chinese (Simplified) language localization across all editor systems, encyclopedias, and HUD components ([PR #1](https://github.com/g3usyk/Let-It-Die-Save-Editor/pull/1)).
 - **Stephengw3** ([GitHub](https://github.com/Stephengw3) / Reddit): Diagnosed the root cause of the Royal Express VIP elevator animation freeze (`soul.vip.friendship`), resolving the attendant loading stall.
 
 ---
