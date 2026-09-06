@@ -18,15 +18,21 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 
 if getattr(sys, "frozen", False):
-    PROJECT_ROOT = os.path.dirname(os.path.abspath(sys.executable))
+    BUNDLE_ROOT = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(sys.executable)))
+    EXE_DIR = os.path.dirname(os.path.abspath(sys.executable))
 else:
-    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    BUNDLE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    EXE_DIR = BUNDLE_ROOT
+
+PROJECT_ROOT = BUNDLE_ROOT
 
 # Standard directories
-ICONS_LOCAL_DIR = os.path.join(PROJECT_ROOT, "icons")
+ICONS_LOCAL_DIR = os.path.join(BUNDLE_ROOT, "icons")
+if not os.path.isdir(ICONS_LOCAL_DIR):
+    ICONS_LOCAL_DIR = os.path.join(EXE_DIR, "icons")
 
-# Determine writable cache directory (self-contained if possible, %LOCALAPPDATA% fallback)
-_local_cache_candidate = os.path.join(PROJECT_ROOT, "cache", "icons")
+# Determine writable cache directory (self-contained next to exe if possible, %LOCALAPPDATA% fallback)
+_local_cache_candidate = os.path.join(EXE_DIR, "cache", "icons")
 try:
     os.makedirs(_local_cache_candidate, exist_ok=True)
     CACHE_DIR = _local_cache_candidate
