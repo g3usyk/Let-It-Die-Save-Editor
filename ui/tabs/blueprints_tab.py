@@ -32,34 +32,32 @@ class BlueprintsTabMixin:
     def _get_item_wiki_meta(self, item):
         itemid = item["id"]
         raw_type = item.get("raw_type", "")
-        is_en = (i18n.get_language() == "en")
-        
         # 1. Slot (Wiki-style)
         if raw_type == "PTTP_HEAD" or "_HEAD_" in itemid:
-            slot = "🪖 Helmet" if is_en else "🪖 Casco"
+            slot = t("slot_head")
             slot_key = "head"
         elif raw_type == "PTTP_BODY" or "_TOPS_" in itemid:
-            slot = "👕 Body" if is_en else "👕 Pecho"
+            slot = t("slot_body")
             slot_key = "chest"
         elif raw_type in ("PTTP_PANTS", "PTTP_LEGS") or "_BTM_" in itemid:
-            slot = "👖 Pants" if is_en else "👖 Piernas"
+            slot = t("slot_pants")
             slot_key = "legs"
         else:
-            slot = "⚔️ Weapon" if is_en else "⚔️ Arma"
+            slot = t("slot_weapon")
             slot_key = "weapon"
             
         # 2. Faction (Wiki-style)
         if "PT_DIY" in itemid:
-            faction = "🔨 D.O.D. ARMS"
+            faction = t("faction_dod")
             faction_key = "DOD"
         elif "PT_MIL" in itemid:
-            faction = "🎖️ WAR ENSEMBLE"
+            faction = t("faction_mil")
             faction_key = "MIL"
         elif "PT_FAN" in itemid:
-            faction = "🕯️ CANDLE WOLF"
+            faction = t("faction_fan")
             faction_key = "FAN"
         elif "PT_SPO" in itemid:
-            faction = "🥛 M.I.L.K."
+            faction = t("faction_milk")
             faction_key = "SPO"
         elif any(k in itemid for k in ["PT_TBR", "TENGOKU", "WHITE", "NAPALM", "THUNDER", "WIND"]):
             faction = "⚡ 4 FORCEMEN & TENGOKU"
@@ -68,27 +66,27 @@ class BlueprintsTabMixin:
             faction = "🕶️ JACKALS"
             faction_key = "JACKAL"
         elif "PT_REC" in itemid:
-            faction = "♻️ RE (Recycler)" if is_en else "♻️ RE (Reciclador)"
+            faction = t("faction_re")
             faction_key = "RE"
         elif any(k in itemid for k in ["PT_SPE", "PT_GAS"]):
-            faction = "🎭 Special / Event" if is_en else "🎭 Especial / Evento"
+            faction = t("faction_special")
             faction_key = "SPE"
         else:
             orig = item.get("faction", "")
             if "WAR" in orig:
-                faction = "🎖️ WAR ENSEMBLE"
+                faction = t("faction_mil")
                 faction_key = "MIL"
             elif "CANDLE" in orig:
-                faction = "🕯️ CANDLE WOLF"
+                faction = t("faction_fan")
                 faction_key = "FAN"
             elif "D.O.D" in orig:
-                faction = "🔨 D.O.D. ARMS"
+                faction = t("faction_dod")
                 faction_key = "DOD"
             elif "M.I.L.K" in orig or "MILK" in orig:
-                faction = "🥛 M.I.L.K."
+                faction = t("faction_milk")
                 faction_key = "SPO"
             else:
-                faction = "⚔️ General / Other" if is_en else "⚔️ General / Otras"
+                faction = t("faction_other")
                 faction_key = "GEN"
                 
         # 3. Set Code / Series
@@ -139,26 +137,35 @@ class BlueprintsTabMixin:
         ttk.Entry(ctrl_frame, textvariable=self.bp_search_var, width=15).pack(side="left", padx=2)
         
         ttk.Label(ctrl_frame, text=t("bp_slot_lbl")).pack(side="left", padx=(6, 2))
+        self.bp_slot_defs = [
+            ("ALL", "bp_slot_all"),
+            ("head", "bp_slot_helmets"),
+            ("chest", "bp_slot_bodies"),
+            ("legs", "bp_slot_legs"),
+            ("weapon", "bp_slot_weapons")
+        ]
+        self._bp_slot_map = {t(k): code for code, k in self.bp_slot_defs}
         self.bp_cat_combo_var = tk.StringVar(value=t("bp_slot_all"))
-        cb_bp_cat = ttk.Combobox(ctrl_frame, textvariable=self.bp_cat_combo_var, values=[t("bp_slot_all"), t("bp_slot_helmets"), t("bp_slot_bodies"), t("bp_slot_legs"), t("bp_slot_weapons")], state="readonly", width=11)
+        cb_bp_cat = ttk.Combobox(ctrl_frame, textvariable=self.bp_cat_combo_var, values=list(self._bp_slot_map.keys()), state="readonly", width=11)
         cb_bp_cat.pack(side="left", padx=2)
         cb_bp_cat.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
         
         ttk.Label(ctrl_frame, text=t("bp_faction_lbl")).pack(side="left", padx=(6, 2))
-        self.bp_faction_var = tk.StringVar(value=t("bp_fac_all"))
-        factions_list = [
-            t("bp_fac_all"),
-            t("bp_fac_dod"),
-            t("bp_fac_we"),
-            t("bp_fac_cw"),
-            t("bp_fac_milk"),
-            t("bp_fac_44ce"),
-            t("bp_fac_jackals"),
-            t("bp_fac_re"),
-            t("bp_fac_spe"),
-            t("bp_fac_gen")
+        self.bp_fac_defs = [
+            ("ALL", "bp_fac_all"),
+            ("DOD", "bp_fac_dod"),
+            ("MIL", "bp_fac_we"),
+            ("FAN", "bp_fac_cw"),
+            ("SPO", "bp_fac_milk"),
+            ("FORCEMEN", "bp_fac_44ce"),
+            ("JACKAL", "bp_fac_jackals"),
+            ("RE", "bp_fac_re"),
+            ("SPE", "bp_fac_spe"),
+            ("GEN", "bp_fac_gen")
         ]
-        cb_faction = ttk.Combobox(ctrl_frame, textvariable=self.bp_faction_var, values=factions_list, state="readonly", width=18)
+        self._bp_fac_map = {t(k): code for code, k in self.bp_fac_defs}
+        self.bp_faction_var = tk.StringVar(value=t("bp_fac_all"))
+        cb_faction = ttk.Combobox(ctrl_frame, textvariable=self.bp_faction_var, values=list(self._bp_fac_map.keys()), state="readonly", width=18)
         cb_faction.pack(side="left", padx=2)
         cb_faction.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
         
@@ -170,30 +177,32 @@ class BlueprintsTabMixin:
         ctrl_frame2.pack(fill="x", pady=3)
         
         ttk.Label(ctrl_frame2, text=t("bp_poss_lbl")).pack(side="left", padx=2)
-        self.bp_possession_filter_var = tk.StringVar(value=t("bp_poss_all"))
-        poss_list = [
-            t("bp_poss_all"),
-            t("bp_poss_storage"),
-            t("bp_poss_shop"),
-            t("bp_poss_rnd"),
-            t("bp_poss_locked")
+        self.bp_poss_defs = [
+            ("ALL", "bp_poss_all"),
+            ("STORAGE", "bp_poss_storage"),
+            ("SHOP", "bp_poss_shop"),
+            ("RND", "bp_poss_rnd"),
+            ("LOCKED", "bp_poss_locked")
         ]
-        cb_poss = ttk.Combobox(ctrl_frame2, textvariable=self.bp_possession_filter_var, values=poss_list, state="readonly", width=18)
+        self._bp_poss_map = {t(k): code for code, k in self.bp_poss_defs}
+        self.bp_possession_filter_var = tk.StringVar(value=t("bp_poss_all"))
+        cb_poss = ttk.Combobox(ctrl_frame2, textvariable=self.bp_possession_filter_var, values=list(self._bp_poss_map.keys()), state="readonly", width=18)
         cb_poss.pack(side="left", padx=2)
         cb_poss.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
 
         ttk.Label(ctrl_frame2, text=t("bp_dmg_lbl")).pack(side="left", padx=(4, 2))
-        self.bp_dmg_type_var = tk.StringVar(value=t("bp_dmg_all"))
-        dmg_list = [
-            t("bp_dmg_all"),
-            t("bp_dmg_slash"),
-            t("bp_dmg_blunt"),
-            t("bp_dmg_pierce"),
-            t("bp_dmg_fire"),
-            t("bp_dmg_elec"),
-            t("bp_dmg_poison")
+        self.bp_dmg_defs = [
+            ("ALL", "bp_dmg_all"),
+            ("SLASH", "bp_dmg_slash"),
+            ("BLUNT", "bp_dmg_blunt"),
+            ("PIERCE", "bp_dmg_pierce"),
+            ("FIRE", "bp_dmg_fire"),
+            ("ELECTRIC", "bp_dmg_elec"),
+            ("POISON", "bp_dmg_poison")
         ]
-        cb_dmg = ttk.Combobox(ctrl_frame2, textvariable=self.bp_dmg_type_var, values=dmg_list, state="readonly", width=15)
+        self._bp_dmg_map = {t(k): code for code, k in self.bp_dmg_defs}
+        self.bp_dmg_type_var = tk.StringVar(value=t("bp_dmg_all"))
+        cb_dmg = ttk.Combobox(ctrl_frame2, textvariable=self.bp_dmg_type_var, values=list(self._bp_dmg_map.keys()), state="readonly", width=15)
         cb_dmg.pack(side="left", padx=2)
         cb_dmg.bind("<<ComboboxSelected>>", lambda e: self.filter_blueprints_list())
         
@@ -317,20 +326,20 @@ class BlueprintsTabMixin:
         self.btn_evolve_tier = ttk.Button(indiv_box, text=t("bp_evolve_tier_btn"), style="Accent.TButton", command=self._evolve_selected_bp_to_next_tier)
 
         # Endgame Sets Injector Box
-        is_en = (i18n.get_language() == "en")
         endgame_box = ttk.LabelFrame(self.bp_card, text=t("bp_endgame_box_title"), padding=8)
         endgame_box.pack(fill="x", pady=4)
         
-        self.endgame_set_var = tk.StringVar(value="44CE White Steel (D.O.D. Arms)")
-        set_choices = [
-            "44CE White Steel (D.O.D. Arms)",
-            "44CE Red Napalm (War Ensemble)",
-            "44CE Black Thunder (Candle Wolf)",
-            "44CE Pale Wind (M.I.L.K.)",
-            "Jackals Sets v1 / v2 / v3" if is_en else "Sets Jackals v1 / v2 / v3",
-            "Tengoku Legendary Weapons (51F+)" if is_en else "Armas Legendarias de Tengoku (51F+)"
+        endgame_defs = [
+            ("white_steel", "44CE White Steel (D.O.D. Arms)"),
+            ("red_napalm", "44CE Red Napalm (War Ensemble)"),
+            ("black_thunder", "44CE Black Thunder (Candle Wolf)"),
+            ("pale_wind", "44CE Pale Wind (M.I.L.K.)"),
+            ("jackals_gear", t("bp_set_jackals")),
+            ("tengoku_weapons", t("bp_set_tengoku")),
         ]
-        cb_endgame = ttk.Combobox(endgame_box, textvariable=self.endgame_set_var, values=set_choices, state="readonly", width=28)
+        self._endgame_set_map = {label: key for key, label in endgame_defs}
+        self.endgame_set_var = tk.StringVar(value="44CE White Steel (D.O.D. Arms)")
+        cb_endgame = ttk.Combobox(endgame_box, textvariable=self.endgame_set_var, values=list(self._endgame_set_map.keys()), state="readonly", width=28)
         cb_endgame.pack(fill="x", pady=2)
         ttk.Button(endgame_box, text=t("bp_inject_set_btn"), style="Accent.TButton", command=self._inject_endgame_set_action).pack(fill="x", pady=2)
 
@@ -444,41 +453,39 @@ class BlueprintsTabMixin:
                 self.bp_stats_lbl.config(text=f"{t('bp_view_set_btn')}: {set_title}")
         else:
             self.bp_set_btn.config(text=t("bp_no_set"), state="disabled")
-            self.bp_stats_lbl.config(text="Pieza individual de equipamiento o arma" if i18n.get_language() == "es" else "Single equipment piece or weapon")
+            self.bp_stats_lbl.config(text=t("bp_single_piece_lbl"))
             
         # Dynamic evolution / uncapping handling
         item_meta = next((item for item in self.equipment_db if item["id"] == ptid), None)
         can_uncap = item_meta.get("can_uncap", True) if item_meta else True
         nextptid = item_meta.get("nextptid", "") if item_meta else ""
-        is_en = (i18n.get_language() == "en")
         
         if hasattr(self, "cb_single_lvl") and hasattr(self, "bp_evolve_lbl"):
             if can_uncap:
                 uncap_vals = [
-                    "+19 (In R&D)", "+19 (Shop Max)", "+18", "+17", "+16", "+15", "+14", "+13",
-                    "+12", "+11", "+10", "+9", "+8", "+7", "+6", "+5", "+4", "+3", "+2", "+1", "+0 (Blueprint)"
-                ] if is_en else [
-                    "+19 (En I+D)", "+19 (Tienda Máx)", "+18", "+17", "+16", "+15", "+14", "+13",
-                    "+12", "+11", "+10", "+9", "+8", "+7", "+6", "+5", "+4", "+3", "+2", "+1", "+0 (Plano)"
+                    t("bp_in_rnd_fmt", lvl=19), t("bp_shop_max_fmt", lvl=19), "+18", "+17", "+16", "+15", "+14", "+13",
+                    "+12", "+11", "+10", "+9", "+8", "+7", "+6", "+5", "+4", "+3", "+2", "+1", t("bp_blueprint_fmt")
                 ]
                 self.cb_single_lvl.config(values=uncap_vals)
-                self.bp_single_lvl_var.set("+19 (In R&D)" if is_en else "+19 (En I+D)")
+                self.bp_single_lvl_var.set(t("bp_in_rnd_fmt", lvl=19))
                 self.bp_evolve_lbl.config(
-                    text="⭐ Final Tier: Ready in R&D to Uncap to +19!" if is_en else "⭐ Tier Final: ¡Listo en I+D para Destope a +19!",
+                    text=t("bp_final_tier_ready"),
                     foreground="#ff79c6"
                 )
                 if hasattr(self, "btn_evolve_tier"):
                     self.btn_evolve_tier.pack_forget()
             else:
-                evolve_vals = ["+4 (In R&D)", "+4 (Shop Max)", "+3", "+2", "+1", "+0 (Blueprint)"] if is_en else ["+4 (En I+D)", "+4 (Tienda Máx)", "+3", "+2", "+1", "+0 (Plano)"]
+                evolve_vals = [
+                    t("bp_in_rnd_fmt", lvl=4), t("bp_shop_max_fmt", lvl=4), "+3", "+2", "+1", t("bp_blueprint_fmt")
+                ]
                 self.cb_single_lvl.config(values=evolve_vals)
-                self.bp_single_lvl_var.set("+4 (In R&D)" if is_en else "+4 (En I+D)")
+                self.bp_single_lvl_var.set(t("bp_in_rnd_fmt", lvl=4))
 
                 if nextptid:
                     nxt_meta = next((item for item in self.equipment_db if item["id"] == nextptid), None)
-                    nxt_name = ((nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else "") or nextptid
+                    nxt_name = i18n.get_item_name(nxt_meta) or nextptid
                     self.bp_evolve_lbl.config(
-                        text=f"🔄 Evolves at +4 to: {nxt_name}" if is_en else f"🔄 Evoluciona a Nvl +4 a: {nxt_name}",
+                        text=t("bp_evolves_to_fmt", name=nxt_name),
                         foreground=ACCENT_CYAN
                     )
                     if hasattr(self, "btn_evolve_tier"):
@@ -488,7 +495,7 @@ class BlueprintsTabMixin:
                         self.btn_evolve_tier.pack(fill="x", pady=(2, 4))
                 else:
                     self.bp_evolve_lbl.config(
-                        text="⭐ Max Tier: +4" if is_en else "⭐ Tier Máximo: +4",
+                        text=t("bp_max_tier_fmt", tier=4),
                         foreground=ACCENT_CYAN
                     )
                     if hasattr(self, "btn_evolve_tier"):
@@ -542,15 +549,14 @@ class BlueprintsTabMixin:
         self._auto_save()
         self.filter_blueprints_list()
         
-        is_en = (i18n.get_language() == "en")
-        cur_name = (item_meta.get("name_en") if is_en else item_meta.get("name_es")) if item_meta else ptid
+        cur_name = i18n.get_item_name(item_meta) or ptid
         
         lvl_str = f"+{display_lvl} (Destope)" if display_lvl >= 19 else f"+{display_lvl}"
         lvl_str_en = f"+{display_lvl} (Uncapped)" if display_lvl >= 19 else f"+{display_lvl}"
         
         if next_unlocked:
             nxt_meta = next((item for item in self.equipment_db if item["id"] == next_unlocked), None)
-            nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else next_unlocked
+            nxt_name = i18n.get_item_name(nxt_meta) or next_unlocked
             self._notify(
                 "Blueprint & Next Tier in R&D!", "¡Plano y Siguiente Tier en I+D!",
                 f"{cur_name} registered at Level {lvl_str_en} in Chokufunsha!\n\n✨ Reached Level +4: Unlocked next tier in R&D (Development):\n🔨 {nxt_name} [{next_unlocked}]",
@@ -581,9 +587,8 @@ class BlueprintsTabMixin:
         self._auto_save()
         self.filter_blueprints_list()
         
-        is_en = (i18n.get_language() == "en")
         item_meta = next((item for item in self.equipment_db if item["id"] == ptid), None)
-        cur_name = (item_meta.get("name_en") if is_en else item_meta.get("name_es")) if item_meta else ptid
+        cur_name = i18n.get_item_name(item_meta) or ptid
         
         if target_lvl == 0:
             self._notify(
@@ -622,9 +627,8 @@ class BlueprintsTabMixin:
         self._auto_save()
         self.filter_blueprints_list()
         
-        is_en = (i18n.get_language() == "en")
-        cur_name = item_meta.get("name_en") if is_en else item_meta.get("name_es")
-        nxt_name = (nxt_meta.get("name_en") if is_en else nxt_meta.get("name_es")) if nxt_meta else nextptid
+        cur_name = i18n.get_item_name(item_meta) or ptid
+        nxt_name = i18n.get_item_name(nxt_meta) or nextptid
         
         self._notify(
             "Tier in R&D Ready!", "¡Tier Listo en I+D!",
@@ -796,12 +800,14 @@ class BlueprintsTabMixin:
         if not self.save_json:
             return
         sel = self.endgame_set_var.get()
-        key = "white_steel"
-        if "Red Napalm" in sel: key = "red_napalm"
-        elif "Black Thunder" in sel: key = "black_thunder"
-        elif "Pale Wind" in sel: key = "pale_wind"
-        elif "Jackal" in sel: key = "jackals_gear"
-        elif "Tengoku" in sel: key = "tengoku_weapons"
+        key = getattr(self, "_endgame_set_map", {}).get(sel)
+        if not key:
+            if "Red Napalm" in sel: key = "red_napalm"
+            elif "Black Thunder" in sel: key = "black_thunder"
+            elif "Pale Wind" in sel: key = "pale_wind"
+            elif "Jackal" in sel: key = "jackals_gear"
+            elif "Tengoku" in sel: key = "tengoku_weapons"
+            else: key = "white_steel"
         
         name, added = modifiers.inject_endgame_set(self.save_json, set_key=key, count=1, dur=50000, lvl=20)
         self._auto_save()
@@ -844,7 +850,6 @@ class BlueprintsTabMixin:
         self._auto_save()
         self.filter_blueprints_list()
         self.refresh_all_views()
-        is_en = (i18n.get_language() == "en")
         if target_lvl == 19:
             self._notify(
                 "All Uncapped Gear in R&D (+19)!", "¡Todo el Equipo Destopado a I+D (+19)!",
@@ -865,6 +870,53 @@ class BlueprintsTabMixin:
         cat_filter = self.bp_cat_combo_var.get()
         fac_filter = self.bp_faction_var.get()
         poss_filter = self.bp_possession_filter_var.get()
+        dmg_filter = self.bp_dmg_type_var.get() if hasattr(self, "bp_dmg_type_var") else ""
+
+        slot_target = getattr(self, "_bp_slot_map", {}).get(cat_filter)
+        if not slot_target:
+            if cat_filter in ("ALL", "Todos", "All", "全部", t("bp_slot_all")): slot_target = "ALL"
+            elif cat_filter.lower() == "head" or any(k in cat_filter for k in ("Casco", "Helmet", "头盔", "头")): slot_target = "head"
+            elif cat_filter.lower() == "chest" or any(k in cat_filter for k in ("Pecho", "Body", "胸甲", "胸")): slot_target = "chest"
+            elif cat_filter.lower() == "legs" or any(k in cat_filter for k in ("Pierna", "Leg", "Pant", "裤子", "腿")): slot_target = "legs"
+            elif cat_filter.lower() == "weapon" or any(k in cat_filter for k in ("Arma", "Weapon", "武器")): slot_target = "weapon"
+            else: slot_target = "ALL"
+
+        fac_target = getattr(self, "_bp_fac_map", {}).get(fac_filter)
+        if not fac_target:
+            if fac_filter in ("ALL", "Todas", "All", "全部", t("bp_fac_all")): fac_target = "ALL"
+            elif fac_filter.upper() in ("DOD", "MIL", "FAN", "SPO", "FORCEMEN", "JACKAL", "RE", "SPE", "GEN"): fac_target = fac_filter.upper()
+            elif "D.O.D" in fac_filter: fac_target = "DOD"
+            elif "WAR" in fac_filter: fac_target = "MIL"
+            elif "CANDLE" in fac_filter: fac_target = "FAN"
+            elif "M.I.L.K" in fac_filter or "MILK" in fac_filter: fac_target = "SPO"
+            elif "FORCEMEN" in fac_filter or "TENGOKU" in fac_filter or "44CE" in fac_filter: fac_target = "FORCEMEN"
+            elif "JACKAL" in fac_filter: fac_target = "JACKAL"
+            elif "RE" in fac_filter: fac_target = "RE"
+            elif any(k in fac_filter for k in ("Especial", "Special", "特殊")): fac_target = "SPE"
+            elif any(k in fac_filter for k in ("General", "Other", "Otras", "其他")): fac_target = "GEN"
+            else: fac_target = "ALL"
+
+        poss_target = getattr(self, "_bp_poss_map", {}).get(poss_filter)
+        if not poss_target:
+            if poss_filter in ("ALL", "Todos", "All", "全部", t("bp_poss_all")): poss_target = "ALL"
+            elif poss_filter.upper() in ("STORAGE", "SHOP", "RND", "LOCKED"): poss_target = poss_filter.upper()
+            elif any(k in poss_filter for k in ("Almacén", "Storage", "仓库")): poss_target = "STORAGE"
+            elif any(k in poss_filter for k in ("Desbloqueados", "Unlocked", "已解锁", "Shop", "Tienda", "商店")): poss_target = "SHOP"
+            elif any(k in poss_filter for k in ("I+D", "R&D", "研发")): poss_target = "RND"
+            elif any(k in poss_filter for k in ("Bloqueados", "Locked", "已锁定", "未解锁")): poss_target = "LOCKED"
+            else: poss_target = "ALL"
+
+        dmg_target = getattr(self, "_bp_dmg_map", {}).get(dmg_filter)
+        if not dmg_target:
+            if dmg_filter in ("ALL", "Todos", "All", "全部", t("bp_dmg_all")): dmg_target = "ALL"
+            elif dmg_filter.upper() in ("SLASH", "BLUNT", "PIERCE", "FIRE", "ELECTRIC", "POISON"): dmg_target = dmg_filter.upper()
+            elif any(k in dmg_filter for k in ("Corte", "Slash", "斩击")): dmg_target = "SLASH"
+            elif any(k in dmg_filter for k in ("Golpe", "Blunt", "打击")): dmg_target = "BLUNT"
+            elif any(k in dmg_filter for k in ("Perforación", "Pierce", "突刺")): dmg_target = "PIERCE"
+            elif any(k in dmg_filter for k in ("Fuego", "Fire", "火焰")): dmg_target = "FIRE"
+            elif any(k in dmg_filter for k in ("Electricidad", "Electric", "电击")): dmg_target = "ELECTRIC"
+            elif any(k in dmg_filter for k in ("Veneno", "Poison", "毒素")): dmg_target = "POISON"
+            else: dmg_target = "ALL"
         
         pr_map = modifiers.get_part_research_status(self.save_json) if self.save_json else {}
         storage_gear = modifiers.get_storage_equipment_counts(self.save_json) if self.save_json else {}
@@ -878,38 +930,39 @@ class BlueprintsTabMixin:
             slot, slot_key, faction, faction_key, set_code = self._get_item_wiki_meta(item)
             
             # 1. Filter by Slot
-            if cat_filter not in ("Todos", "All"):
-                if any(k in cat_filter for k in ("Casco", "Helmet")) and slot_key != "head": continue
-                elif any(k in cat_filter for k in ("Pecho", "Body")) and slot_key != "chest": continue
-                elif any(k in cat_filter for k in ("Pierna", "Leg", "Pant")) and slot_key != "legs": continue
-                elif any(k in cat_filter for k in ("Arma", "Weapon")) and slot_key != "weapon": continue
+            if slot_target != "ALL" and slot_key != slot_target:
+                continue
                 
             # 2. Filter by Faction
-            if fac_filter not in ("Todas", "All"):
-                f_target_key = None
-                if "D.O.D" in fac_filter: f_target_key = "DOD"
-                elif "WAR" in fac_filter: f_target_key = "MIL"
-                elif "CANDLE" in fac_filter: f_target_key = "FAN"
-                elif "M.I.L.K" in fac_filter or "MILK" in fac_filter: f_target_key = "SPO"
-                elif "FORCEMEN" in fac_filter or "TENGOKU" in fac_filter: f_target_key = "FORCEMEN"
-                elif "JACKAL" in fac_filter: f_target_key = "JACKAL"
-                elif "RE" in fac_filter: f_target_key = "RE"
-                elif "Especial" in fac_filter or "Special" in fac_filter: f_target_key = "SPE"
-                elif "General" in fac_filter or "Other" in fac_filter or "Otras" in fac_filter: f_target_key = "GEN"
-                
-                if f_target_key and faction_key != f_target_key:
-                    continue
-                elif not f_target_key and faction != fac_filter:
-                    continue
+            if fac_target != "ALL" and faction_key != fac_target:
+                continue
                 
             # 3. Forge status
-            is_en = (i18n.get_language() == "en")
+            cur_lang = i18n.get_language()
             if bp_id in pr_map:
                 forge_info = pr_map[bp_id]
                 forge_code = forge_info["status"]
                 lvl_val = forge_info.get("lvl", 20)
                 plus_lvl = lvl_val - 1 if lvl_val > 1 else lvl_val
-                if is_en:
+                if cur_lang == "es":
+                    if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ Tienda (+{plus_lvl} Destope)"
+                    elif forge_code == "RND_UNCAPPED": forge_status = f"🔨 En I+D (+{plus_lvl} → +{plus_lvl+1})"
+                    elif forge_code == "STORE_PLUS4": forge_status = "⭐ Tienda (+4)"
+                    elif forge_code == "STORE": forge_status = f"🛒 Tienda (+{forge_info.get('level', 1)})"
+                    elif forge_code == "FINISHED_LVL": forge_status = f"🔨 En I+D (+{plus_lvl} → +{plus_lvl+1})"
+                    elif forge_code == "REMODEL": forge_status = "🔨 En I+D (Evolución +0)"
+                    elif forge_code == "MAP": forge_status = "📜 En I+D (Plano +0)"
+                    else: forge_status = forge_info.get("label", forge_code)
+                elif cur_lang == "zh":
+                    if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ 商店 (+{plus_lvl} 无上限)"
+                    elif forge_code == "RND_UNCAPPED": forge_status = f"🔨 研发中 (+{plus_lvl} → +{plus_lvl+1})"
+                    elif forge_code == "STORE_PLUS4": forge_status = "⭐ 商店 (+4)"
+                    elif forge_code == "STORE": forge_status = f"🛒 商店 (+{forge_info.get('level', 1)})"
+                    elif forge_code == "FINISHED_LVL": forge_status = f"🔨 研发中 (+{plus_lvl} → +{plus_lvl+1})"
+                    elif forge_code == "REMODEL": forge_status = "🔨 研发中 (进化 +0)"
+                    elif forge_code == "MAP": forge_status = "📜 研发中 (设计图 +0)"
+                    else: forge_status = forge_info.get("label", forge_code)
+                else:
                     if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ In Shop (+{plus_lvl} Uncapped)"
                     elif forge_code == "RND_UNCAPPED": forge_status = f"🔨 In R&D (+{plus_lvl} → +{plus_lvl+1})"
                     elif forge_code == "STORE_PLUS4": forge_status = "⭐ In Shop (+4)"
@@ -918,46 +971,38 @@ class BlueprintsTabMixin:
                     elif forge_code == "REMODEL": forge_status = "🔨 In R&D (Evolution +0)"
                     elif forge_code == "MAP": forge_status = "📜 In R&D (Blueprint +0)"
                     else: forge_status = forge_info.get("label", forge_code)
-                else:
-                    if forge_code == "STORE_UNCAPPED": forge_status = f"⭐ Tienda (+{plus_lvl} Destope)"
-                    elif forge_code == "RND_UNCAPPED": forge_status = f"🔨 En I+D (+{plus_lvl} → +{plus_lvl+1})"
-                    else: forge_status = forge_info["label"]
-
             else:
-                forge_status = "❌ Locked" if is_en else "❌ Bloqueado"
+                forge_status = t("bp_forge_locked")
                 forge_code = "LOCKED"
                 
             storage_count = storage_gear.get(bp_id, 0)
             bag_count = bag_gear.get(bp_id, 0)
             
             # 4. Filter by Possession
-            if ("Almacén" in poss_filter or "Storage" in poss_filter) and storage_count <= 0:
+            if poss_target == "STORAGE" and storage_count <= 0:
                 continue
-            elif ("Desbloqueados" in poss_filter or "Unlocked" in poss_filter) and forge_code not in ("STORE_PLUS4", "STORE_UNCAPPED", "RND_UNCAPPED"):
+            elif poss_target == "SHOP" and forge_code not in ("STORE_PLUS4", "STORE_UNCAPPED", "RND_UNCAPPED", "STORE"):
                 continue
-            elif ("I+D" in poss_filter or "R&D" in poss_filter) and forge_code not in ("REMODEL", "MAP", "FINISHED_LVL", "RND_UNCAPPED"):
+            elif poss_target == "RND" and forge_code not in ("REMODEL", "MAP", "FINISHED_LVL", "RND_UNCAPPED"):
                 continue
-            elif ("Bloqueados" in poss_filter or "Locked" in poss_filter) and forge_code != "LOCKED":
+            elif poss_target == "LOCKED" and forge_code != "LOCKED":
                 continue
 
             # 4b. Filter by Damage Type (Weapons only)
-            dmg_filter = self.bp_dmg_type_var.get() if hasattr(self, "bp_dmg_type_var") else "Todos"
-            if dmg_filter not in ("Todos", "All"):
+            if dmg_target != "ALL":
                 if slot_key != "weapon":
                     continue
                 w_dmg = self._get_weapon_damage_type(item)
-                if ("Corte" in dmg_filter or "Slash" in dmg_filter) and w_dmg != "SLASH": continue
-                elif ("Golpe" in dmg_filter or "Blunt" in dmg_filter) and w_dmg != "BLUNT": continue
-                elif ("Perforación" in dmg_filter or "Pierce" in dmg_filter) and w_dmg != "PIERCE": continue
-                elif ("Fuego" in dmg_filter or "Fire" in dmg_filter) and w_dmg != "FIRE": continue
-                elif ("Electricidad" in dmg_filter or "Electric" in dmg_filter) and w_dmg != "ELECTRIC": continue
-                elif ("Veneno" in dmg_filter or "Poison" in dmg_filter) and w_dmg != "POISON": continue
+                if w_dmg != dmg_target:
+                    continue
                 
-            # 5. Search query (matches name_es, name_en, bp_id, or set_code)
+            # 5. Search query (matches name_es, name_en, name_zh, bp_id, or set_code)
+            name_zh = item.get("name_zh", "")
             if query:
                 if (query not in bp_id.lower() and 
                     query not in name_es.lower() and 
                     query not in name_en.lower() and
+                    query not in name_zh.lower() and
                     query not in set_code.lower()):
                     continue
                     
@@ -978,12 +1023,15 @@ class BlueprintsTabMixin:
                 elif collab == "44CE" and not any(k in n_en or k in n_es for k in ["white steel", "red napalm", "black thunder", "pale wind", "m2g"]):
                     continue
                     
-            if is_en:
+            if cur_lang == "es":
+                display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
+            elif cur_lang == "en":
                 display_title = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
             else:
-                display_title = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
-            storage_str = f"{storage_count} pcs." if is_en and storage_count > 0 else (f"{storage_count} u." if storage_count > 0 else "-")
-            bag_str = f"{bag_count} pcs." if is_en and bag_count > 0 else (f"{bag_count} u." if bag_count > 0 else "-")
+                display_title = f"{name_zh} ({name_en})" if name_zh and name_en and name_zh != name_en else (name_zh or name_en or name_es)
+
+            storage_str = t("inv_unit_str", qty=storage_count) if storage_count > 0 else "-"
+            bag_str = t("inv_unit_str", qty=bag_count) if bag_count > 0 else "-"
             
             if forge_code in ("STORE_UNCAPPED", "RND_UNCAPPED"):
                 tag = "tag_uncapped"

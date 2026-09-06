@@ -9,6 +9,14 @@ import i18n
 from i18n import t
 from ui.theme import *
 
+INVENTORY_CATEGORIES = [
+    ("ALL", "inv_cat_all"),
+    ("MATS", "inv_cat_mats"),
+    ("GEAR", "inv_cat_gear"),
+    ("SHROOMS", "inv_cat_shrooms"),
+    ("BAG", "inv_cat_bag")
+]
+
 class InventoryViewerDialog(tk.Toplevel):
     """Dialog that displays the complete physical inventory of the player's Coin Locker and Fighter Deathbag."""
     def __init__(self, parent, save_json, equipment_db, materials_db, shrooms_beasts_db=None):
@@ -65,14 +73,9 @@ class InventoryViewerDialog(tk.Toplevel):
         ttk.Entry(filter_frame, textvariable=self.search_var, width=16).pack(side="left", padx=2)
         
         ttk.Label(filter_frame, text=t("inv_cat")).pack(side="left", padx=(10, 2))
+        self.cat_map = {t(k): code for code, k in INVENTORY_CATEGORIES}
         self.cat_filter_var = tk.StringVar(value=t("inv_cat_all"))
-        self.cat_values = [
-            t("inv_cat_all"),
-            t("inv_cat_mats"),
-            t("inv_cat_gear"),
-            t("inv_cat_shrooms"),
-            t("inv_cat_bag")
-        ]
+        self.cat_values = list(self.cat_map.keys())
         cb_cat = ttk.Combobox(
             filter_frame,
             textvariable=self.cat_filter_var,
@@ -143,12 +146,13 @@ class InventoryViewerDialog(tk.Toplevel):
         
         query = self.search_var.get().lower().strip()
         cat_filter = self.cat_filter_var.get()
+        current_cat_code = self.cat_map.get(cat_filter, "ALL")
         
-        is_cat_all = (cat_filter == t("inv_cat_all")) or ("Todos" in cat_filter) or ("All" in cat_filter)
-        is_cat_mats = ("Material" in cat_filter)
-        is_cat_gear = ("Arma" in cat_filter) or ("Gear" in cat_filter) or ("Weapon" in cat_filter)
-        is_cat_shrooms = ("Seta" in cat_filter) or ("Shroom" in cat_filter) or ("Mushroom" in cat_filter) or ("Beast" in cat_filter) or ("Criatura" in cat_filter)
-        is_cat_bag = ("Mochila" in cat_filter) or ("Bag" in cat_filter) or ("Equip" in cat_filter)
+        is_cat_all = (current_cat_code == "ALL")
+        is_cat_mats = (current_cat_code == "MATS")
+        is_cat_gear = (current_cat_code == "GEAR")
+        is_cat_shrooms = (current_cat_code == "SHROOMS")
+        is_cat_bag = (current_cat_code == "BAG")
         
         # 1. Materials from save["item"]["items"]
         items = self.save_json.get("item", {}).get("items", [])
@@ -347,8 +351,5 @@ class InventoryViewerDialog(tk.Toplevel):
                 total_entries += 1
                 total_units += qty
                 
-        if is_en:
-            self.status_lbl.config(text=f"Showing {total_entries} unique item types ({total_units:,} physical units total).")
-        else:
-            self.status_lbl.config(text=f"Mostrando {total_entries} tipos de objetos distintos ({total_units:,} unidades físicas en total).")
+        self.status_lbl.config(text=t("inv_status_showing", types=total_entries, units=total_units))
 

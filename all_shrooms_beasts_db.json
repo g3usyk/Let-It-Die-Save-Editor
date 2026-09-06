@@ -11,7 +11,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_001.png"
+    "icon": "msr_001.png",
+    "name_zh": "心脏菇"
   },
   "MSR_002": {
     "id": "MSR_002",
@@ -25,7 +26,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_002.png"
+    "icon": "msr_002.png",
+    "name_zh": "大碗饭菇"
   },
   "MSR_006": {
     "id": "MSR_006",
@@ -39,7 +41,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_006.png"
+    "icon": "msr_006.png",
+    "name_zh": "飞拳菇"
   },
   "MSR_007": {
     "id": "MSR_007",
@@ -53,7 +56,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_007.png"
+    "icon": "msr_007.png",
+    "name_zh": "结晶菇"
   },
   "MSR_009": {
     "id": "MSR_009",
@@ -67,7 +71,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_009.png"
+    "icon": "msr_009.png",
+    "name_zh": "熔岩菇"
   },
   "MSR_010": {
     "id": "MSR_010",
@@ -81,7 +86,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_010.png"
+    "icon": "msr_010.png",
+    "name_zh": "毛茸茸菇"
   },
   "MSR_012": {
     "id": "MSR_012",
@@ -95,7 +101,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_012.png"
+    "icon": "msr_012.png",
+    "name_zh": "毁灭菇"
   },
   "MSR_013": {
     "id": "MSR_013",
@@ -109,7 +116,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_013.png"
+    "icon": "msr_013.png",
+    "name_zh": "瑜珈菇"
   },
   "MSR_014": {
     "id": "MSR_014",
@@ -123,7 +131,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_014.png"
+    "icon": "msr_014.png",
+    "name_zh": "脑菇"
   },
   "MSR_015": {
     "id": "MSR_015",
@@ -137,7 +146,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_015.png"
+    "icon": "msr_015.png",
+    "name_zh": "透明菇"
   },
   "MSR_016": {
     "id": "MSR_016",
@@ -151,7 +161,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_016.png"
+    "icon": "msr_016.png",
+    "name_zh": "耐力菇"
   },
   "MSR_017": {
     "id": "MSR_017",
@@ -165,7 +176,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_017.png"
+    "icon": "msr_017.png",
+    "name_zh": "诱饵菇"
   },
   "MSR_020": {
     "id": "MSR_020",
@@ -179,7 +191,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_020.png"
+    "icon": "msr_020.png",
+    "name_zh": "慢动真菌"
   },
   "MSR_021": {
     "id": "MSR_021",
@@ -193,7 +206,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_021.png"
+    "icon": "msr_021.png",
+    "name_zh": "电击菇"
   },
   "MSR_022": {
     "id": "MSR_022",
@@ -207,7 +221,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_022.png"
+    "icon": "msr_022.png",
+    "name_zh": "欢乐真菌"
   },
   "MSR_023": {
     "id": "MSR_023",
@@ -221,7 +236,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_023.png"
+    "icon": "msr_023.png",
+    "name_zh": "爆破菇"
   },
   "MSR_024": {
     "id": "MSR_024",
@@ -235,7 +251,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_024.png"
+    "icon": "msr_024.png",
+    "name_zh": "强壮菇"
   },
   "MSR_025": {
     "id": "MSR_025",
@@ -249,7 +266,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_025.png"
+    "icon": "msr_025.png",
+    "name_zh": "防护菇"
   },
   "MSR_029": {
     "id": "MSR_029",
@@ -263,7 +281,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_029.png"
+    "icon": "msr_029.png",
+    "name_zh": "赌博菇"
   },
   "MSR_031": {
     "id": "MSR_031",
@@ -277,7 +296,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_031.png"
+    "icon": "msr_031.png",
+    "name_zh": "青蛙真菌"
   },
   "MSR_032": {
     "id": "MSR_032",
@@ -291,7 +311,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_032.png"
+    "icon": "msr_032.png",
+    "name_zh": "金色蛙真菌"
   },
   "MSR_033": {
     "id": "MSR_033",
@@ -305,7 +326,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_033.png"
+    "icon": "msr_033.png",
+    "name_zh": "鼠菇"
   },
   "MSR_034": {
     "id": "MSR_034",
@@ -319,7 +341,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_034.png"
+    "icon": "msr_034.png",
+    "name_zh": "金色鼠菇"
   },
   "MSR_035": {
     "id": "MSR_035",
@@ -333,7 +356,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_035.png"
+    "icon": "msr_035.png",
+    "name_zh": "螫刺菇"
   },
   "MSR_036": {
     "id": "MSR_036",
@@ -347,7 +371,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_036.png"
+    "icon": "msr_036.png",
+    "name_zh": "金色螫刺菇"
   },
   "MSR_037": {
     "id": "MSR_037",
@@ -361,7 +386,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_037.png"
+    "icon": "msr_037.png",
+    "name_zh": "鱼腥真菌"
   },
   "MSR_038": {
     "id": "MSR_038",
@@ -375,7 +401,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_038.png"
+    "icon": "msr_038.png",
+    "name_zh": "金色鱼腥真菌"
   },
   "MSR_039": {
     "id": "MSR_039",
@@ -389,7 +416,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_039.png"
+    "icon": "msr_039.png",
+    "name_zh": "蜗牛菇"
   },
   "MSR_040": {
     "id": "MSR_040",
@@ -403,7 +431,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_040.png"
+    "icon": "msr_040.png",
+    "name_zh": "金色蜗牛菇"
   },
   "MSR_041": {
     "id": "MSR_041",
@@ -417,7 +446,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_041.png"
+    "icon": "msr_041.png",
+    "name_zh": "龙菇"
   },
   "MSR_042": {
     "id": "MSR_042",
@@ -431,7 +461,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_042.png"
+    "icon": "msr_042.png",
+    "name_zh": "金龙菇"
   },
   "MSR_043": {
     "id": "MSR_043",
@@ -445,7 +476,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_043.png"
+    "icon": "msr_043.png",
+    "name_zh": "生命菇"
   },
   "MSR_044": {
     "id": "MSR_044",
@@ -459,7 +491,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_044.png"
+    "icon": "msr_044.png",
+    "name_zh": "金色生命菇"
   },
   "MSR_045": {
     "id": "MSR_045",
@@ -473,7 +506,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_045.png"
+    "icon": "msr_045.png",
+    "name_zh": "吸血鬼菇"
   },
   "MSR_046": {
     "id": "MSR_046",
@@ -487,7 +521,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_046.png"
+    "icon": "msr_046.png",
+    "name_zh": "金色吸血鬼菇"
   },
   "MSR_047": {
     "id": "MSR_047",
@@ -501,7 +536,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_047.png"
+    "icon": "msr_047.png",
+    "name_zh": "万年菇"
   },
   "MSR_048": {
     "id": "MSR_048",
@@ -515,7 +551,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_048.png"
+    "icon": "msr_048.png",
+    "name_zh": "金色万年菇"
   },
   "MSR_049": {
     "id": "MSR_049",
@@ -529,7 +566,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_049.png"
+    "icon": "msr_049.png",
+    "name_zh": "橡菇"
   },
   "MSR_050": {
     "id": "MSR_050",
@@ -543,7 +581,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_050.png"
+    "icon": "msr_050.png",
+    "name_zh": "金色橡菇"
   },
   "MSR_051": {
     "id": "MSR_051",
@@ -557,7 +596,8 @@
     "rarity": 2,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_051.png"
+    "icon": "msr_051.png",
+    "name_zh": "铜技能菇"
   },
   "MSR_052": {
     "id": "MSR_052",
@@ -571,7 +611,8 @@
     "rarity": 3,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_052.png"
+    "icon": "msr_052.png",
+    "name_zh": "银技能菇"
   },
   "MSR_053": {
     "id": "MSR_053",
@@ -585,7 +626,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_053.png"
+    "icon": "msr_053.png",
+    "name_zh": "金技能菇"
   },
   "MSR_200": {
     "id": "MSR_200",
@@ -599,7 +641,8 @@
     "rarity": 2,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_200.png"
+    "icon": "msr_200.png",
+    "name_zh": "铜蛋菇"
   },
   "MSR_201": {
     "id": "MSR_201",
@@ -613,7 +656,8 @@
     "rarity": 3,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_201.png"
+    "icon": "msr_201.png",
+    "name_zh": "银蛋菇"
   },
   "MSR_202": {
     "id": "MSR_202",
@@ -627,7 +671,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_202.png"
+    "icon": "msr_202.png",
+    "name_zh": "金蛋菇"
   },
   "MSR_300": {
     "id": "MSR_300",
@@ -641,7 +686,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_300.png"
+    "icon": "msr_300.png",
+    "name_zh": "赤红螫刺菇"
   },
   "MSR_301": {
     "id": "MSR_301",
@@ -655,7 +701,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_301.png"
+    "icon": "msr_301.png",
+    "name_zh": "武士头盔菇"
   },
   "MSR_302": {
     "id": "MSR_302",
@@ -669,7 +716,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_302.png"
+    "icon": "msr_302.png",
+    "name_zh": "伞骨真菌"
   },
   "MSR_303": {
     "id": "MSR_303",
@@ -683,7 +731,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_303.png"
+    "icon": "msr_303.png",
+    "name_zh": "伪脑菇"
   },
   "MSR_304": {
     "id": "MSR_304",
@@ -697,7 +746,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_304.png"
+    "icon": "msr_304.png",
+    "name_zh": "猫眼菇"
   },
   "MSR_305": {
     "id": "MSR_305",
@@ -711,7 +761,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_305.png"
+    "icon": "msr_305.png",
+    "name_zh": "大弹涂鱼菇"
   },
   "MSR_306": {
     "id": "MSR_306",
@@ -725,7 +776,8 @@
     "rarity": 2,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_306.png"
+    "icon": "msr_306.png",
+    "name_zh": "铜阳伞菇"
   },
   "MSR_307": {
     "id": "MSR_307",
@@ -739,7 +791,8 @@
     "rarity": 3,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_307.png"
+    "icon": "msr_307.png",
+    "name_zh": "银阳伞菇"
   },
   "MSR_308": {
     "id": "MSR_308",
@@ -753,7 +806,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_308.png"
+    "icon": "msr_308.png",
+    "name_zh": "金阳伞菇"
   },
   "MSR_309": {
     "id": "MSR_309",
@@ -767,7 +821,8 @@
     "rarity": 2,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_309.png"
+    "icon": "msr_309.png",
+    "name_zh": "铜南瓜菇"
   },
   "MSR_310": {
     "id": "MSR_310",
@@ -781,7 +836,8 @@
     "rarity": 3,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_310.png"
+    "icon": "msr_310.png",
+    "name_zh": "银南瓜菇"
   },
   "MSR_311": {
     "id": "MSR_311",
@@ -795,7 +851,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_311.png"
+    "icon": "msr_311.png",
+    "name_zh": "金南瓜菇"
   },
   "MSR_312": {
     "id": "MSR_312",
@@ -809,7 +866,8 @@
     "rarity": 2,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_312.png"
+    "icon": "msr_312.png",
+    "name_zh": "铜雪盖菇"
   },
   "MSR_313": {
     "id": "MSR_313",
@@ -823,7 +881,8 @@
     "rarity": 3,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_313.png"
+    "icon": "msr_313.png",
+    "name_zh": "银雪盖菇"
   },
   "MSR_314": {
     "id": "MSR_314",
@@ -837,7 +896,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_314.png"
+    "icon": "msr_314.png",
+    "name_zh": "金雪盖菇"
   },
   "MSR_400": {
     "id": "MSR_400",
@@ -851,7 +911,8 @@
     "rarity": 1,
     "category_en": "Mushrooms",
     "category_es": "Setas",
-    "icon": "msr_400.png"
+    "icon": "msr_400.png",
+    "name_zh": "泼溅菇"
   },
   "MSR_401": {
     "id": "MSR_401",
@@ -865,7 +926,8 @@
     "rarity": 3,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_401.png"
+    "icon": "msr_401.png",
+    "name_zh": "大型泼溅菇"
   },
   "MSR_402": {
     "id": "MSR_402",
@@ -879,7 +941,8 @@
     "rarity": 4,
     "category_en": "Special Shrooms",
     "category_es": "Setas Especiales",
-    "icon": "msr_402.png"
+    "icon": "msr_402.png",
+    "name_zh": "超巨大泼溅菇"
   },
   "BST_BASS": {
     "id": "BST_BASS",
@@ -893,7 +956,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_bass.png"
+    "icon": "bst_bass.png",
+    "name_zh": "鱼"
   },
   "BST_BASS02": {
     "id": "BST_BASS02",
@@ -907,7 +971,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_bass02.png"
+    "icon": "bst_bass02.png",
+    "name_zh": "凸眼大弹涂鱼"
   },
   "BST_CASSOWARY": {
     "id": "BST_CASSOWARY",
@@ -921,7 +986,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_cassowary.png"
+    "icon": "bst_cassowary.png",
+    "name_zh": "鸟"
   },
   "BST_CRAB": {
     "id": "BST_CRAB",
@@ -935,7 +1001,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_crab.png"
+    "icon": "bst_crab.png",
+    "name_zh": "螃蟹"
   },
   "BST_FROG": {
     "id": "BST_FROG",
@@ -949,7 +1016,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_frog.png"
+    "icon": "bst_frog.png",
+    "name_zh": "青蛙"
   },
   "BST_GBASS": {
     "id": "BST_GBASS",
@@ -963,7 +1031,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gbass.png"
+    "icon": "bst_gbass.png",
+    "name_zh": "金色鱼"
   },
   "BST_GCASSOWARY": {
     "id": "BST_GCASSOWARY",
@@ -977,7 +1046,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gcassowary.png"
+    "icon": "bst_gcassowary.png",
+    "name_zh": "金色鸟"
   },
   "BST_GCRAB": {
     "id": "BST_GCRAB",
@@ -991,7 +1061,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gcrab.png"
+    "icon": "bst_gcrab.png",
+    "name_zh": "金色螃蟹"
   },
   "BST_GFROG": {
     "id": "BST_GFROG",
@@ -1005,7 +1076,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gfrog.png"
+    "icon": "bst_gfrog.png",
+    "name_zh": "金色蛙"
   },
   "BST_GHONEYCOMB": {
     "id": "BST_GHONEYCOMB",
@@ -1019,7 +1091,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_ghoneycomb.png"
+    "icon": "bst_ghoneycomb.png",
+    "name_zh": "金蜂巢"
   },
   "BST_GLIZARD": {
     "id": "BST_GLIZARD",
@@ -1033,7 +1106,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_glizard.png"
+    "icon": "bst_glizard.png",
+    "name_zh": "金色蜥蜴"
   },
   "BST_GPILLBUG": {
     "id": "BST_GPILLBUG",
@@ -1047,7 +1121,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gpillbug.png"
+    "icon": "bst_gpillbug.png",
+    "name_zh": "金色鼠妇"
   },
   "BST_GRAT": {
     "id": "BST_GRAT",
@@ -1061,7 +1136,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_grat.png"
+    "icon": "bst_grat.png",
+    "name_zh": "金色鼠"
   },
   "BST_GSCORPION": {
     "id": "BST_GSCORPION",
@@ -1075,7 +1151,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gscorpion.png"
+    "icon": "bst_gscorpion.png",
+    "name_zh": "金色蝎子"
   },
   "BST_GSNAIL": {
     "id": "BST_GSNAIL",
@@ -1089,7 +1166,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gsnail.png"
+    "icon": "bst_gsnail.png",
+    "name_zh": "金色蜗牛"
   },
   "BST_GTURTLE": {
     "id": "BST_GTURTLE",
@@ -1103,7 +1181,8 @@
     "rarity": 4,
     "category_en": "Golden Beasts",
     "category_es": "Criaturas Doradas",
-    "icon": "bst_gturtle.png"
+    "icon": "bst_gturtle.png",
+    "name_zh": "金色龟"
   },
   "BST_HONEYCOMB": {
     "id": "BST_HONEYCOMB",
@@ -1117,7 +1196,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_honeycomb.png"
+    "icon": "bst_honeycomb.png",
+    "name_zh": "蜂巢"
   },
   "BST_LIZARD": {
     "id": "BST_LIZARD",
@@ -1131,7 +1211,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_lizard.png"
+    "icon": "bst_lizard.png",
+    "name_zh": "蜥蜴"
   },
   "BST_PILLBUG": {
     "id": "BST_PILLBUG",
@@ -1145,7 +1226,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_pillbug.png"
+    "icon": "bst_pillbug.png",
+    "name_zh": "鼠妇"
   },
   "BST_RAT": {
     "id": "BST_RAT",
@@ -1159,7 +1241,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_rat.png"
+    "icon": "bst_rat.png",
+    "name_zh": "老鼠"
   },
   "BST_SCORPION": {
     "id": "BST_SCORPION",
@@ -1173,7 +1256,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_scorpion.png"
+    "icon": "bst_scorpion.png",
+    "name_zh": "蝎子"
   },
   "BST_SCORPION02": {
     "id": "BST_SCORPION02",
@@ -1187,7 +1271,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_scorpion02.png"
+    "icon": "bst_scorpion02.png",
+    "name_zh": "赤红蝎"
   },
   "BST_SNAIL": {
     "id": "BST_SNAIL",
@@ -1201,7 +1286,8 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_snail.png"
+    "icon": "bst_snail.png",
+    "name_zh": "蜗牛"
   },
   "BST_TURTLE": {
     "id": "BST_TURTLE",
@@ -1215,6 +1301,7 @@
     "rarity": 2,
     "category_en": "Beasts",
     "category_es": "Criaturas",
-    "icon": "bst_turtle.png"
+    "icon": "bst_turtle.png",
+    "name_zh": "乌龟"
   }
 }

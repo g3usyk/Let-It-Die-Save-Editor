@@ -1,13 +1,14 @@
 {
-  "version": "4.1.1",
+  "version": "4.1.2",
   "name": "Let It Die - Complete Save Editor & Encyclopedia",
   "release_date": "2026-09-06",
   "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
   "changelog": [
-    "Full Chinese (Simplified) language localization contributed by @mayloglog (PR #1), including real-time GUI language switching and complete encyclopedia translations.",
-    "Hotfix for startup crash after GungHo logo: save operations now strictly preserve untouched structures, preventing unwanted TDM and fighter EXP mutations.",
-    "Automatic permanent pristine backup: creates a protected <save>.ORIGINAL.bak on first backup that is never rotated out or overwritten.",
-    "Added dedicated manual repair tools in Advanced tab for TDM dummy defenders and fighter EXP synchronization.",
-    "All 74 automated unit tests passing at 100% across English, Spanish, and Chinese."
+    "Fixed Chinese language display: Blueprints, Materials, and Decals now display complete official Chinese names and descriptions extracted from master game data.",
+    "Bilingual display format in lists: shows Chinese names alongside original English names for clearer recognition.",
+    "Multilingual search filter support: search Blueprints, Materials, and Decals in English, Spanish, or Chinese seamlessly.",
+    "Integrated external JSON translation files under locales/ (en.json, es.json, zh.json) with fallback and dynamic reload.",
+    "All 86 automated unit tests passing across English, Spanish, and Chinese."
   ]
 }
+

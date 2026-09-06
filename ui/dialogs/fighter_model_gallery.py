@@ -38,8 +38,7 @@ class FighterModelGalleryDialog(tk.Toplevel):
 
     def __init__(self, parent, current_model="", on_select_cb=None):
         super().__init__(parent)
-        is_en = (i18n.get_language() == "en")
-        self.title("Fighter Models Gallery" if is_en else "Galería de Rostros y Modelos de Luchadores")
+        self.title(t("f_gallery_title"))
         self.geometry("660x520")
         self.resizable(False, False)
         self.configure(bg=BG_DARK)
@@ -54,15 +53,13 @@ class FighterModelGalleryDialog(tk.Toplevel):
         self._build_ui()
 
     def _build_ui(self):
-        is_en = (i18n.get_language() == "en")
-        
         # Header banner
         header = tk.Frame(self, bg=BG_PANEL, padx=16, pady=10)
         header.pack(fill="x")
         
         tk.Label(
             header,
-            text="👤 " + ("Fighter Character Models (Freezer Portraits)" if is_en else "Modelos Oficiales de Luchadores (Retratos del Congelador)"),
+            text=t("f_gallery_header"),
             font=("Segoe UI", 12, "bold"),
             bg=BG_PANEL,
             fg=ACCENT_GOLD
@@ -70,7 +67,7 @@ class FighterModelGalleryDialog(tk.Toplevel):
         
         tk.Label(
             header,
-            text="Haz clic en cualquier retrato para seleccionar el aspecto del luchador." if not is_en else "Click on any portrait to select that character appearance.",
+            text=t("f_gallery_sub"),
             font=("Segoe UI", 9),
             bg=BG_PANEL,
             fg=FG_MUTED
@@ -82,12 +79,12 @@ class FighterModelGalleryDialog(tk.Toplevel):
 
         # Tab 1: Female (1-8)
         female_tab = tk.Frame(nb, bg=BG_DARK, padx=10, pady=10)
-        nb.add(female_tab, text="♀️ Female Models (1 - 8)" if is_en else "♀️ Luchadoras (Female 1 - 8)")
+        nb.add(female_tab, text=t("f_gallery_female_tab"))
         self._populate_grid(female_tab, "female")
 
         # Tab 2: Male (1-8)
         male_tab = tk.Frame(nb, bg=BG_DARK, padx=10, pady=10)
-        nb.add(male_tab, text="♂️ Male Models (1 - 8)" if is_en else "♂️ Luchadores (Male 1 - 8)")
+        nb.add(male_tab, text=t("f_gallery_male_tab"))
         self._populate_grid(male_tab, "male")
 
         # If current model is Male, start on the Male tab
@@ -98,7 +95,7 @@ class FighterModelGalleryDialog(tk.Toplevel):
         bottom = tk.Frame(self, bg=BG_PANEL, padx=16, pady=10)
         bottom.pack(fill="x", side="bottom")
         
-        btn_close = ttk.Button(bottom, text="Cerrar" if not is_en else "Close", command=self.destroy)
+        btn_close = ttk.Button(bottom, text=t("btn_close"), command=self.destroy)
         btn_close.pack(side="right", padx=6)
 
     def _populate_grid(self, parent_frame, gender):

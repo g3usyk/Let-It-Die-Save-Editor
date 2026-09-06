@@ -56,18 +56,19 @@ class TowerTabMixin:
         tdm_f = ttk.Frame(box_right)
         tdm_f.pack(fill="x", pady=2)
         ttk.Label(tdm_f, text=t("tw_rank_lbl")).pack(side="left", padx=2)
-        is_en = i18n.get_language() == "en"
-        self.tdm_rank_var = tk.StringVar(value="Diamond I (3,500+ pts)" if is_en else "Diamante I (3,500+ pts)")
-        tdm_ranks = [
-            "Diamond I (3,500+ pts)" if is_en else "Diamante I (3,500+ pts)",
-            "Diamond II (3,200 pts)" if is_en else "Diamante II (3,200 pts)",
-            "Diamond III (3,000 pts)" if is_en else "Diamante III (3,000 pts)",
-            "Platinum I (2,500 pts)" if is_en else "Platino I (2,500 pts)",
-            "Gold I (1,800 pts)" if is_en else "Oro I (1,800 pts)",
-            "Silver I (1,200 pts)" if is_en else "Plata I (1,200 pts)",
-            "Bronze I (500 pts)" if is_en else "Bronce I (500 pts)"
+        
+        tdm_rank_defs = [
+            ("TDM_RANK_05_03", 5000, "tdm_rank_dia_1"),
+            ("TDM_RANK_05_02", 3200, "tdm_rank_dia_2"),
+            ("TDM_RANK_05_01", 3000, "tdm_rank_dia_3"),
+            ("TDM_RANK_04_03", 2500, "tdm_rank_plat_1"),
+            ("TDM_RANK_03_03", 1800, "tdm_rank_gold_1"),
+            ("TDM_RANK_02_03", 1200, "tdm_rank_silv_1"),
+            ("TDM_RANK_01_03", 500, "tdm_rank_bron_1"),
         ]
-        cb_tdm = ttk.Combobox(tdm_f, textvariable=self.tdm_rank_var, values=tdm_ranks, state="readonly", width=26)
+        self.tdm_map = {t(k): (rid, pts) for rid, pts, k in tdm_rank_defs}
+        self.tdm_rank_var = tk.StringVar(value=t("tdm_rank_dia_1"))
+        cb_tdm = ttk.Combobox(tdm_f, textvariable=self.tdm_rank_var, values=list(self.tdm_map.keys()), state="readonly", width=26)
         cb_tdm.pack(side="left", padx=2)
         btn_set_tdm = ttk.Button(tdm_f, text=t("tw_apply_btn"), style="Accent.TButton", command=self._set_tdm_rank_action)
         btn_set_tdm.pack(side="left", padx=2)
@@ -110,7 +111,7 @@ class TowerTabMixin:
         r_int = ttk.Frame(pl_acts)
         r_int.pack(fill="x", pady=6)
         ttk.Label(r_int, text=t("tw_interrupt_lbl"), font=("Segoe UI", 9)).pack(side="left", padx=2)
-        self.interrupt_lbl = ttk.Label(r_int, text="0 penalizaciones", font=("Segoe UI", 9, "bold"), foreground=ACCENT_CYAN)
+        self.interrupt_lbl = ttk.Label(r_int, text=t("hud_penalties_fmt", count=0), font=("Segoe UI", 9, "bold"), foreground=ACCENT_CYAN)
         self.interrupt_lbl.pack(side="left", padx=6)
         btn_reset_int = ttk.Button(r_int, text=t("tw_reset_interrupt_btn"), command=self._reset_interrupt_action)
         btn_reset_int.pack(side="left", padx=2)
@@ -126,19 +127,19 @@ class TowerTabMixin:
         st_f.columnconfigure(0, weight=1)
         st_f.columnconfigure(1, weight=1)
         
-        self.pl_elev_lbl = ttk.Label(st_f, text="🛗 Ascensores: 0", font=("Segoe UI", 9))
+        self.pl_elev_lbl = ttk.Label(st_f, text=t("hud_elevators_fmt", count=0), font=("Segoe UI", 9))
         self.pl_elev_lbl.grid(row=0, column=0, sticky="w", pady=2)
-        self.pl_esc_lbl = ttk.Label(st_f, text="🪜 Escaleras: 0", font=("Segoe UI", 9))
+        self.pl_esc_lbl = ttk.Label(st_f, text=t("hud_escalators_fmt", count=0), font=("Segoe UI", 9))
         self.pl_esc_lbl.grid(row=0, column=1, sticky="w", pady=2)
         
-        self.pl_mats_lbl = ttk.Label(st_f, text="📦 Materiales: 0", font=("Segoe UI", 9))
+        self.pl_mats_lbl = ttk.Label(st_f, text=t("hud_materials_fmt", count=0), font=("Segoe UI", 9))
         self.pl_mats_lbl.grid(row=1, column=0, sticky="w", pady=2)
-        self.pl_res_lbl = ttk.Label(st_f, text="🔬 Investigaciones: 0", font=("Segoe UI", 9))
+        self.pl_res_lbl = ttk.Label(st_f, text=t("hud_researches_fmt", count=0), font=("Segoe UI", 9))
         self.pl_res_lbl.grid(row=1, column=1, sticky="w", pady=2)
         
-        self.pl_boss_lbl = ttk.Label(st_f, text="💀 Jefes Vencidos: 0", font=("Segoe UI", 9))
+        self.pl_boss_lbl = ttk.Label(st_f, text=t("hud_boss_kills_fmt", count=0), font=("Segoe UI", 9))
         self.pl_boss_lbl.grid(row=2, column=0, sticky="w", pady=2)
-        self.pl_time_lbl = ttk.Label(st_f, text="⏱️ Horas Torre: 0.0 hrs", font=("Segoe UI", 9))
+        self.pl_time_lbl = ttk.Label(st_f, text=t("hud_tower_time_fmt", hours="0.0"), font=("Segoe UI", 9))
         self.pl_time_lbl.grid(row=2, column=1, sticky="w", pady=2)
 
     def _complete_all_quests_action(self):
@@ -274,14 +275,7 @@ class TowerTabMixin:
         if not self.save_json:
             return
         sel = self.tdm_rank_var.get()
-        rank_id = "TDM_RANK_05_03"
-        points = 5000
-        if any(k in sel for k in ("Diamante II", "Diamond II")): rank_id, points = "TDM_RANK_05_02", 3200
-        elif any(k in sel for k in ("Diamante III", "Diamond III")): rank_id, points = "TDM_RANK_05_01", 3000
-        elif any(k in sel for k in ("Platino", "Platinum")): rank_id, points = "TDM_RANK_04_03", 2500
-        elif any(k in sel for k in ("Oro", "Gold")): rank_id, points = "TDM_RANK_03_03", 1800
-        elif any(k in sel for k in ("Plata", "Silver")): rank_id, points = "TDM_RANK_02_03", 1200
-        elif any(k in sel for k in ("Bronce", "Bronze")): rank_id, points = "TDM_RANK_01_03", 500
+        rank_id, points = getattr(self, "tdm_map", {}).get(sel, ("TDM_RANK_05_03", 5000))
         
         modifiers.set_tdm_rank(self.save_json, rank_id=rank_id, points=points)
         self._auto_save()

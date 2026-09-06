@@ -330,20 +330,20 @@ class DecalsTabMixin:
             info = self.decals_map.get(did) or self.decals_map.get(did.replace("_P", "")) or {}
             
             # 1. Type filter
-            if "Premium" in type_filter and not is_p:
+            if ("Premium" in type_filter or "_P" in type_filter or "高级" in type_filter) and not is_p:
                 continue
-            elif ("Estándar" in type_filter or "Standard" in type_filter) and is_p:
+            elif ("Estándar" in type_filter or "Standard" in type_filter or "标准" in type_filter) and is_p:
                 continue
                 
             # 2. Possession filter
-            if ("Poseídas" in poss_filter or "Possessed" in poss_filter) and cnt <= 0:
+            if ("> 0" in poss_filter or "Poseídas" in poss_filter or "Possessed" in poss_filter or "已拥有" in poss_filter) and cnt <= 0:
                 continue
-            elif ("Faltantes" in poss_filter or "Missing" in poss_filter) and cnt > 0:
+            elif ("(0)" in poss_filter or "Faltantes" in poss_filter or "Missing" in poss_filter or "缺失" in poss_filter) and cnt > 0:
                 continue
 
             # 3. Rarity filter
             d_rarity = info.get("rarity", 1 if not is_p else 3)
-            if rarity_filter not in ("Todas", "All"):
+            if "★" in rarity_filter:
                 try:
                     req_stars = int(rarity_filter.replace("★", "").strip())
                     if d_rarity != req_stars:
@@ -353,9 +353,11 @@ class DecalsTabMixin:
 
             name_es = info.get("name_es", did.replace("SKL_", "").replace("_", " "))
             name_en = info.get("name_en", "")
+            name_zh = info.get("name_zh", "")
             desc_es = info.get("desc_es", "")
             desc_en = info.get("desc_en", "")
-            full_txt = f"{did} {name_en} {name_es} {desc_en} {desc_es}".lower()
+            desc_zh = info.get("desc_zh", "")
+            full_txt = f"{did} {name_en} {name_es} {name_zh} {desc_en} {desc_es} {desc_zh}".lower()
 
             # 4. Event / Collab filter
             if event_filter != "TODOS":
@@ -401,16 +403,24 @@ class DecalsTabMixin:
                 if query not in full_txt:
                     continue
                     
-            if i18n.get_language() == "en":
+            cur_lang = i18n.get_language()
+            if cur_lang == "en":
                 display_name = f"{name_en} ({name_es})" if name_es and name_en != name_es else (name_en or name_es)
                 std_txt = "STANDARD"
+                prem_txt = "PREMIUM"
+            elif cur_lang == "zh":
+                name_zh = info.get("name_zh")
+                display_name = f"{name_zh} ({name_en})" if name_zh and name_en and name_zh != name_en else (name_zh or name_en or name_es)
+                std_txt = "标准"
+                prem_txt = "高级"
             else:
                 display_name = f"{name_es} ({name_en})" if name_en and name_en != name_es else (name_es or name_en)
                 std_txt = "ESTÁNDAR"
+                prem_txt = "PREMIUM"
             stars_str = f"{d_rarity}★"
             art_rel = self._find_decal_art(did)
             thumb = self.get_photo(art_rel, size=(36, 36), preserve_aspect=True)
-            node_id = self.decals_tree.insert("", "end", text=f" {display_name}", image=thumb or "", values=(stars_str, did, "PREMIUM" if is_p else std_txt, f"x{cnt}" if cnt > 0 else "-"))
+            node_id = self.decals_tree.insert("", "end", text=f" {display_name}", image=thumb or "", values=(stars_str, did, prem_txt if is_p else std_txt, f"x{cnt}" if cnt > 0 else "-"))
             self.tree_images[node_id] = thumb
             if not thumb and art_rel:
                 self.set_tree_item_image(self.decals_tree, node_id, art_rel, size=(36, 36), preserve_aspect=True, fallback="decal_p" if is_p else "decal_std")

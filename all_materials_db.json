@@ -10,7 +10,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "铝废料",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_ALUMI_2",
@@ -23,7 +25,9 @@
     "buy_kc": 3000,
     "buy_re": 7500,
     "buy_bl": 300,
-    "sell_kc": 40
+    "sell_kc": 40,
+    "name_zh": "铝罐",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_ALUMI_3",
@@ -36,7 +40,9 @@
     "buy_kc": 4000,
     "buy_re": 10000,
     "buy_bl": 400,
-    "sell_kc": 60
+    "sell_kc": 60,
+    "name_zh": "铝制引擎零件",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_ALUMI_4",
@@ -49,7 +55,9 @@
     "buy_kc": 5000,
     "buy_re": 12500,
     "buy_bl": 500,
-    "sell_kc": 80
+    "sell_kc": 80,
+    "name_zh": "纯铝",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_ALUMI_5",
@@ -62,7 +70,9 @@
     "buy_kc": 10000,
     "buy_re": 25000,
     "buy_bl": 1000,
-    "sell_kc": 100
+    "sell_kc": 100,
+    "name_zh": "7075铝合金",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_ALUMI_6",
@@ -75,7 +85,9 @@
     "buy_kc": 15000,
     "buy_re": 37500,
     "buy_bl": 1500,
-    "sell_kc": 150
+    "sell_kc": 150,
+    "name_zh": "9048铝合金",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_ALUMI_7",
@@ -88,7 +100,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "9050铝合金",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_ALUMI_8",
@@ -101,7 +115,9 @@
     "buy_kc": 25000,
     "buy_re": 62500,
     "buy_bl": 2500,
-    "sell_kc": 250
+    "sell_kc": 250,
+    "name_zh": "9051铝合金",
+    "desc_zh": "研发用铝"
   },
   {
     "itemid": "ITMT_COPPER_1",
@@ -114,7 +130,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "铜废料块",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_COPPER_2",
@@ -127,7 +145,9 @@
     "buy_kc": 3000,
     "buy_re": 7500,
     "buy_bl": 300,
-    "sell_kc": 40
+    "sell_kc": 40,
+    "name_zh": "铜器残片",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_COPPER_3",
@@ -140,7 +160,9 @@
     "buy_kc": 4000,
     "buy_re": 10000,
     "buy_bl": 400,
-    "sell_kc": 60
+    "sell_kc": 60,
+    "name_zh": "铜线堆",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_COPPER_4",
@@ -153,7 +175,9 @@
     "buy_kc": 5000,
     "buy_re": 12500,
     "buy_bl": 500,
-    "sell_kc": 80
+    "sell_kc": 80,
+    "name_zh": "纯铜",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_COPPER_5",
@@ -166,7 +190,9 @@
     "buy_kc": 10000,
     "buy_re": 25000,
     "buy_bl": 1000,
-    "sell_kc": 100
+    "sell_kc": 100,
+    "name_zh": "无氧铜",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_COPPER_6",
@@ -179,7 +205,9 @@
     "buy_kc": 15000,
     "buy_re": 37500,
     "buy_bl": 1500,
-    "sell_kc": 150
+    "sell_kc": 150,
+    "name_zh": "铍铜",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_COPPER_7",
@@ -192,7 +220,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "科林斯铜",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_COPPER_8",
@@ -205,7 +235,9 @@
     "buy_kc": 25000,
     "buy_re": 62500,
     "buy_bl": 2500,
-    "sell_kc": 250
+    "sell_kc": 250,
+    "name_zh": "山铜",
+    "desc_zh": "研发用铜"
   },
   {
     "itemid": "ITMT_FIBER_1",
@@ -218,7 +250,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "棉",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_FIBER_2",
@@ -231,7 +265,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "麻",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_FIBER_3",
@@ -244,7 +280,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "皮革",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_FIBER_4",
@@ -257,7 +295,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "羊毛",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_FIBER_5",
@@ -270,7 +310,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "丝绸",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_FIBER_6",
@@ -283,7 +325,9 @@
     "buy_kc": 15000,
     "buy_re": 37500,
     "buy_bl": 1500,
-    "sell_kc": 150
+    "sell_kc": 150,
+    "name_zh": "碳纤维",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_FIBER_7",
@@ -296,7 +340,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "聚芳酰胺纤维",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_FIBER_8",
@@ -309,7 +355,9 @@
     "buy_kc": 25000,
     "buy_re": 62500,
     "buy_bl": 2500,
-    "sell_kc": 250
+    "sell_kc": 250,
+    "name_zh": "聚芳酯纤维",
+    "desc_zh": "研发用纤维"
   },
   {
     "itemid": "ITMT_IRON_1",
@@ -322,7 +370,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "铁废料",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_IRON_2",
@@ -335,7 +385,9 @@
     "buy_kc": 3000,
     "buy_re": 7500,
     "buy_bl": 300,
-    "sell_kc": 40
+    "sell_kc": 40,
+    "name_zh": "铁丝山",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_IRON_3",
@@ -348,7 +400,9 @@
     "buy_kc": 4000,
     "buy_re": 10000,
     "buy_bl": 400,
-    "sell_kc": 60
+    "sell_kc": 60,
+    "name_zh": "大量铁螺栓",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_IRON_4",
@@ -361,7 +415,9 @@
     "buy_kc": 5000,
     "buy_re": 12500,
     "buy_bl": 500,
-    "sell_kc": 80
+    "sell_kc": 80,
+    "name_zh": "钢",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_IRON_5",
@@ -374,7 +430,9 @@
     "buy_kc": 10000,
     "buy_re": 25000,
     "buy_bl": 1000,
-    "sell_kc": 100
+    "sell_kc": 100,
+    "name_zh": "超高纯度铁",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_IRON_6",
@@ -387,7 +445,9 @@
     "buy_kc": 15000,
     "buy_re": 37500,
     "buy_bl": 1500,
-    "sell_kc": 150
+    "sell_kc": 150,
+    "name_zh": "特殊钢",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_IRON_7",
@@ -400,7 +460,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "铬钼",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_IRON_8",
@@ -413,7 +475,9 @@
     "buy_kc": 25000,
     "buy_re": 62500,
     "buy_bl": 2500,
-    "sell_kc": 250
+    "sell_kc": 250,
+    "name_zh": "玉钢",
+    "desc_zh": "研发用铁"
   },
   {
     "itemid": "ITMT_OIL_1",
@@ -426,7 +490,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "废油",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_OIL_2",
@@ -439,7 +505,9 @@
     "buy_kc": 3000,
     "buy_re": 7500,
     "buy_bl": 300,
-    "sell_kc": 40
+    "sell_kc": 40,
+    "name_zh": "植物油",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_OIL_3",
@@ -452,7 +520,9 @@
     "buy_kc": 4000,
     "buy_re": 10000,
     "buy_bl": 400,
-    "sell_kc": 60
+    "sell_kc": 60,
+    "name_zh": "原油",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_OIL_4",
@@ -465,7 +535,9 @@
     "buy_kc": 5000,
     "buy_re": 12500,
     "buy_bl": 500,
-    "sell_kc": 80
+    "sell_kc": 80,
+    "name_zh": "矿物油",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_OIL_5",
@@ -478,7 +550,9 @@
     "buy_kc": 10000,
     "buy_re": 25000,
     "buy_bl": 1000,
-    "sell_kc": 100
+    "sell_kc": 100,
+    "name_zh": "化学合成油",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_OIL_6",
@@ -491,7 +565,9 @@
     "buy_kc": 15000,
     "buy_re": 37500,
     "buy_bl": 1500,
-    "sell_kc": 150
+    "sell_kc": 150,
+    "name_zh": "生物油",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_OIL_7",
@@ -504,7 +580,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "虎油",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_OIL_8",
@@ -517,7 +595,9 @@
     "buy_kc": 25000,
     "buy_re": 62500,
     "buy_bl": 2500,
-    "sell_kc": 250
+    "sell_kc": 250,
+    "name_zh": "猪背脂",
+    "desc_zh": "研发用油"
   },
   {
     "itemid": "ITMT_STEROID_1",
@@ -530,7 +610,9 @@
     "buy_kc": 20,
     "buy_re": 50,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "死神类固醇（蓝）",
+    "desc_zh": "协助战士突破等级上限的强大药物"
   },
   {
     "itemid": "ITMT_STEROID_2",
@@ -543,7 +625,9 @@
     "buy_kc": 30,
     "buy_re": 75,
     "buy_bl": 3000,
-    "sell_kc": 300
+    "sell_kc": 300,
+    "name_zh": "死神类固醇（绿）",
+    "desc_zh": "协助战士突破等级上限的强大药物"
   },
   {
     "itemid": "ITMT_STEROID_3",
@@ -556,7 +640,9 @@
     "buy_kc": 40,
     "buy_re": 100,
     "buy_bl": 4000,
-    "sell_kc": 400
+    "sell_kc": 400,
+    "name_zh": "死神类固醇（黑）",
+    "desc_zh": "协助战士突破等级上限的强大药物"
   },
   {
     "itemid": "ITMT_STEROID_4",
@@ -569,7 +655,9 @@
     "buy_kc": 50,
     "buy_re": 125,
     "buy_bl": 5000,
-    "sell_kc": 500
+    "sell_kc": 500,
+    "name_zh": "死神类固醇（红）",
+    "desc_zh": "协助战士突破等级上限的强大药物"
   },
   {
     "itemid": "ITMT_STEROID_5",
@@ -582,7 +670,9 @@
     "buy_kc": 60,
     "buy_re": 150,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "死神类固醇（紫）",
+    "desc_zh": "协助战士突破等级上限的强大药物"
   },
   {
     "itemid": "ITMT_STEROID_6",
@@ -595,7 +685,9 @@
     "buy_kc": 70,
     "buy_re": 175,
     "buy_bl": 7000,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "死神类固醇（橘）",
+    "desc_zh": "协助战士突破等级上限的强大药物"
   },
   {
     "itemid": "ITMT_STONE_DIY_1",
@@ -608,7 +700,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "D.O.D. ARMS蓝金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_2",
@@ -621,7 +715,9 @@
     "buy_kc": 30000,
     "buy_re": 75000,
     "buy_bl": 3000,
-    "sell_kc": 300
+    "sell_kc": 300,
+    "name_zh": "D.O.D. ARMS绿金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_3",
@@ -634,7 +730,9 @@
     "buy_kc": 40000,
     "buy_re": 100000,
     "buy_bl": 4000,
-    "sell_kc": 400
+    "sell_kc": 400,
+    "name_zh": "D.O.D. ARMS黑金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_4",
@@ -647,7 +745,9 @@
     "buy_kc": 50000,
     "buy_re": 125000,
     "buy_bl": 5000,
-    "sell_kc": 500
+    "sell_kc": 500,
+    "name_zh": "D.O.D. ARMS红金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_5",
@@ -660,7 +760,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "D.O.D. ARMS 44CE金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_6",
@@ -673,7 +775,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "D.O.D. ARMS紫金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_7",
@@ -686,7 +790,9 @@
     "buy_kc": 70000,
     "buy_re": 175000,
     "buy_bl": 7000,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "D.O.D. ARMS橘金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_8",
@@ -699,7 +805,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 8000,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "D.O.D. ARMS铂金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_DIY_9",
@@ -712,7 +820,9 @@
     "buy_kc": 90000,
     "buy_re": 225000,
     "buy_bl": 0,
-    "sell_kc": 900
+    "sell_kc": 900,
+    "name_zh": "D.O.D. ARMS 44CE金属 H",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_1",
@@ -725,7 +835,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "CANDLE WOLF蓝金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_2",
@@ -738,7 +850,9 @@
     "buy_kc": 30000,
     "buy_re": 75000,
     "buy_bl": 3000,
-    "sell_kc": 300
+    "sell_kc": 300,
+    "name_zh": "CANDLE WOLF绿金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_3",
@@ -751,7 +865,9 @@
     "buy_kc": 40000,
     "buy_re": 100000,
     "buy_bl": 4000,
-    "sell_kc": 400
+    "sell_kc": 400,
+    "name_zh": "CANDLE WOLF黑金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_4",
@@ -764,7 +880,9 @@
     "buy_kc": 50000,
     "buy_re": 125000,
     "buy_bl": 5000,
-    "sell_kc": 500
+    "sell_kc": 500,
+    "name_zh": "CANDLE WOLF红金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_5",
@@ -777,7 +895,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "CANDLE WOLF 44CE金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_6",
@@ -790,7 +910,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "CANDLE WOLF紫金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_7",
@@ -803,7 +925,9 @@
     "buy_kc": 70000,
     "buy_re": 175000,
     "buy_bl": 7000,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "CANDLE WOLF橘金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_8",
@@ -816,7 +940,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 8000,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "CANDLE WOLF铂金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_FAN_9",
@@ -829,7 +955,9 @@
     "buy_kc": 90000,
     "buy_re": 225000,
     "buy_bl": 0,
-    "sell_kc": 900
+    "sell_kc": 900,
+    "name_zh": "CANDLE WOLF 44CE金属 H",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_JAC_1",
@@ -842,7 +970,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 0,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "向日葵稀有金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_JAC_2",
@@ -855,7 +985,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 0,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "向日葵稀有金属X",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_JAC_3",
@@ -868,7 +1000,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 0,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "向日葵稀有金属Y",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_JAC_4",
@@ -881,7 +1015,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 0,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "向日葵稀有金属Z",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_JAC_5",
@@ -894,7 +1030,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 0,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "向日葵稀有金属D",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_JAC_X_1",
@@ -907,7 +1045,9 @@
     "buy_kc": 70000,
     "buy_re": 175000,
     "buy_bl": 0,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "豺狼X身份证",
+    "desc_zh": "研发用身份证"
   },
   {
     "itemid": "ITMT_STONE_JAC_X_2",
@@ -920,7 +1060,9 @@
     "buy_kc": 90000,
     "buy_re": 225000,
     "buy_bl": 0,
-    "sell_kc": 900
+    "sell_kc": 900,
+    "name_zh": "豺狼X的DNA数据",
+    "desc_zh": "研发用DNA数据"
   },
   {
     "itemid": "ITMT_STONE_JAC_Y_1",
@@ -933,7 +1075,9 @@
     "buy_kc": 70000,
     "buy_re": 175000,
     "buy_bl": 0,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "豺狼Y身份证",
+    "desc_zh": "研发用身份证"
   },
   {
     "itemid": "ITMT_STONE_JAC_Y_2",
@@ -946,7 +1090,9 @@
     "buy_kc": 90000,
     "buy_re": 225000,
     "buy_bl": 0,
-    "sell_kc": 900
+    "sell_kc": 900,
+    "name_zh": "豺狼Y的DNA数据",
+    "desc_zh": "研发用DNA数据"
   },
   {
     "itemid": "ITMT_STONE_JAC_Z_1",
@@ -959,7 +1105,9 @@
     "buy_kc": 70000,
     "buy_re": 175000,
     "buy_bl": 0,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "豺狼Z身份证",
+    "desc_zh": "研发用身份证"
   },
   {
     "itemid": "ITMT_STONE_JAC_Z_2",
@@ -972,7 +1120,9 @@
     "buy_kc": 90000,
     "buy_re": 225000,
     "buy_bl": 0,
-    "sell_kc": 900
+    "sell_kc": 900,
+    "name_zh": "豺狼Z的DNA数据",
+    "desc_zh": "研发用DNA数据"
   },
   {
     "itemid": "ITMT_STONE_MIL_1",
@@ -985,7 +1135,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "WAR ENSEMBLE蓝金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_2",
@@ -998,7 +1150,9 @@
     "buy_kc": 30000,
     "buy_re": 75000,
     "buy_bl": 3000,
-    "sell_kc": 300
+    "sell_kc": 300,
+    "name_zh": "WAR ENSEMBLE绿金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_3",
@@ -1011,7 +1165,9 @@
     "buy_kc": 40000,
     "buy_re": 100000,
     "buy_bl": 4000,
-    "sell_kc": 400
+    "sell_kc": 400,
+    "name_zh": "WAR ENSEMBLE黑金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_4",
@@ -1024,7 +1180,9 @@
     "buy_kc": 50000,
     "buy_re": 125000,
     "buy_bl": 5000,
-    "sell_kc": 500
+    "sell_kc": 500,
+    "name_zh": "WAR ENSEMBLE红金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_5",
@@ -1037,7 +1195,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "WAR ENSEMBLE 44CE金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_6",
@@ -1050,7 +1210,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "WAR ENSEMBLE紫金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_7",
@@ -1063,7 +1225,9 @@
     "buy_kc": 70000,
     "buy_re": 175000,
     "buy_bl": 7000,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "WAR ENSEMBLE橘金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_8",
@@ -1076,7 +1240,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 8000,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "WAR ENSEMBLE铂金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_MIL_9",
@@ -1089,7 +1255,9 @@
     "buy_kc": 90000,
     "buy_re": 225000,
     "buy_bl": 0,
-    "sell_kc": 900
+    "sell_kc": 900,
+    "name_zh": "WAR ENSEMBLE 44CE金属 H",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_1",
@@ -1102,7 +1270,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "M.I.L.K.蓝金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_2",
@@ -1115,7 +1285,9 @@
     "buy_kc": 30000,
     "buy_re": 75000,
     "buy_bl": 3000,
-    "sell_kc": 300
+    "sell_kc": 300,
+    "name_zh": "M.I.L.K.绿金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_3",
@@ -1128,7 +1300,9 @@
     "buy_kc": 40000,
     "buy_re": 100000,
     "buy_bl": 4000,
-    "sell_kc": 400
+    "sell_kc": 400,
+    "name_zh": "M.I.L.K.黑金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_4",
@@ -1141,7 +1315,9 @@
     "buy_kc": 50000,
     "buy_re": 125000,
     "buy_bl": 5000,
-    "sell_kc": 500
+    "sell_kc": 500,
+    "name_zh": "M.I.L.K.红金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_5",
@@ -1154,7 +1330,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "M.I.L.K. 44CE金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_6",
@@ -1167,7 +1345,9 @@
     "buy_kc": 60000,
     "buy_re": 150000,
     "buy_bl": 6000,
-    "sell_kc": 600
+    "sell_kc": 600,
+    "name_zh": "M.I.L.K.紫金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_7",
@@ -1180,7 +1360,9 @@
     "buy_kc": 70000,
     "buy_re": 175000,
     "buy_bl": 7000,
-    "sell_kc": 700
+    "sell_kc": 700,
+    "name_zh": "M.I.L.K.橘金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_8",
@@ -1193,7 +1375,9 @@
     "buy_kc": 80000,
     "buy_re": 200000,
     "buy_bl": 8000,
-    "sell_kc": 800
+    "sell_kc": 800,
+    "name_zh": "M.I.L.K.铂金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_SPO_9",
@@ -1206,7 +1390,9 @@
     "buy_kc": 90000,
     "buy_re": 225000,
     "buy_bl": 0,
-    "sell_kc": 900
+    "sell_kc": 900,
+    "name_zh": "M.I.L.K. 44CE金属 H",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_TBR_1",
@@ -1219,7 +1405,9 @@
     "buy_kc": 10000,
     "buy_re": 50000,
     "buy_bl": 0,
-    "sell_kc": 100
+    "sell_kc": 100,
+    "name_zh": "SCRATCH金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_TBR_2",
@@ -1232,7 +1420,9 @@
     "buy_kc": 20000,
     "buy_re": 75000,
     "buy_bl": 0,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "BULLET金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_TBR_3",
@@ -1245,7 +1435,9 @@
     "buy_kc": 30000,
     "buy_re": 100000,
     "buy_bl": 0,
-    "sell_kc": 300
+    "sell_kc": 300,
+    "name_zh": "HOVERING金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_TBR_4",
@@ -1258,7 +1450,9 @@
     "buy_kc": 40000,
     "buy_re": 125000,
     "buy_bl": 0,
-    "sell_kc": 400
+    "sell_kc": 400,
+    "name_zh": "BONE金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_STONE_TBR_5",
@@ -1271,7 +1465,9 @@
     "buy_kc": 50000,
     "buy_re": 150000,
     "buy_bl": 0,
-    "sell_kc": 500
+    "sell_kc": 500,
+    "name_zh": "REVERSAL金属",
+    "desc_zh": "研发用稀有金属"
   },
   {
     "itemid": "ITMT_WOOD_1",
@@ -1284,7 +1480,9 @@
     "buy_kc": 2000,
     "buy_re": 5000,
     "buy_bl": 200,
-    "sell_kc": 20
+    "sell_kc": 20,
+    "name_zh": "胶合板",
+    "desc_zh": "研发用木材"
   },
   {
     "itemid": "ITMT_WOOD_2",
@@ -1297,7 +1495,9 @@
     "buy_kc": 3000,
     "buy_re": 7500,
     "buy_bl": 300,
-    "sell_kc": 40
+    "sell_kc": 40,
+    "name_zh": "中密度纤维材",
+    "desc_zh": "研发用木材"
   },
   {
     "itemid": "ITMT_WOOD_3",
@@ -1310,7 +1510,9 @@
     "buy_kc": 4000,
     "buy_re": 10000,
     "buy_bl": 400,
-    "sell_kc": 60
+    "sell_kc": 60,
+    "name_zh": "紫檀木",
+    "desc_zh": "研发用木材"
   },
   {
     "itemid": "ITMT_WOOD_4",
@@ -1323,7 +1525,9 @@
     "buy_kc": 5000,
     "buy_re": 12500,
     "buy_bl": 500,
-    "sell_kc": 80
+    "sell_kc": 80,
+    "name_zh": "胡桃木",
+    "desc_zh": "研发用木材"
   },
   {
     "itemid": "ITMT_WOOD_5",
@@ -1336,7 +1540,9 @@
     "buy_kc": 10000,
     "buy_re": 25000,
     "buy_bl": 1000,
-    "sell_kc": 100
+    "sell_kc": 100,
+    "name_zh": "桃花心木",
+    "desc_zh": "研发用木材"
   },
   {
     "itemid": "ITMT_WOOD_6",
@@ -1349,7 +1555,9 @@
     "buy_kc": 15000,
     "buy_re": 37500,
     "buy_bl": 1500,
-    "sell_kc": 150
+    "sell_kc": 150,
+    "name_zh": "蛇木",
+    "desc_zh": "研发用木材"
   },
   {
     "itemid": "ITMT_WOOD_7",
@@ -1362,7 +1570,9 @@
     "buy_kc": 20000,
     "buy_re": 50000,
     "buy_bl": 2000,
-    "sell_kc": 200
+    "sell_kc": 200,
+    "name_zh": "黑檀木",
+    "desc_zh": "研发用木材"
   },
   {
     "itemid": "ITMT_WOOD_8",
@@ -1375,6 +1585,8 @@
     "buy_kc": 25000,
     "buy_re": 62500,
     "buy_bl": 2500,
-    "sell_kc": 250
+    "sell_kc": 250,
+    "name_zh": "愈创木",
+    "desc_zh": "研发用木材"
   }
 ]

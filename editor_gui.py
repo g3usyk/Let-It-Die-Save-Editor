@@ -83,7 +83,7 @@ class CompleteSaveEditorGUI(
 
     def __init__(self):
         super().__init__()
-        local_v = updater.get_local_version_info().get("version", "4.1.1")
+        local_v = updater.get_local_version_info().get("version", "4.1.2")
         self.title(f"LET IT DIE (Offline) - Deep Save Editor Pro v{local_v} (Master Cyberpunk Edition)")
         self.geometry("1240x820")
         self.minsize(1040, 700)
@@ -129,7 +129,7 @@ class CompleteSaveEditorGUI(
         if self.save_path and os.path.exists(self.save_path):
             self.load_save(self.save_path)
         else:
-            self.status_var.set("No se detectó partida automáticamente. Haz clic en 'Examinar' para abrir tu archivo .sav")
+            self.status_var.set(t("no_save_detected"))
 
     def _apply_dark_theme(self):
         # 1. Option database defaults for Tk widgets, popups, and dropdown menus
@@ -456,11 +456,34 @@ class CompleteSaveEditorGUI(
                 if hasattr(self, "refresh_slots_view"):
                     self.refresh_slots_view()
 
-    def _notify(self, title_en, title_es, msg_en, msg_es, kind="info"):
-        """Displays dialog and status updates in the user's selected language (EN or ES)."""
-        is_en = i18n.get_language() == "en"
-        title = title_en if is_en else title_es
-        msg = msg_en if is_en else msg_es
+    def _notify(self, title_or_key, title_es_or_msg=None, msg_en=None, msg_es=None, kind="info", **kwargs):
+        """
+        Displays dialog and status updates in the user's selected language.
+        Supports both modern key-based calls:
+            self._notify("title_key", "msg_key", kind="info", **kwargs)
+        And legacy 4-param calls:
+            self._notify(title_en, title_es, msg_en, msg_es, kind="info")
+        """
+        lang = i18n.get_language()
+        if msg_en is not None and msg_es is not None:
+            # Legacy 4-param call: title_en, title_es, msg_en, msg_es
+            if lang == "es":
+                title = title_es_or_msg
+                msg = msg_es
+            elif lang == "en":
+                title = title_or_key
+                msg = msg_en
+            else:
+                title = title_or_key
+                msg = msg_en
+        elif title_es_or_msg is not None:
+            # Modern key-based call: _notify("title_key", "msg_key", **kwargs)
+            title = t(title_or_key, default=title_or_key, **kwargs)
+            msg = t(title_es_or_msg, default=title_es_or_msg, **kwargs)
+        else:
+            title = t(title_or_key, default=title_or_key, **kwargs)
+            msg = title
+
         first_line = msg.splitlines()[0].replace("¡", "").replace("!", "")
         self.status_var.set(first_line)
         if kind == "info":
@@ -505,15 +528,17 @@ class CompleteSaveEditorGUI(
         self.lbl_lang = tk.Label(top_frame, text=t("lang_label"), font=("Segoe UI", 9, "bold"), fg=ACCENT_GOLD, bg=BG_PANEL)
         self.lbl_lang.pack(side="left", padx=(6, 2))
         
+        installed_langs = i18n.get_installed_languages()
+        self._lang_display_map = {}
+        self._lang_code_to_display = {}
+        for code, info in installed_langs.items():
+            disp_name = info.get("native", info.get("name", code)) if isinstance(info, dict) else str(info)
+            self._lang_display_map[disp_name] = code
+            self._lang_code_to_display[code] = disp_name
         cur_lang = i18n.get_language()
-        if cur_lang == "zh":
-            cur_lang_str = "中文"
-        elif cur_lang == "en":
-            cur_lang_str = "English"
-        else:
-            cur_lang_str = "Español"
+        cur_lang_str = self._lang_code_to_display.get(cur_lang, "English")
         self.lang_var = tk.StringVar(value=cur_lang_str)
-        self.lang_cb = ttk.Combobox(top_frame, textvariable=self.lang_var, values=["Español", "English", "中文"], state="readonly", width=8)
+        self.lang_cb = ttk.Combobox(top_frame, textvariable=self.lang_var, values=list(self._lang_display_map.keys()), state="readonly", width=9)
         self.lang_cb.pack(side="left", padx=(0, 4))
         self.lang_cb.bind("<<ComboboxSelected>>", self._on_language_changed)
         
@@ -530,10 +555,10 @@ class CompleteSaveEditorGUI(
         info_subframe = tk.Frame(self.dashboard_frame, bg=BG_CARD)
         info_subframe.pack(side="left", fill="y")
         
-        self.player_name_lbl = tk.Label(info_subframe, text="Luchador: ---", font=("Segoe UI", 12, "bold"), fg="#ffffff", bg=BG_CARD)
+        self.player_name_lbl = tk.Label(info_subframe, text=t("hud_fighter_default"), font=("Segoe UI", 12, "bold"), fg="#ffffff", bg=BG_CARD)
         self.player_name_lbl.pack(anchor="w")
         
-        self.player_meta_lbl = tk.Label(info_subframe, text="UID: --- | Rango Base: -- | 🏆 TDM: --- | Bolsa: -- slots", font=("Segoe UI", 8), fg=FG_MUTED, bg=BG_CARD)
+        self.player_meta_lbl = tk.Label(info_subframe, text=t("hud_meta_default"), font=("Segoe UI", 8), fg=FG_MUTED, bg=BG_CARD)
         self.player_meta_lbl.pack(anchor="w")
 
         # Currency Badges on the right of Dashboard
@@ -636,12 +661,14 @@ class CompleteSaveEditorGUI(
     # ================= LANGUAGE HANDLING =================
     def _on_language_changed(self, event=None):
         val = self.lang_var.get()
-        if "中文" in val or "zh" in val.lower():
-            new_lang = "zh"
-        elif "Eng" in val:
-            new_lang = "en"
-        else:
-            new_lang = "es"
+        new_lang = getattr(self, "_lang_display_map", {}).get(val)
+        if not new_lang:
+            if "中文" in val or "zh" in val.lower():
+                new_lang = "zh"
+            elif "Eng" in val:
+                new_lang = "en"
+            else:
+                new_lang = "es"
         if new_lang != i18n.get_language():
             i18n.set_language(new_lang)
             self._refresh_all_language_texts()
@@ -707,12 +734,17 @@ class CompleteSaveEditorGUI(
             except Exception:
                 pass
 
-        self.refresh_all_views()
+        if not self.save_json:
+            if hasattr(self, "player_name_lbl"): self.player_name_lbl.config(text=t("hud_fighter_default"))
+            if hasattr(self, "player_meta_lbl"): self.player_meta_lbl.config(text=t("hud_meta_default"))
+            if hasattr(self, "status_var"): self.status_var.set(t("no_save_detected"))
+        else:
+            self.refresh_all_views()
 
     # ================= GENERAL APP LOGIC =================
     def browse_save(self):
         f = filedialog.askopenfilename(
-            title="Seleccionar archivo de guardado de LET IT DIE" if i18n.get_language() == "es" else "Select LET IT DIE save file",
+            title=t("title_select_save"),
             filetypes=[("LET IT DIE Save", "*.sav"), ("All files", "*.*")],
             initialdir=os.path.dirname(self.save_path) if self.save_path else None
         )
@@ -742,7 +774,7 @@ class CompleteSaveEditorGUI(
             self.get_current_active_slot_num()
 
             self.refresh_all_views()
-            self.status_var.set(f"Save loaded: {os.path.basename(path)}" if i18n.get_language() == "en" else f"Partida cargada con éxito: {os.path.basename(path)}")
+            self.status_var.set(t("status_save_loaded", file=os.path.basename(path)))
         except Exception as e:
             messagebox.showerror(t("error"), t("mb_decompress_error", err=e))
 
@@ -792,33 +824,32 @@ class CompleteSaveEditorGUI(
                 self.vip_status_lbl.config(text=t("vip_inactive"), foreground=ACCENT_RED)
             
         # Account Metadata & Login Streak (Tab 1)
-        is_en = (i18n.get_language() == "en")
         acct = modifiers.get_account_overview(self.save_json)
         if hasattr(self, "acct_uid_lbl"):
             self.acct_uid_lbl.config(text=f"UID: {acct.get('uid', '---')} | Steam ID: {acct.get('steam_id', '---')}")
         if hasattr(self, "acct_streak_lbl"):
-            self.acct_streak_lbl.config(text=f"🔥 Login Streak: {acct.get('login_streak', 1)} days" if is_en else f"🔥 Racha Login: {acct.get('login_streak', 1)} días")
+            self.acct_streak_lbl.config(text=t("hud_streak_fmt", days=acct.get('login_streak', 1)))
         
         # Tower Playlog & Records (Tab 1 & Tab 7)
         pl = modifiers.get_tower_playlog(self.save_json)
         if hasattr(self, "acct_playtime_lbl"):
-            self.acct_playtime_lbl.config(text=f"⏱️ Playtime: {pl.get('playtime_hours', 0.0)} hrs" if is_en else f"⏱️ Horas Jugadas: {pl.get('playtime_hours', 0.0)} hrs")
+            self.acct_playtime_lbl.config(text=t("hud_playtime_fmt", hours=pl.get('playtime_hours', 0.0)))
         if hasattr(self, "max_floor_var"):
             self.max_floor_var.set(str(pl.get("max_floor", 40)))
         if hasattr(self, "interrupt_lbl"):
-            self.interrupt_lbl.config(text=f"{pl.get('interruptions', 0):,} penalties" if is_en else f"{pl.get('interruptions', 0):,} penalizaciones")
+            self.interrupt_lbl.config(text=t("hud_penalties_fmt", count=pl.get('interruptions', 0)))
         if hasattr(self, "pl_elev_lbl"):
-            self.pl_elev_lbl.config(text=f"🛗 Elevators: {pl.get('elevators', 0):,}" if is_en else f"🛗 Ascensores: {pl.get('elevators', 0):,}")
+            self.pl_elev_lbl.config(text=t("hud_elevators_fmt", count=pl.get('elevators', 0)))
         if hasattr(self, "pl_esc_lbl"):
-            self.pl_esc_lbl.config(text=f"🪜 Escalators: {pl.get('escalators', 0):,}" if is_en else f"🪜 Escaleras: {pl.get('escalators', 0):,}")
+            self.pl_esc_lbl.config(text=t("hud_escalators_fmt", count=pl.get('escalators', 0)))
         if hasattr(self, "pl_mats_lbl"):
-            self.pl_mats_lbl.config(text=f"📦 Materials: {pl.get('materials_collected', 0):,}" if is_en else f"📦 Materiales: {pl.get('materials_collected', 0):,}")
+            self.pl_mats_lbl.config(text=t("hud_materials_fmt", count=pl.get('materials_collected', 0)))
         if hasattr(self, "pl_res_lbl"):
-            self.pl_res_lbl.config(text=f"🔬 Researches: {pl.get('researches', 0):,}" if is_en else f"🔬 Investigaciones: {pl.get('researches', 0):,}")
+            self.pl_res_lbl.config(text=t("hud_researches_fmt", count=pl.get('researches', 0)))
         if hasattr(self, "pl_boss_lbl"):
-            self.pl_boss_lbl.config(text=f"💀 Bosses Defeated: {pl.get('boss_kills', 0):,}" if is_en else f"💀 Jefes Vencidos: {pl.get('boss_kills', 0):,}")
+            self.pl_boss_lbl.config(text=t("hud_boss_kills_fmt", count=pl.get('boss_kills', 0)))
         if hasattr(self, "pl_time_lbl"):
-            self.pl_time_lbl.config(text=f"⏱️ Tower Hours: {pl.get('playtime_hours', 0.0)} hrs" if is_en else f"⏱️ Horas Torre: {pl.get('playtime_hours', 0.0)} hrs")
+            self.pl_time_lbl.config(text=t("hud_tower_time_fmt", hours=pl.get('playtime_hours', 0.0)))
         
         # 2. Update Fighters List (1:1 with in-game Fighter Freezer)
         self.fighters_tree.delete(*self.fighters_tree.get_children())
@@ -837,7 +868,7 @@ class CompleteSaveEditorGUI(
             grade = f.get("grade", 1)
             hp = f.get("hp", 1000)
             state = t("f_state_alive") if hp > 0 else t("f_state_dead")
-            lvl_str = f"Lv. {lvl} (G{grade})" if i18n.get_language() == "en" else f"Nv. {lvl} (G{grade})"
+            lvl_str = t("fighter_level_fmt", lvl=lvl, grade=grade)
             
             cls_code = f.get("class", "BAL")
             cls_icon_filename = FIGHTER_CLASSES.get(cls_code, ("", "all-rounder.png"))[1]
@@ -927,23 +958,10 @@ class CompleteSaveEditorGUI(
                 if hasattr(self, "refresh_slots_view"):
                     self.refresh_slots_view()
 
-            self._notify(
-                "Save Successful", "Guardado Exitoso",
-                f"Game save successfully re-encrypted and sealed!\n\nAll changes applied to {os.path.basename(self.save_path)}.",
-                f"¡Partida guardada y re-encriptada con éxito!\n\nTodos los cambios están aplicados en {os.path.basename(self.save_path)}."
-            )
+            self._notify("save_success_title", "save_success_msg", file=os.path.basename(self.save_path))
         except PermissionError:
-            is_en = i18n.get_language() == "en"
-            t_title = "Admin Elevation Required" if is_en else "Permisos de Administrador Requeridos"
-            t_msg = (
-                "Permission Denied (Error 13).\n\n"
-                "The game save file is protected by Windows or Steam folder permissions.\n"
-                "Would you like to restart the editor with Administrator privileges to save?"
-            ) if is_en else (
-                "Permiso Denegado (Error 13).\n\n"
-                "El archivo de guardado está protegido por permisos de Windows o Steam.\n"
-                "¿Deseas reiniciar el editor con permisos de Administrador para guardar?"
-            )
+            t_title = t("admin_elevation_perm_denied_title")
+            t_msg = t("admin_elevation_perm_denied_msg")
             if messagebox.askyesno(t_title, t_msg):
                 import ctypes
                 try:

@@ -82,9 +82,8 @@ class MasteryTabMixin:
         if arm_type in ("PTARMTP_08", "PTARMTP_22"):
             return
         
-        is_en = i18n.get_language() == "en"
-        title = "Weapon Mastery Level" if is_en else "Nivel de Maestría"
-        prompt = f"Enter level for {arm_type} (1 to 20):" if is_en else f"Ingresa el nivel para {arm_type} (1 a 20):"
+        title = t("wm_edit_title")
+        prompt = t("wm_edit_prompt", arm_type=arm_type)
         new_lvl = simpledialog.askinteger(title, prompt, minvalue=1, maxvalue=20, initialvalue=20)
         if new_lvl is not None:
             modifiers.set_weapon_mastery(self.save_json, arm_type, level=new_lvl)

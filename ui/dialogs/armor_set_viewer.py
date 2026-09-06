@@ -36,7 +36,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.display_current_set()
         
     def _build_ui(self):
-        is_en = (i18n.get_language() == "en")
+        cur_lang = i18n.get_language()
         # 1. Header Toolbar
         header = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
         header.pack(fill="x")
@@ -46,7 +46,10 @@ class ArmorSetViewerDialog(tk.Toplevel):
         
         ttk.Label(row1, text=t("dialog_armor_set_label"), font=("Segoe UI", 11, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=(0, 8))
         
-        set_names = [f"{s['name_en']} • {s['faction']}" if is_en else f"{s.get('name_es', s['name_en'])} ({s['name_en']}) • {s['faction']}" for s in self.armor_sets]
+        if cur_lang == "es":
+            set_names = [f"{s.get('name_es', s['name_en'])} ({s['name_en']}) • {s['faction']}" for s in self.armor_sets]
+        else:
+            set_names = [f"{s['name_en']} • {s['faction']}" for s in self.armor_sets]
         self.cb_set_var = tk.StringVar(value=set_names[self.set_index] if self.armor_sets else "")
         cb_sets = ttk.Combobox(row1, textvariable=self.cb_set_var, values=set_names, state="readonly", width=52)
         cb_sets.pack(side="left", padx=4)
@@ -78,9 +81,12 @@ class ArmorSetViewerDialog(tk.Toplevel):
         # Left Side: Character Armor Model Showcase
         left_box = ttk.LabelFrame(content_box, text=t("dialog_preview_title"), padding=10)
         left_box.pack(side="left", fill="both", expand=False, padx=(0, 6))
-        left_box.config(width=340)
         
-        self.model_lbl = ttk.Label(left_box, anchor="center")
+        self.model_box = tk.Frame(left_box, bg=BG_DARK, width=320, height=440)
+        self.model_box.pack_propagate(False)
+        self.model_box.pack(pady=4)
+        
+        self.model_lbl = tk.Label(self.model_box, bg=BG_DARK, fg=FG_MUTED, font=("Segoe UI", 10))
         self.model_lbl.pack(fill="both", expand=True)
         
         self.model_title_lbl = ttk.Label(left_box, text="", font=("Segoe UI", 11, "bold"), foreground=ACCENT_GOLD, wraplength=320, justify="center")
@@ -91,10 +97,10 @@ class ArmorSetViewerDialog(tk.Toplevel):
         right_box.pack(side="right", fill="both", expand=True)
         
         slot_defs = [
-            ("head", "🪖 HEAD (Helmet)" if is_en else "🪖 CASCO (Head)", "🪖"),
-            ("body", "👕 BODY (Chest Armor)" if is_en else "👕 PECHERA (Body Armor)", "👕"),
-            ("legs", "👖 LEGS (Pants)" if is_en else "👖 PANTALONES (Legs / Pants)", "👖"),
-            ("weapon", "⚔️ SIGNATURE WEAPON" if is_en else "⚔️ ARMA CARACTERÍSTICA (Signature Weapon)", "⚔️")
+            ("head", t("asv_head"), "🪖"),
+            ("body", t("asv_body"), "👕"),
+            ("legs", t("asv_legs"), "👖"),
+            ("weapon", t("asv_weapon"), "⚔️")
         ]
         
         self.piece_cards = {}
@@ -134,10 +140,10 @@ class ArmorSetViewerDialog(tk.Toplevel):
             btns_row = ttk.Frame(action_col)
             btns_row.pack(fill="x", pady=2)
             
-            btn_unlock = ttk.Button(btns_row, text="⭐ Unlock +4" if is_en else "⭐ Desbloquear +4", style="Accent.TButton", width=16)
+            btn_unlock = ttk.Button(btns_row, text=t("asv_btn_unlock_plus4"), style="Accent.TButton", width=16)
             btn_unlock.pack(side="left", padx=2)
             
-            btn_add = ttk.Button(btns_row, text="🎁 +1 to Storage" if is_en else "🎁 +1 al Almacén", width=14)
+            btn_add = ttk.Button(btns_row, text=t("asv_btn_add_storage"), width=14)
             btn_add.pack(side="left", padx=2)
             
             self.piece_cards[slot_key] = {
@@ -157,7 +163,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         bottom_bar = tk.Frame(self, bg=BG_PANEL, padx=14, pady=10)
         bottom_bar.pack(fill="x")
         
-        ttk.Label(bottom_bar, text="Level:" if is_en else "Nivel:", font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=(4, 2))
+        ttk.Label(bottom_bar, text=t("asv_lbl_level"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(side="left", padx=(4, 2))
         self.gear_target_lvl_var = tk.StringVar(value="+19 (Uncapped)")
         cb_glvl = ttk.Combobox(
             bottom_bar,
@@ -170,7 +176,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
         
         btn_unlock_set = ttk.Button(
             bottom_bar,
-            text="⭐ Unlock Set + Weapon" if is_en else "⭐ Desbloquear Set + Arma",
+            text=t("asv_btn_unlock_set"),
             style="Accent.TButton",
             command=self.unlock_current_tier_set
         )
@@ -178,12 +184,12 @@ class ArmorSetViewerDialog(tk.Toplevel):
         
         btn_add_set = ttk.Button(
             bottom_bar,
-            text="🎁 Add Set to Storage" if is_en else "🎁 Añadir Set al Almacén",
+            text=t("asv_btn_add_set"),
             command=self.add_current_tier_set_storage
         )
         btn_add_set.pack(side="left", padx=4)
         
-        btn_close = ttk.Button(bottom_bar, text="Close" if is_en else "Cerrar", command=self.destroy)
+        btn_close = ttk.Button(bottom_bar, text=t("btn_close"), command=self.destroy)
         btn_close.pack(side="right", padx=4)
 
     def _get_selected_gear_level(self):
@@ -214,9 +220,9 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.img_refs.clear()
         
         s_obj = self.armor_sets[self.set_index]
-        is_en = (i18n.get_language() == "en")
-        s_name = s_obj['name_en'] if is_en else (s_obj.get('name_es') or s_obj['name_en'])
-        self.faction_lbl.config(text=f"Faction: {s_obj['faction']}" if is_en else f"Facción: {s_obj['faction']}")
+        cur_lang = i18n.get_language()
+        s_name = s_obj.get('name_es', s_obj['name_en']) if cur_lang == "es" else s_obj['name_en']
+        self.faction_lbl.config(text=t("asv_faction_fmt", faction=s_obj['faction']))
         
         # Highlight active tier button
         for tnum, btn in self.tier_buttons:
@@ -246,11 +252,11 @@ class ArmorSetViewerDialog(tk.Toplevel):
                 self.model_lbl.config(text="")
                 self.img_refs.append(model_photo)
             else:
-                self.model_lbl.config(image="", text="[Cargando...]" if not is_en else "[Loading...]")
+                self.model_lbl.config(image="", text=t("asv_loading"))
         else:
-            self.model_lbl.config(image="", text="[Official Render In Progress]" if is_en else "[Render Oficial en Proceso]")
+            self.model_lbl.config(image="", text=t("asv_render_progress"))
             
-        t_name = t_obj.get('tier_name_en', t_obj['tier_name']) if is_en else t_obj['tier_name']
+        t_name = t_obj['tier_name'] if cur_lang == "es" else t_obj.get('tier_name_en', t_obj['tier_name'])
         self.model_title_lbl.config(text=f"{s_name} ({t_name})")
         
         # 2. Update piece cards
@@ -277,10 +283,10 @@ class ArmorSetViewerDialog(tk.Toplevel):
             card_ui["current_pid"] = p["id"]
             
             # Title
-            if is_en:
-                name_str = f"{p['name']} ({p.get('name_es')})" if p.get('name_es') and p.get('name_es') != p['name'] else p['name']
-            else:
+            if cur_lang == "es":
                 name_str = f"{p['name_es']} ({p['name']})" if p.get('name_es') and p['name_es'] != p['name'] else p['name']
+            else:
+                name_str = f"{p['name']} ({p.get('name_es')})" if cur_lang != "en" and p.get('name_es') and p.get('name_es') != p['name'] else p['name']
             card_ui["title_lbl"].config(text=f"{name_str}  [{p['id']}]")
             
             if slot_key == "weapon":
@@ -289,7 +295,7 @@ class ArmorSetViewerDialog(tk.Toplevel):
                 dur = p.get("durability", 1400)
                 card_ui["def_dur_lbl"].config(text=t("dialog_atk_base", atk=atk_base, atk4=atk_plus4, dur=dur), foreground=ACCENT_GOLD)
                 card_ui["res_lbl"].config(text=t("dialog_weapon_paired"))
-                card_ui["btn_unlock"].config(text="⭐ Unlock Weapon +4" if is_en else "⭐ Desbloquear Arma +4")
+                card_ui["btn_unlock"].config(text=t("asv_btn_unlock_weapon"))
             else:
                 # Def / Dur
                 def_base = p.get("def", 0)
@@ -299,46 +305,32 @@ class ArmorSetViewerDialog(tk.Toplevel):
                 
                 # Resistances
                 res = p.get("resistances", {})
-                if is_en:
-                    res_txt = (
-                        f"🗡️ Slash: {res.get('slash',0):+d}%   🔨 Blunt: {res.get('blunt',0):+d}%   🏹 Pierce: {res.get('pierce',0):+d}%\n"
-                        f"🔥 Fire: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Poison: {res.get('poison',0):+d}%"
-                    )
-                else:
-                    res_txt = (
-                        f"🗡️ Corte: {res.get('slash',0):+d}%   🔨 Golpe: {res.get('blunt',0):+d}%   🏹 Perf: {res.get('pierce',0):+d}%\n"
-                        f"🔥 Fuego: {res.get('fire',0):+d}%   ⚡ Elec: {res.get('electric',0):+d}%   🧪 Ven: {res.get('poison',0):+d}%"
-                    )
+                res_txt = t("asv_resistances_fmt",
+                    slash=res.get('slash', 0),
+                    blunt=res.get('blunt', 0),
+                    pierce=res.get('pierce', 0),
+                    fire=res.get('fire', 0),
+                    elec=res.get('electric', 0),
+                    poison=res.get('poison', 0)
+                )
                 card_ui["res_lbl"].config(text=res_txt)
-                card_ui["btn_unlock"].config(text="⭐ Unlock Armor Piece +4" if is_en else "⭐ Desbloquear Pieza +4")
+                card_ui["btn_unlock"].config(text=t("asv_btn_unlock_piece"))
             
             # Status
             f_lvl = forge_levels.get(p["id"], 0)
             st_cnt = storage_map.get(p["id"], 0)
             bg_cnt = bag_map.get(p["id"], 0)
             
-            if is_en:
-                if f_lvl >= 20:
-                    f_txt = "⭐ Shop: Unlocked (+19 Uncapped)"
-                elif f_lvl >= 5:
-                    f_txt = "⭐ Shop: Unlocked (+4)"
-                elif f_lvl > 0:
-                    f_txt = f"🔨 Shop: Level +{f_lvl-1}"
-                else:
-                    f_txt = "❌ Shop: Locked"
-                st_txt = f"📦 Storage: {st_cnt} pcs." if st_cnt > 0 else "📦 Storage: 0 pcs."
-                bg_txt = f"🎒 Bag: {bg_cnt} pcs." if bg_cnt > 0 else ""
+            if f_lvl >= 20:
+                f_txt = t("asv_shop_unlocked_uncapped")
+            elif f_lvl >= 5:
+                f_txt = t("asv_shop_unlocked_plus4")
+            elif f_lvl > 0:
+                f_txt = t("asv_shop_level_fmt", lvl=f_lvl - 1)
             else:
-                if f_lvl >= 20:
-                    f_txt = "⭐ Tienda: Desbloqueado (+19 Destope)"
-                elif f_lvl >= 5:
-                    f_txt = "⭐ Tienda: Desbloqueado (+4)"
-                elif f_lvl > 0:
-                    f_txt = f"🔨 Tienda: Nivel +{f_lvl-1}"
-                else:
-                    f_txt = "❌ Tienda: Bloqueado"
-                st_txt = f"📦 Almacén: {st_cnt} u." if st_cnt > 0 else "📦 Almacén: 0 u."
-                bg_txt = f"🎒 Mochila: {bg_cnt} u." if bg_cnt > 0 else ""
+                f_txt = t("asv_shop_locked")
+            st_txt = f"📦 {t('inv_tab_storage')}: {st_cnt} {t('inv_unit_str')}" if st_cnt > 0 else f"📦 {t('inv_tab_storage')}: 0 {t('inv_unit_str')}"
+            bg_txt = f"🎒 {t('inv_tab_bag')}: {bg_cnt} {t('inv_unit_str')}" if bg_cnt > 0 else ""
             f_color = ACCENT_GOLD if f_lvl >= 5 else ACCENT_BLUE if f_lvl > 0 else FG_MUTED
             
             full_stat = f"{f_txt}  •  {st_txt}" + (f"  •  {bg_txt}" if bg_txt else "")
@@ -390,17 +382,18 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.display_current_set()
         
         is_en = i18n.get_language() == "en"
-        title = "Blueprint & Item Unlocked" if is_en else "Plano y Objeto Desbloqueado"
+        is_es = (i18n.get_language() == "es")
+        title = t("asv_notify_unlocked_title")
         msg = (
-            f"'{pid}' and its ancestor branch successfully unlocked!\n\n"
-            f"1. 🛒 Chokufunsha: Available in Shop (+4) to purchase with Kill Coins.\n"
-            f"2. 📦 Storage: 1 unit (+{plus_lvl}, 100% Durability) delivered to Coin Locker.\n"
-            f"3. 💾 Save updated automatically."
-        ) if is_en else (
             f"¡El objeto '{pid}' y toda su rama inferior han sido desbloqueados!\n\n"
             f"1. 🛒 Chokufunsha: Disponibles en tienda (+4) para comprar con Kill Coins.\n"
             f"2. 📦 Almacén: Se ha entregado 1 unidad (+{plus_lvl}, Dur 100%) en tu Almacén.\n"
             f"3. 💾 Partida guardada automáticamente."
+        ) if is_es else (
+            f"'{pid}' and its ancestor branch successfully unlocked!\n\n"
+            f"1. 🛒 Chokufunsha: Available in Shop (+4) to purchase with Kill Coins.\n"
+            f"2. 📦 Storage: 1 unit (+{plus_lvl}, 100% Durability) delivered to Coin Locker.\n"
+            f"3. 💾 Save updated automatically."
         )
         messagebox.showinfo(title, msg)
 
@@ -413,12 +406,12 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.parent_app.filter_blueprints_list()
         self.display_current_set()
         
-        is_en = i18n.get_language() == "en"
-        title = "Item Added" if is_en else "Objeto Añadido"
+        is_es = (i18n.get_language() == "es")
+        title = t("asv_notify_added_title")
         msg = (
-            f"1 unit of '{pid}' (+{plus_lvl}, Dur 100%) added to Coin Locker!\nSaved automatically."
-        ) if is_en else (
             f"¡Se ha añadido 1 unidad de '{pid}' (+{plus_lvl}, Dur 100%) a tu Almacén!\nGuardado automáticamente."
+        ) if is_es else (
+            f"1 unit of '{pid}' (+{plus_lvl}, Dur 100%) added to Coin Locker!\nSaved automatically."
         )
         messagebox.showinfo(title, msg)
 
@@ -466,21 +459,21 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.parent_app.filter_blueprints_list()
         self.display_current_set()
         
-        is_en = i18n.get_language() == "en"
-        title = "Complete Set + Weapon Unlocked" if is_en else "Set + Arma Completa Desbloqueados"
-        s_name = s_obj['name_en'] if is_en else s_obj.get('name_es', s_obj['name_en'])
-        t_name = t_obj.get('tier_name_en', t_obj['tier_name']) if is_en else t_obj['tier_name']
+        is_es = (i18n.get_language() == "es")
+        title = t("asv_notify_set_unlocked_title")
+        s_name = s_obj.get('name_es', s_obj['name_en']) if is_es else s_obj['name_en']
+        t_name = t_obj['tier_name'] if is_es else t_obj.get('tier_name_en', t_obj['tier_name'])
         msg = (
-            f"{s_name} ({t_name}), preceding branch tiers, and signature weapon unlocked!\n\n"
-            f"🛒 Chokufunsha: Pieces, lower tiers, and weapon ready to purchase in Shop with KC.\n"
-            f"📦 Storage: 1 copy of each armor piece + weapon (+{plus_lvl}, 100% Durability) added to Coin Locker.\n"
-            f"💾 Save file updated automatically.\n\n"
-            + "\n".join([f"• {u}" for u in unlocked])
-        ) if is_en else (
             f"¡El {s_name} ({t_name}), sus tiers inferiores y su arma han sido desbloqueados!\n\n"
             f"🛒 Tienda Chokufunsha: Las piezas, los tiers previos y el arma están listos para comprar con Kill Coins.\n"
             f"📦 Almacén: Se ha entregado 1 copia de cada armadura + el arma (Nivel +{plus_lvl}, 100% Durabilidad) en tu Almacén.\n"
             f"💾 Partida guardada automáticamente.\n\n"
+            + "\n".join([f"• {u}" for u in unlocked])
+        ) if is_es else (
+            f"{s_name} ({t_name}), preceding branch tiers, and signature weapon unlocked!\n\n"
+            f"🛒 Chokufunsha: Pieces, lower tiers, and weapon ready to purchase in Shop with KC.\n"
+            f"📦 Storage: 1 copy of each armor piece + weapon (+{plus_lvl}, 100% Durability) added to Coin Locker.\n"
+            f"💾 Save file updated automatically.\n\n"
             + "\n".join([f"• {u}" for u in unlocked])
         )
         messagebox.showinfo(title, msg)
@@ -505,16 +498,16 @@ class ArmorSetViewerDialog(tk.Toplevel):
         self.parent_app.filter_blueprints_list()
         self.display_current_set()
         
-        is_en = i18n.get_language() == "en"
-        title = "Set + Weapon Added" if is_en else "Set + Arma Añadidos al Almacén"
+        is_es = (i18n.get_language() == "es")
+        title = t("asv_notify_set_added_title")
         msg = (
-            f"Added 3 armor pieces + signature weapon (+{plus_lvl}, Dur 100%) to Coin Locker!\n\n"
-            + "\n".join([f"• {a}" for a in added])
-            + "\n\nSaved automatically."
-        ) if is_en else (
             f"¡Se han añadido al Almacén las 3 piezas del set + el arma característica (Nivel +{plus_lvl}, Dur 100%)!\n\n"
             + "\n".join([f"• {a}" for a in added])
             + "\n\nPartida guardada automáticamente."
+        ) if is_es else (
+            f"Added 3 armor pieces + signature weapon (+{plus_lvl}, Dur 100%) to Coin Locker!\n\n"
+            + "\n".join([f"• {a}" for a in added])
+            + "\n\nSaved automatically."
         )
         messagebox.showinfo(title, msg)
 

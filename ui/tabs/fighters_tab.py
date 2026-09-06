@@ -158,8 +158,7 @@ class FightersTabMixin:
         self.cb_f_model.pack(side="left", padx=(0, 8))
         self.cb_f_model.bind("<<ComboboxSelected>>", lambda e: self._update_fighter_model_preview())
         
-        is_en = (i18n.get_language() == "en")
-        btn_gallery = ttk.Button(model_row, text="🖼️ " + ("Gallery" if is_en else "Galería"), style="Accent.TButton", command=self._open_fighter_model_gallery)
+        btn_gallery = ttk.Button(model_row, text=t("f_create_gallery_btn"), style="Accent.TButton", command=self._open_fighter_model_gallery)
         btn_gallery.pack(side="left")
         
         # Row 4: Real In-Game Capacity indicator
@@ -276,11 +275,7 @@ class FightersTabMixin:
             bag = f.get("bag", 20)
 
             self.f_title_lbl.config(text=name)
-            is_en = (i18n.get_language() == "en")
-            if is_en:
-                self.f_sub_lbl.config(text=f"Class: {cls_name} ({cls_code}) | Grade: Tier {grade} ★ | Level: {lvl}")
-            else:
-                self.f_sub_lbl.config(text=f"Clase: {cls_name} ({cls_code}) | Grado: Tier {grade} ★ | Nivel: {lvl}")
+            self.f_sub_lbl.config(text=t("f_class_meta", cls=f"{cls_name} ({cls_code})", grd=grade, lvl=lvl))
             
             cls_icon_filename = FIGHTER_CLASSES.get(cls_code, ("", "all-rounder.png"))[1]
             self.set_widget_image(self.f_class_icon_lbl, cls_icon_filename, (48, 48), fallback="all-rounder")
@@ -307,10 +302,10 @@ class FightersTabMixin:
             vip_bonus = db_st.get("vip_bonus", 10) if vip_active else 0
             base_slots = db_st.get("min_bag", 20)
             total_slots = base_slots + mingo_bag + vip_bonus
-            vip_txt = f" + VIP: +{vip_bonus}" if vip_bonus > 0 else ""
+            vip_txt = t("f_real_bag_vip_bonus", vip=vip_bonus) if vip_bonus > 0 else ""
             if hasattr(self, "f_real_bag_lbl"):
                 self.f_real_bag_lbl.config(
-                    text=f"🎒 Total Real en Juego: {total_slots} slots (Base: {base_slots} + MINGO: +{mingo_bag}{vip_txt})"
+                    text=t("f_real_bag_info", total=total_slots, base=base_slots, mingo=mingo_bag, vip=vip_txt)
                 )
             self._refresh_deathbag_db_status()
             
@@ -331,12 +326,12 @@ class FightersTabMixin:
                 if matching:
                     did = matching[0].get("sklid", "")
                     d_info = self.decals_map.get(did, {})
-                    d_name = d_info.get("name_es") or d_info.get("name_en") or did
+                    d_name = i18n.get_item_name(d_info) or did
                     art_rel = self._find_decal_art(did)
-                    self.f_decal_slots_lbls[s_idx].config(text=f" Espacio {s_idx+1}: {d_name} ({did})", foreground=ACCENT_GOLD)
+                    self.f_decal_slots_lbls[s_idx].config(text=t("f_slot_decal_equipped", slot=s_idx+1, name=d_name, id=did), foreground=ACCENT_GOLD)
                     self.set_widget_image(self.f_decal_slots_lbls[s_idx], art_rel, (28, 28), preserve_aspect=True, fallback="decal_std")
                 else:
-                    self.f_decal_slots_lbls[s_idx].config(text=f" Espacio {s_idx+1}: [Vacío]", image="", foreground=FG_MUTED)
+                    self.f_decal_slots_lbls[s_idx].config(text=t("f_slot_decal_empty", slot=s_idx+1), image="", foreground=FG_MUTED)
 
     def _update_fighter_model_preview(self):
         sel_val = self.f_model_select_var.get() if hasattr(self, "f_model_select_var") else ""
@@ -401,7 +396,7 @@ class FightersTabMixin:
         fighters = self.save_json.get("bodyuser", {}).get(uid, [])
         if len(fighters) >= 10:
             messagebox.showwarning(
-                "Congelador Lleno" if i18n.get_language() == "es" else "Freezer Full",
+                t("fighter_freezer_full"),
                 t("f_freezer_full_msg")
             )
             return
@@ -434,7 +429,7 @@ class FightersTabMixin:
         fighters = self.save_json.get("bodyuser", {}).get(uid, [])
         if len(fighters) >= 10:
             messagebox.showwarning(
-                "Congelador Lleno" if i18n.get_language() == "es" else "Freezer Full",
+                t("fighter_freezer_full"),
                 t("f_freezer_full_msg")
             )
             return
@@ -442,10 +437,9 @@ class FightersTabMixin:
         chr_chrs = self.save_json.get("soul", {}).get("chr", {}).get("chrs", {}).get(uid, [])
         orig_name = chr_chrs[save_idx].get("name", "Luchador") if save_idx < len(chr_chrs) else "Luchador"
         
-        is_en = (i18n.get_language() == "en")
-        title = "Clone Fighter" if is_en else "Clonar Luchador"
+        title = t("f_clone_title")
         prompt = t("f_clone_prompt")
-        default_name = f"{orig_name} (Clone)" if is_en else f"{orig_name} (Copia)"
+        default_name = t("f_clone_default_fmt", name=orig_name)
         new_name = simpledialog.askstring(title, prompt, initialvalue=default_name)
         if not new_name:
             return
