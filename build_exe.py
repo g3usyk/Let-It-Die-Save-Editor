@@ -12,8 +12,11 @@ if not os.path.exists(ICON_ICO):
     ICON_ICO = os.path.join(BASE_DIR, "app_icon.ico")
 
 def build():
+    is_lite = "--lite" in sys.argv
+    app_name = "LetItDieSaveEditor_Lite" if is_lite else "LetItDieSaveEditor"
     print("=" * 60)
-    print("Building LET IT DIE Save Editor - Standalone Executable (.exe)")
+    print(f"Building LET IT DIE Save Editor - Standalone Executable: {app_name}")
+    print(f"Mode: {'LITE (CDN + Cache, ~30 MB)' if is_lite else 'FULL (Complete Offline, ~770 MB)'}")
     print("=" * 60)
 
     data_files = [
@@ -28,15 +31,26 @@ def build():
         ("teamhate_template.json", "."),
         ("tdm_dummy_template.json", "."),
         ("tdm_dummy_defenders_template.json", "."),
-        ("icons", "icons"),
     ]
 
-    is_onefile = "--onefile" in sys.argv
+    if is_lite:
+        # Lite edition: bundle only root essential UI icons (~260 KB)
+        icons_dir = os.path.join(BASE_DIR, "icons")
+        if os.path.isdir(icons_dir):
+            for f in os.listdir(icons_dir):
+                fp = os.path.join(icons_dir, f)
+                if os.path.isfile(fp):
+                    data_files.append((os.path.join("icons", f), "icons"))
+    else:
+        # Full edition: bundle complete 9,228 images library
+        data_files.append(("icons", "icons"))
+
+    is_onefile = "--onefile" in sys.argv or True
     build_mode = "--onefile" if is_onefile else "--onedir"
 
     cmd = [
         sys.executable, "-m", "PyInstaller",
-        "--name=LetItDieSaveEditor",
+        f"--name={app_name}",
         "--noconsole",
         build_mode,
         "--clean",
@@ -121,9 +135,9 @@ def build():
         print("\n" + "=" * 60)
         print("BUILD SUCCESSFUL!")
         if is_onefile:
-            target_out = os.path.join(DIST_DIR, "LetItDieSaveEditor.exe")
+            target_out = os.path.join(DIST_DIR, f"{app_name}.exe")
         else:
-            target_out = os.path.join(DIST_DIR, "LetItDieSaveEditor", "LetItDieSaveEditor.exe")
+            target_out = os.path.join(DIST_DIR, app_name, f"{app_name}.exe")
         print(f"Compiled Target: {target_out}")
         print("=" * 60)
         return True
