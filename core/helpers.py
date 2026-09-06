@@ -98,27 +98,6 @@ def repair_save_list_structures(save, uid=None):
     if isinstance(vip, dict) and vip.get("friendship", 0) > 1:
         vip["friendship"] = 1
 
-    # Auto-repair weapon mastery corruption: ensure expert entries are authentic and ABP is valid
-    try:
-        from core.mastery import repair_and_sanitize_mastery
-        repair_and_sanitize_mastery(save)
-    except Exception:
-        pass
-
-    # Auto-repair fighters corruption: ensure rage/skill/bag are 0 and HP is authentic
-    try:
-        from core.fighters import sanitize_fighters
-        sanitize_fighters(save)
-    except Exception:
-        pass
-
-    # Auto-repair Tokyo Death Metro corruption: season reset loop & invasion matchmaking hang
-    try:
-        from core.tdm import repair_and_sanitize_tdm
-        repair_and_sanitize_tdm(save)
-    except Exception:
-        pass
-
 def get_equipment_meta(ptid):
     global _EQUIPMENT_META_CACHE
     if _EQUIPMENT_META_CACHE is None:

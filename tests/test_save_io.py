@@ -50,9 +50,30 @@ class TestSaveIO(unittest.TestCase):
             test_save = os.path.join(tmp_dir, "test.sav")
             shutil.copyfile(REAL_SAVE_PATH, test_save)
             
-            bak_path = save_io.create_backup(test_save)
+            bak_path = save_io.create_backup(test_save, backup_dir=tmp_dir)
             self.assertTrue(os.path.exists(bak_path))
             self.assertGreater(os.path.getsize(bak_path), 0)
+            orig_bak = os.path.join(tmp_dir, "test.sav.ORIGINAL.bak")
+            self.assertTrue(os.path.exists(orig_bak), "ORIGINAL.bak must be created on first backup")
+
+    def test_save_to_file_preserves_clean_save_without_invasive_mutations(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            test_save = os.path.join(tmp_dir, "test.sav")
+            shutil.copyfile(REAL_SAVE_PATH, test_save)
+
+            data, ver = save_io.decompress_save(test_save)
+            orig_team = data.get("soul", {}).get("team_id")
+            orig_tdm_rank = data.get("soul", {}).get("tdm_rank")
+            
+            # Edit only KC
+            data["soul"]["free_money"] = 777777
+            save_io.save_to_file(data, test_save, version=ver, make_backup=True)
+
+            re_data, re_ver = save_io.decompress_save(test_save)
+            self.assertEqual(re_data["soul"]["free_money"], 777777)
+            # Must NOT alter team_id or tdm_rank if already set
+            self.assertEqual(re_data.get("soul", {}).get("team_id"), orig_team)
+            self.assertEqual(re_data.get("soul", {}).get("tdm_rank"), orig_tdm_rank)
 
 if __name__ == "__main__":
     unittest.main()

@@ -56,7 +56,14 @@ class AdvancedTabMixin:
         ttk.Button(json_f, text=t("bak_export_json"), command=self.export_json).pack(side="left", padx=2, fill="x", expand=True)
         ttk.Button(json_f, text=t("bak_import_json"), command=self.import_json).pack(side="left", padx=2, fill="x", expand=True)
         
-        ttk.Separator(box_tools, orient="horizontal").pack(fill="x", pady=10)
+        ttk.Separator(box_tools, orient="horizontal").pack(fill="x", pady=6)
+        ttk.Label(box_tools, text=t("adv_repairs_title"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
+        rep_f = ttk.Frame(box_tools)
+        rep_f.pack(fill="x", pady=4)
+        ttk.Button(rep_f, text=t("adv_repair_tdm_btn"), command=self._repair_tdm_action).pack(side="left", padx=2, fill="x", expand=True)
+        ttk.Button(rep_f, text=t("adv_repair_fighters_btn"), command=self._repair_fighters_action).pack(side="left", padx=2, fill="x", expand=True)
+
+        ttk.Separator(box_tools, orient="horizontal").pack(fill="x", pady=8)
         ttk.Label(box_tools, text=t("bak_links_lbl"), font=("Segoe UI", 9, "bold"), foreground=ACCENT_GOLD).pack(anchor="w", pady=2)
         ttk.Label(box_tools, text=t("bak_links_txt"), font=("Segoe UI", 8), foreground=FG_MUTED).pack(anchor="w", pady=2)
 
@@ -158,10 +165,17 @@ class AdvancedTabMixin:
                             st = os.stat(fp)
                             found_backups[f] = (fp, st.st_size, st.st_mtime)
                             
-        for f, (fp, sz, mt) in sorted(found_backups.items(), key=lambda x: x[1][2], reverse=True):
+        # Pin .ORIGINAL.bak at the top, then sort others by date descending
+        def _sort_key(item):
+            fn, (_, _, mt) = item
+            is_orig = 0 if "ORIGINAL" in fn else 1
+            return (is_orig, -mt)
+
+        for f, (fp, sz, mt) in sorted(found_backups.items(), key=_sort_key):
             mtime_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(mt))
             thumb = self.get_photo("reversal_metal", (20, 20))
-            node_id = self.backups_tree.insert("", "end", text=f" {f}", image=thumb or "", values=(mtime_str, f"{sz // 1024} KB"))
+            display_text = f"⭐ {f} [ORIGINAL]" if "ORIGINAL" in f else f" {f}"
+            node_id = self.backups_tree.insert("", "end", text=display_text, values=(mtime_str, f"{sz // 1024} KB"))
             self.tree_images[node_id] = thumb
 
     def _restore_selected_backup(self):
@@ -170,7 +184,8 @@ class AdvancedTabMixin:
             messagebox.showwarning(t("notice"), t("mb_select_backup_restore"))
             return
         node = sel[0]
-        bak_name = self.backups_tree.item(node, "text").strip()
+        raw_text = self.backups_tree.item(node, "text").strip()
+        bak_name = raw_text.replace("⭐", "").replace("[ORIGINAL]", "").strip()
         
         # Check both directories
         save_dir = os.path.dirname(self.save_path)
@@ -189,3 +204,23 @@ class AdvancedTabMixin:
                 messagebox.showinfo(t("mb_restore_success_title"), t("mb_restore_success_msg"))
             except Exception as e:
                 messagebox.showerror(t("error"), t("mb_restore_error", err=e))
+
+    def _repair_tdm_action(self):
+        if not self.save_json:
+            return
+        if messagebox.askyesno(t("notice"), t("adv_confirm_tdm_repair")):
+            import modifiers
+            modifiers.repair_and_sanitize_tdm(self.save_json)
+            self._auto_save()
+            self.refresh_all_views()
+            messagebox.showinfo(t("notice"), t("adv_tdm_repaired"))
+
+    def _repair_fighters_action(self):
+        if not self.save_json:
+            return
+        if messagebox.askyesno(t("notice"), t("adv_confirm_fighter_repair")):
+            import modifiers
+            modifiers.sanitize_fighters(self.save_json)
+            self._auto_save()
+            self.refresh_all_views()
+            messagebox.showinfo(t("notice"), t("adv_fighters_repaired"))

@@ -1,15 +1,12 @@
 {
-  "version": "4.1.0",
+  "version": "4.1.1",
   "name": "Let It Die - Complete Save Editor & Encyclopedia",
-  "release_date": "2026-09-05",
+  "release_date": "2026-09-06",
   "repository": "https://github.com/g3usyk/Let-It-Die-Save-Editor",
   "changelog": [
-    "Hybrid CDN asset management (jsDelivr + local cache), reducing compiled executable size from ~800MB to ~20MB.",
-    "Asynchronous background image downloading and atomic caching with 0ms local access.",
-    "Full offline batch image downloader and cache manager in Advanced tab.",
-    "Full hierarchy branch unlocking in Armor Sets Viewer (unlocking Tier 4 automatically unlocks Tiers 1, 2, and 3).",
-    "Fixed equipment storage assignment when part.pts contains empty dicts serialized by the engine.",
-    "Integrated complete catalog of all 63 mushrooms and 24 beasts with authentic descriptions, icons, and dedicated filters in Materials tab.",
-    "Expanded test suite to 66 automated unit tests passing at 100%."
+    "Hotfix for startup crash after GungHo logo: save operations now strictly preserve untouched structures, preventing unwanted TDM and fighter EXP mutations.",
+    "Automatic permanent pristine backup: creates a protected <save>.ORIGINAL.bak on first backup that is never rotated out or overwritten.",
+    "Added dedicated manual repair tools in Advanced tab for TDM dummy defenders and fighter EXP synchronization.",
+    "All 74 automated unit tests passing at 100%."
   ]
 }

@@ -536,7 +536,16 @@ TRANSLATIONS = {
         "asset_downloading": "Descargando recursos... ({current}/{total})",
         "asset_download_done": "¡Descarga completa! Se descargaron {downloaded} imágenes nuevas.",
         "asset_cache_cleared": "Caché de imágenes eliminado con éxito.",
-        "asset_confirm_clear": "¿Estás seguro de que deseas vaciar el caché local de imágenes?"
+        "asset_confirm_clear": "¿Estás seguro de que deseas vaciar el caché local de imágenes?",
+
+        # Reparaciones Avanzadas Opcionales
+        "adv_repairs_title": "🛠️ Reparaciones Avanzadas (Opcional)",
+        "adv_repair_tdm_btn": "Reparar TDM & Dummies",
+        "adv_repair_fighters_btn": "Sincronizar EXP Luchadores",
+        "adv_confirm_tdm_repair": "¿Deseas ejecutar la reparación de TDM e inyectar defensores bot para metro offline?",
+        "adv_confirm_fighter_repair": "¿Deseas sincronizar niveles y EXP de luchadores?",
+        "adv_tdm_repaired": "TDM y defensores reparados con éxito.",
+        "adv_fighters_repaired": "Luchadores sincronizados con éxito."
     },
 
     "en": {
@@ -1009,7 +1018,16 @@ TRANSLATIONS = {
         "asset_downloading": "Downloading assets... ({current}/{total})",
         "asset_download_done": "Download complete! Downloaded {downloaded} new images.",
         "asset_cache_cleared": "Image cache cleared successfully.",
-        "asset_confirm_clear": "Are you sure you want to clear the local image cache?"
+        "asset_confirm_clear": "Are you sure you want to clear the local image cache?",
+
+        # Optional Advanced Repairs
+        "adv_repairs_title": "🛠️ Optional Advanced Repairs",
+        "adv_repair_tdm_btn": "Repair TDM & Dummies",
+        "adv_repair_fighters_btn": "Sync Fighter EXP",
+        "adv_confirm_tdm_repair": "Do you want to run TDM repair and inject bot defenders for offline metro?",
+        "adv_confirm_fighter_repair": "Do you want to synchronize fighter levels and EXP?",
+        "adv_tdm_repaired": "TDM and defenders repaired successfully.",
+        "adv_fighters_repaired": "Fighters synchronized successfully."
     }
 }
 

@@ -79,14 +79,25 @@ def create_backup(save_path, backup_dir=None, max_backups=10):
     now = datetime.datetime.now()
     timestamp = now.strftime("%Y%m%d_%H%M%S")
     base_name = os.path.basename(save_path)
+
+    # 1. First-time pristine original backup (NEVER rotated out or overwritten)
+    original_pristine = os.path.join(backup_dir, f"{base_name}.ORIGINAL.bak")
+    if not os.path.exists(original_pristine):
+        try:
+            shutil.copy2(save_path, original_pristine)
+        except Exception:
+            pass
+
+    # 2. Rolling timestamped backup
     backup_path = os.path.join(backup_dir, f"{base_name}.{timestamp}.bak")
     if os.path.exists(backup_path):
         backup_path = os.path.join(backup_dir, f"{base_name}.{now.strftime('%Y%m%d_%H%M%S_%f')}.bak")
     shutil.copy2(save_path, backup_path)
     
-    # Rolling retention: keep only the latest max_backups
+    # Rolling retention: keep only the latest max_backups (excluding ORIGINAL.bak)
     try:
-        backups = [os.path.join(backup_dir, f) for f in os.listdir(backup_dir) if f.startswith(base_name) and f.endswith(".bak")]
+        backups = [os.path.join(backup_dir, f) for f in os.listdir(backup_dir) 
+                   if f.startswith(base_name) and f.endswith(".bak") and not f.endswith(".ORIGINAL.bak")]
         backups.sort(key=os.path.getmtime)
         while len(backups) > max_backups:
             oldest = backups.pop(0)
@@ -195,18 +206,6 @@ def save_to_file(arg1, arg2, version=2, make_backup=True):
     try:
         from core.helpers import repair_save_list_structures
         repair_save_list_structures(save_json)
-    except Exception:
-        pass
-
-    try:
-        from core.fighters import sanitize_fighters
-        sanitize_fighters(save_json)
-    except Exception:
-        pass
-
-    try:
-        from core.tdm import repair_and_sanitize_tdm
-        repair_and_sanitize_tdm(save_json)
     except Exception:
         pass
 
